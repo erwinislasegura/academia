@@ -87,3 +87,38 @@ INSERT INTO role_permissions (role_id, permission_id) VALUES
 
 INSERT INTO users (name, email, password, role_id, status) VALUES
 ('Super Admin', 'admin@academiaiquique.cl', '$2y$12$IO/xY85Xh.1WbqmN2ZER6.gUpp40KJtrrm/Fo7kNKuPRNisizKPZa', 1, 'active');
+
+CREATE TABLE application_settings (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  `key` VARCHAR(120) NOT NULL UNIQUE,
+  value MEDIUMTEXT NOT NULL,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE admission_applications (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  guardian_first_names VARCHAR(150) NOT NULL,
+  guardian_last_names VARCHAR(150) NOT NULL,
+  guardian_email VARCHAR(180) NOT NULL,
+  guardian_phone VARCHAR(60) NOT NULL,
+  student_name VARCHAR(180) NOT NULL,
+  course VARCHAR(80) NOT NULL,
+  message TEXT NULL,
+  ip_address VARCHAR(45) NULL,
+  user_agent VARCHAR(255) NULL,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_admission_applications_email (guardian_email),
+  INDEX idx_admission_applications_created_at (created_at)
+) ENGINE=InnoDB;
+
+INSERT INTO permissions (id, name, slug, module, description) VALUES
+(9, 'Configurar postulaciones', 'configurar_postulaciones', 'Admisión', 'Configurar correo receptor y mensaje HTML para postulantes.');
+
+INSERT INTO role_permissions (role_id, permission_id) VALUES
+(1,9),(2,9);
+
+INSERT INTO application_settings (`key`, value) VALUES
+('admission_notification_email', 'contacto@academiaiquique.cl'),
+('admission_applicant_success_subject', 'Postulación recibida · Academia Iquique'),
+('admission_applicant_success_html', '<p>Hola {{nombres_apoderado}},</p><p>Tu postulación para {{estudiante}} al curso {{curso}} fue recibida exitosamente.</p><p>Nuestro equipo de admisión revisará los antecedentes y se contactará contigo para orientar los próximos pasos.</p><p><strong>Academia Iquique</strong></p>');
