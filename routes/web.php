@@ -1,6 +1,9 @@
 <?php
 
-$router->get('/', fn() => header('Location: /dashboard'));
+$router->get('/', function () {
+    header('Location: ' . (Auth::check() ? '/dashboard' : '/login'));
+    exit;
+});
 $router->get('/login', [AuthController::class, 'login']);
 $router->post('/login', [AuthController::class, 'authenticate']);
 $router->get('/logout', [AuthController::class, 'logout']);
