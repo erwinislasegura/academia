@@ -89,6 +89,23 @@ routes/web.php    Definición de rutas
 storage/logs      Carpeta preparada para logs futuros
 ```
 
+
+## 7. Postulación pública
+
+La página pública de admisión queda disponible sin iniciar sesión en:
+
+```txt
+http://localhost:8000/postula
+```
+
+El formulario registra la postulación, envía el detalle al correo configurado en el panel y envía un correo HTML de confirmación al postulante. La configuración se administra desde el panel en **Postulaciones**, donde puedes definir el correo receptor y editar el mensaje HTML usando variables como `{{nombres_apoderado}}`, `{{estudiante}}` y `{{curso}}`.
+
+Para desarrollo con el servidor embebido de PHP y rutas limpias, puedes usar:
+
+```bash
+php -S localhost:8000 public/index.php
+```
+
 ## Nota sobre el logo
 
 Para evitar errores de binarios en el repositorio, el identificador incluido está versionado como `public/assets/img/logo.svg`. Si necesitas usar el archivo PNG oficial adjunto por diseño/marketing, puedes colocarlo localmente en `public/assets/img/logo.png` y cambiar las referencias de las vistas a ese archivo.

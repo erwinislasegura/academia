@@ -1239,6 +1239,44 @@
         bottom: 14px;
       }
     }
+
+    .public-alert {
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+      border: 1px solid transparent;
+      font-size: 14px;
+    }
+
+    .public-alert strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .public-alert ul {
+      margin: 8px 0 0 18px;
+    }
+
+    .public-alert--success {
+      background: #EAFBF1;
+      border-color: #BDECCD;
+      color: #166534;
+    }
+
+    .public-alert--error {
+      background: #FFF1F3;
+      border-color: #FFD0D6;
+      color: #9F1239;
+    }
+
+    .hp-field {
+      position: absolute;
+      left: -10000px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
   </style>
 </head>
 
@@ -1262,7 +1300,7 @@
   <header class="site-header">
     <nav class="nav" aria-label="Navegación principal">
       <a href="#inicio" class="logo" aria-label="Academia Iquique">
-        <img src="logo-academia-iquique.png" alt="Academia Iquique">
+        <img src="<?= App::asset('/assets/img/logo.svg') ?>" alt="Academia Iquique">
       </a>
 
       <ul class="menu" id="mainMenu">
@@ -1520,62 +1558,80 @@
               <span class="form-badge">Año escolar 2026</span>
             </div>
 
-            <form class="form" action="#" method="POST">
+            <?php if (!function_exists('h')) { function h(mixed $v): string { return htmlspecialchars((string) $v, ENT_QUOTES, 'UTF-8'); } } ?>
+            <?php if (!empty($success)): ?>
+              <div class="public-alert public-alert--success">
+                <strong>Postulación enviada correctamente.</strong>
+                <div><?= $successMessageHtml ?></div>
+              </div>
+            <?php endif; ?>
+            <?php if (!empty($errors)): ?>
+              <div class="public-alert public-alert--error">
+                <strong>Revisa la información ingresada:</strong>
+                <ul>
+                  <?php foreach ($errors as $error): ?>
+                    <li><?= h($error) ?></li>
+                  <?php endforeach; ?>
+                </ul>
+              </div>
+            <?php endif; ?>
+            <form class="form" action="<?= App::url('/postula') ?>" method="POST" novalidate>
+              <input type="text" name="website" value="" autocomplete="off" tabindex="-1" aria-hidden="true" class="hp-field">
               <div class="form-row">
                 <div class="field">
                   <label for="nombres_apoderado">Nombres del apoderado <span class="required">*</span></label>
-                  <input type="text" id="nombres_apoderado" name="nombres_apoderado" placeholder="Ej: María José" required>
+                  <input type="text" id="nombres_apoderado" name="nombres_apoderado" value="<?= h($old['nombres_apoderado'] ?? '') ?>" placeholder="Ej: María José" required>
                 </div>
 
                 <div class="field">
                   <label for="apellidos_apoderado">Apellidos del apoderado <span class="required">*</span></label>
-                  <input type="text" id="apellidos_apoderado" name="apellidos_apoderado" placeholder="Ej: González Pérez" required>
+                  <input type="text" id="apellidos_apoderado" name="apellidos_apoderado" value="<?= h($old['apellidos_apoderado'] ?? '') ?>" placeholder="Ej: González Pérez" required>
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="field">
                   <label for="email">Correo electrónico <span class="required">*</span></label>
-                  <input type="email" id="email" name="email" placeholder="correo@ejemplo.cl" required>
+                  <input type="email" id="email" name="email" value="<?= h($old['email'] ?? '') ?>" placeholder="correo@ejemplo.cl" required>
                   <span class="field-help">Usaremos este correo para contactarte durante el proceso.</span>
                 </div>
 
                 <div class="field">
                   <label for="telefono">Teléfono de contacto <span class="required">*</span></label>
-                  <input type="tel" id="telefono" name="telefono" placeholder="+56 9 1234 5678" required>
+                  <input type="tel" id="telefono" name="telefono" value="<?= h($old['telefono'] ?? '') ?>" placeholder="+56 9 1234 5678" required>
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="field">
                   <label for="estudiante">Nombre del estudiante <span class="required">*</span></label>
-                  <input type="text" id="estudiante" name="estudiante" placeholder="Nombre completo del estudiante" required>
+                  <input type="text" id="estudiante" name="estudiante" value="<?= h($old['estudiante'] ?? '') ?>" placeholder="Nombre completo del estudiante" required>
                 </div>
 
                 <div class="field">
                   <label for="curso">Curso al que postula <span class="required">*</span></label>
                   <select id="curso" name="curso" required>
                     <option value="">Selecciona un curso</option>
-                    <option value="kinder">Kínder</option>
-                    <option value="1-basico">1º Básico</option>
-                    <option value="2-basico">2º Básico</option>
-                    <option value="3-basico">3º Básico</option>
-                    <option value="4-basico">4º Básico</option>
-                    <option value="5-basico">5º Básico</option>
-                    <option value="6-basico">6º Básico</option>
-                    <option value="7-basico">7º Básico</option>
-                    <option value="8-basico">8º Básico</option>
+                    <option value="kinder" <?= ($old['curso'] ?? '') === 'kinder' ? 'selected' : '' ?>>Kínder</option>
+                    <option value="1-basico" <?= ($old['curso'] ?? '') === '1-basico' ? 'selected' : '' ?>>1º Básico</option>
+                    <option value="2-basico" <?= ($old['curso'] ?? '') === '2-basico' ? 'selected' : '' ?>>2º Básico</option>
+                    <option value="3-basico" <?= ($old['curso'] ?? '') === '3-basico' ? 'selected' : '' ?>>3º Básico</option>
+                    <option value="4-basico" <?= ($old['curso'] ?? '') === '4-basico' ? 'selected' : '' ?>>4º Básico</option>
+                    <option value="5-basico" <?= ($old['curso'] ?? '') === '5-basico' ? 'selected' : '' ?>>5º Básico</option>
+                    <option value="6-basico" <?= ($old['curso'] ?? '') === '6-basico' ? 'selected' : '' ?>>6º Básico</option>
+                    <option value="7-basico" <?= ($old['curso'] ?? '') === '7-basico' ? 'selected' : '' ?>>7º Básico</option>
+                    <option value="8-basico" <?= ($old['curso'] ?? '') === '8-basico' ? 'selected' : '' ?>>8º Básico</option>
                   </select>
                 </div>
               </div>
 
               <div class="field">
                 <label for="mensaje">Mensaje adicional</label>
-                <textarea id="mensaje" name="mensaje" placeholder="Puedes agregar información adicional sobre tu postulación o consulta."></textarea>
+                <textarea id="mensaje" name="mensaje" placeholder="Puedes agregar información adicional sobre tu postulación o consulta."><?= h($old['mensaje'] ?? '') ?></textarea>
               </div>
 
               <label class="consent" for="autorizacion">
-                <input type="checkbox" id="autorizacion" name="autorizacion" required>
+                <input type="checkbox" id="autorizacion" name="autorizacion" value="1" <?= !empty($old['autorizacion']) ? 'checked' : '' ?> required>
                 <span>
                   Autorizo a Academia Iquique a contactarme por teléfono, WhatsApp o correo electrónico
                   para entregar información relacionada con el proceso de admisión 2026.
@@ -1619,7 +1675,7 @@
       <div class="footer__grid">
 
         <div class="footer__about">
-          <img src="logo-academia-iquique.png" alt="Academia Iquique" class="footer__logo">
+          <img src="<?= App::asset('/assets/img/logo.svg') ?>" alt="Academia Iquique" class="footer__logo">
           <p>
             Academia Iquique es una comunidad educativa comprometida con la formación integral,
             el acompañamiento de sus estudiantes y la participación activa de las familias.

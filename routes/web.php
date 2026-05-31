@@ -4,6 +4,9 @@ $router->get('/', function () {
     header('Location: ' . App::url(Auth::check() ? '/dashboard' : '/login'));
     exit;
 });
+$router->get('/postula', [AdmissionController::class, 'show']);
+$router->get('/postula.php', [AdmissionController::class, 'show']);
+$router->post('/postula', [AdmissionController::class, 'submit']);
 $router->get('/login', [AuthController::class, 'login']);
 $router->post('/login', [AuthController::class, 'authenticate']);
 $router->get('/logout', [AuthController::class, 'logout']);
@@ -22,3 +25,5 @@ $router->post('/roles/store', [RoleController::class, 'store']);
 $router->get('/roles/edit/{id}', [RoleController::class, 'edit']);
 $router->post('/roles/update/{id}', [RoleController::class, 'update']);
 $router->post('/roles/delete/{id}', [RoleController::class, 'delete']);
+$router->get('/admission-settings', [AdmissionController::class, 'settings']);
+$router->post('/admission-settings', [AdmissionController::class, 'updateSettings']);
