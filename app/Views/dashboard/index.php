@@ -16,6 +16,7 @@
             <?php if (Auth::can('gestionar_roles')): ?><a href="<?= App::url('/roles') ?>">Roles y permisos <span>→</span></a><?php endif; ?>
             <?php if (Auth::can('gestionar_usuarios')): ?><a href="<?= App::url('/users') ?>">Directorio interno <span>→</span></a><?php endif; ?>
             <?php if (Auth::can('configurar_postulaciones')): ?><a href="<?= App::url('/admission-settings') ?>">Configurar postulaciones <span>→</span></a><?php endif; ?>
+            <a href="<?= App::url('/postula.php') ?>" target="_blank" rel="noopener">Ver postula.php <span>↗</span></a>
         </div>
     </section>
     <section class="panel-card" id="actividad">

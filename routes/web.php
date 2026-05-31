@@ -5,6 +5,7 @@ $router->get('/', function () {
     exit;
 });
 $router->get('/postula', [AdmissionController::class, 'show']);
+$router->get('/postula.php', [AdmissionController::class, 'show']);
 $router->post('/postula', [AdmissionController::class, 'submit']);
 $router->get('/login', [AuthController::class, 'login']);
 $router->post('/login', [AuthController::class, 'authenticate']);
