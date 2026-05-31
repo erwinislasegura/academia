@@ -26,6 +26,10 @@ final class ApplicationSetting extends Model
             'notification_email' => $this->get('admission_notification_email', 'contacto@academiaiquique.cl'),
             'applicant_subject' => $this->get('admission_applicant_success_subject', 'Postulación recibida · Academia Iquique'),
             'applicant_html' => $this->get('admission_applicant_success_html', self::defaultApplicantHtml()),
+            'whatsapp_enabled' => $this->get('admission_whatsapp_enabled', '0') === '1',
+            'whatsapp_phone_number_id' => $this->get('admission_whatsapp_phone_number_id', ''),
+            'whatsapp_access_token' => $this->get('admission_whatsapp_access_token', ''),
+            'whatsapp_message_template' => $this->get('admission_whatsapp_message_template', WhatsAppNotifier::defaultAdmissionMessage()),
         ];
     }
 

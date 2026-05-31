@@ -121,4 +121,8 @@ INSERT INTO role_permissions (role_id, permission_id) VALUES
 INSERT INTO application_settings (`key`, value) VALUES
 ('admission_notification_email', 'contacto@academiaiquique.cl'),
 ('admission_applicant_success_subject', 'Postulación recibida · Academia Iquique'),
-('admission_applicant_success_html', '<p>Hola {{nombres_apoderado}},</p><p>Tu postulación para {{estudiante}} al curso {{curso}} fue recibida exitosamente.</p><p>Nuestro equipo de admisión revisará los antecedentes y se contactará contigo para orientar los próximos pasos.</p><p><strong>Academia Iquique</strong></p>');
+('admission_applicant_success_html', '<p>Hola {{nombres_apoderado}},</p><p>Tu postulación para {{estudiante}} al curso {{curso}} fue recibida exitosamente.</p><p>Nuestro equipo de admisión revisará los antecedentes y se contactará contigo para orientar los próximos pasos.</p><p><strong>Academia Iquique</strong></p>'),
+('admission_whatsapp_enabled', '0'),
+('admission_whatsapp_phone_number_id', ''),
+('admission_whatsapp_access_token', ''),
+('admission_whatsapp_message_template', 'Hola {{nombres_apoderado}}, recibimos correctamente la postulación de {{estudiante}} para {{curso}}. Nuestro equipo de admisión revisará los antecedentes y se contactará contigo. Academia Iquique');
