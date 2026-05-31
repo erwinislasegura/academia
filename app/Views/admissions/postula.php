@@ -197,13 +197,13 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      min-height: 42px;
+      min-height: 44px;
       padding: 0 18px;
-      border-radius: 999px;
+      border-radius: 6px;
       border: 1px solid transparent;
       cursor: pointer;
       font-size: 14px;
-      font-weight: 700;
+      font-weight: 600;
       line-height: 1;
       transition: .22s ease;
       white-space: nowrap;
@@ -315,12 +315,12 @@
       z-index: 1;
       width: min(var(--contenedor), calc(100% - 40px));
       margin-inline: auto;
-      min-height: 620px;
+      min-height: 560px;
       display: grid;
       grid-template-columns: 1.02fr .98fr;
-      gap: 56px;
+      gap: 50px;
       align-items: center;
-      padding: 74px 0 84px;
+      padding: 58px 0 66px;
     }
 
     .label {
@@ -349,11 +349,11 @@
     .hero h1 {
       max-width: 650px;
       color: var(--azul-profundo);
-      font-size: clamp(38px, 5vw, 58px);
-      line-height: 1.05;
-      letter-spacing: -0.045em;
-      font-weight: 700;
-      margin-bottom: 20px;
+      font-size: clamp(34px, 4.4vw, 48px);
+      line-height: 1.12;
+      letter-spacing: -0.035em;
+      font-weight: 600;
+      margin-bottom: 18px;
     }
 
     .hero h1 span {
@@ -488,7 +488,7 @@
     }
 
     .section {
-      padding: 86px 0;
+      padding: 72px 0;
     }
 
     .section--white {
@@ -497,6 +497,11 @@
 
     .section--soft {
       background: var(--fondo);
+    }
+
+    .section--form {
+      background: #fff;
+      padding-top: 64px;
     }
 
     .section-head {
@@ -515,10 +520,10 @@
 
     .section-head h2 {
       color: var(--azul-profundo);
-      font-size: clamp(28px, 3.5vw, 40px);
-      line-height: 1.15;
-      letter-spacing: -0.035em;
-      font-weight: 650;
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.22;
+      letter-spacing: -0.025em;
+      font-weight: 500;
       margin-bottom: 14px;
     }
 
@@ -532,7 +537,7 @@
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 14px;
-      margin-top: -36px;
+      margin-top: -28px;
       position: relative;
       z-index: 5;
     }
@@ -548,8 +553,8 @@
     .trust-item strong {
       display: block;
       color: var(--azul);
-      font-size: 21px;
-      font-weight: 700;
+      font-size: 18px;
+      font-weight: 600;
       line-height: 1.1;
       margin-bottom: 6px;
     }
@@ -629,8 +634,8 @@
 
     .feature h3 {
       color: var(--azul-profundo);
-      font-size: 18px;
-      font-weight: 650;
+      font-size: 17px;
+      font-weight: 600;
       letter-spacing: -0.015em;
       margin-bottom: 5px;
     }
@@ -716,8 +721,8 @@
 
     .step-card h3 {
       color: var(--azul-profundo);
-      font-size: 18px;
-      font-weight: 650;
+      font-size: 17px;
+      font-weight: 600;
       letter-spacing: -.015em;
       margin-bottom: 8px;
     }
@@ -766,10 +771,10 @@
     }
 
     .admission-aside h2 {
-      font-size: 28px;
-      line-height: 1.18;
-      letter-spacing: -.03em;
-      font-weight: 650;
+      font-size: 24px;
+      line-height: 1.24;
+      letter-spacing: -.02em;
+      font-weight: 500;
       margin-bottom: 14px;
     }
 
@@ -843,10 +848,10 @@
 
     .form-card__head h2 {
       color: var(--azul-profundo);
-      font-size: 27px;
-      line-height: 1.2;
-      letter-spacing: -.025em;
-      font-weight: 650;
+      font-size: 24px;
+      line-height: 1.24;
+      letter-spacing: -.02em;
+      font-weight: 500;
       margin-bottom: 6px;
     }
 
@@ -860,11 +865,11 @@
       display: inline-flex;
       align-items: center;
       padding: 8px 11px;
-      border-radius: 999px;
+      border-radius: 6px;
       background: var(--rojo-suave);
       color: var(--rojo);
       font-size: 12px;
-      font-weight: 800;
+      font-weight: 700;
     }
 
     .form {
@@ -886,7 +891,7 @@
     label {
       color: #334155;
       font-size: 13.5px;
-      font-weight: 650;
+      font-weight: 600;
     }
 
     .required {
@@ -998,10 +1003,10 @@
     }
 
     .cta h2 {
-      font-size: clamp(28px, 3.4vw, 40px);
-      line-height: 1.15;
-      letter-spacing: -.035em;
-      font-weight: 650;
+      font-size: clamp(24px, 3vw, 34px);
+      line-height: 1.22;
+      letter-spacing: -.025em;
+      font-weight: 500;
       margin-bottom: 10px;
     }
 
@@ -1193,13 +1198,13 @@
       }
 
       .hero__inner {
-        padding: 48px 0 62px;
+        padding: 42px 0 52px;
         gap: 34px;
       }
 
       .hero h1 {
-        font-size: 39px;
-        letter-spacing: -.04em;
+        font-size: 34px;
+        letter-spacing: -.03em;
       }
 
       .hero__text {
@@ -1233,7 +1238,7 @@
       }
 
       .section {
-        padding: 64px 0;
+        padding: 54px 0;
       }
 
       .section-head {
@@ -1241,7 +1246,7 @@
       }
 
       .section-head h2 {
-        font-size: 30px;
+        font-size: 26px;
       }
 
       .feature {
@@ -1341,9 +1346,9 @@
 
       <ul class="menu" id="mainMenu">
         <li><a href="#inicio">Inicio</a></li>
-        <li><a href="#proyecto">Proyecto educativo</a></li>
-        <li><a href="#proceso">Proceso</a></li>
         <li><a href="#formulario" class="is-active">Admisión 2026</a></li>
+        <li><a href="#proceso">Proceso</a></li>
+        <li><a href="#proyecto">Proyecto educativo</a></li>
         <li><a href="#contacto">Contacto</a></li>
       </ul>
 
@@ -1375,7 +1380,7 @@
 
           <div class="hero__actions">
             <a href="#formulario" class="btn btn--red">Completar postulación</a>
-            <a href="#proyecto" class="btn btn--ghost">Conocer el proyecto</a>
+            <a href="#proceso" class="btn btn--ghost">Ver el proceso</a>
           </div>
 
           <div class="hero__note">
@@ -1441,106 +1446,7 @@
       </div>
     </div>
 
-    <section class="section section--white" id="proyecto">
-      <div class="container">
-        <div class="project-layout">
-          <div class="project-copy">
-            <div class="eyebrow">Nuestro proyecto educativo</div>
-
-            <div class="section-head">
-              <h2>Un espacio educativo pensado para acompañar cada etapa del aprendizaje</h2>
-            </div>
-
-            <p>
-              Academia Iquique promueve una experiencia educativa cercana, ordenada y formativa,
-              donde cada estudiante puede desarrollar sus capacidades académicas, sociales y personales
-              en un ambiente de respeto y comunidad.
-            </p>
-
-            <p>
-              Nuestro proceso de admisión busca entregar información clara a las familias,
-              facilitando una postulación responsable y acompañada por el equipo institucional.
-            </p>
-          </div>
-
-          <div class="features">
-            <article class="feature">
-              <div class="feature__image"><img src="<?= App::asset('/images/proyecto.png') ?>" alt="Proyecto educativo"></div>
-              <div>
-                <h3>Formación académica</h3>
-                <p>
-                  Una propuesta educativa orientada al aprendizaje, la responsabilidad y el desarrollo progresivo de habilidades.
-                </p>
-              </div>
-            </article>
-
-            <article class="feature">
-              <div class="feature__image"><img src="<?= App::asset('/images/programa.png') ?>" alt="Acompañamiento educativo"></div>
-              <div>
-                <h3>Acompañamiento cercano</h3>
-                <p>
-                  Un equipo atento a las necesidades de los estudiantes y sus familias durante las distintas etapas escolares.
-                </p>
-              </div>
-            </article>
-
-            <article class="feature">
-              <div class="feature__image"><img src="<?= App::asset('/images/documentos.png') ?>" alt="Comunidad y valores"></div>
-              <div>
-                <h3>Comunidad y valores</h3>
-                <p>
-                  Un entorno que promueve el respeto, la participación y el sentido de pertenencia institucional.
-                </p>
-              </div>
-            </article>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section--soft" id="proceso">
-      <div class="container">
-        <div class="section-head">
-          <div class="eyebrow">Proceso de admisión</div>
-          <h2>Postular es simple y ordenado</h2>
-          <p>
-            Hemos estructurado el proceso para que cada familia pueda entregar sus datos,
-            recibir orientación y avanzar con claridad en su postulación.
-          </p>
-        </div>
-
-        <div class="process">
-          <article class="step-card">
-            <div class="step-number">1</div>
-            <div class="step-illustration"><img src="<?= App::asset('/images/documentos.png') ?>" alt="Formulario de postulación"></div>
-            <h3>Completa el formulario</h3>
-            <p>
-              Ingresa los datos del apoderado, estudiante, curso al que postula y la información de contacto.
-            </p>
-          </article>
-
-          <article class="step-card">
-            <div class="step-number">2</div>
-            <div class="step-illustration"><img src="<?= App::asset('/images/proceso.png') ?>" alt="Revisión de solicitud"></div>
-            <h3>Revisión de solicitud</h3>
-            <p>
-              Nuestro equipo revisará la información enviada para continuar con las etapas correspondientes.
-            </p>
-          </article>
-
-          <article class="step-card">
-            <div class="step-number">3</div>
-            <div class="step-illustration"><img src="<?= App::asset('/images/programa.png') ?>" alt="Contacto institucional"></div>
-            <h3>Contacto institucional</h3>
-            <p>
-              Te contactaremos para entregar orientación, disponibilidad y los siguientes pasos del proceso.
-            </p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section--white" id="formulario">
+    <section class="section section--form" id="formulario">
       <div class="container">
         <div class="admission-wrap">
 
@@ -1692,6 +1598,105 @@
       </div>
     </section>
 
+    <section class="section section--soft" id="proceso">
+      <div class="container">
+        <div class="section-head">
+          <div class="eyebrow">Proceso de admisión</div>
+          <h2>Postular es simple y ordenado</h2>
+          <p>
+            Hemos estructurado el proceso para que cada familia pueda entregar sus datos,
+            recibir orientación y avanzar con claridad en su postulación.
+          </p>
+        </div>
+
+        <div class="process">
+          <article class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-illustration"><img src="<?= App::asset('/images/documentos.png') ?>" alt="Formulario de postulación"></div>
+            <h3>Completa el formulario</h3>
+            <p>
+              Ingresa los datos del apoderado, estudiante, curso al que postula y la información de contacto.
+            </p>
+          </article>
+
+          <article class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-illustration"><img src="<?= App::asset('/images/proceso.png') ?>" alt="Revisión de solicitud"></div>
+            <h3>Revisión de solicitud</h3>
+            <p>
+              Nuestro equipo revisará la información enviada para continuar con las etapas correspondientes.
+            </p>
+          </article>
+
+          <article class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-illustration"><img src="<?= App::asset('/images/programa.png') ?>" alt="Contacto institucional"></div>
+            <h3>Contacto institucional</h3>
+            <p>
+              Te contactaremos para entregar orientación, disponibilidad y los siguientes pasos del proceso.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--white" id="proyecto">
+      <div class="container">
+        <div class="project-layout">
+          <div class="project-copy">
+            <div class="eyebrow">Nuestro proyecto educativo</div>
+
+            <div class="section-head">
+              <h2>Un espacio educativo pensado para acompañar cada etapa del aprendizaje</h2>
+            </div>
+
+            <p>
+              Academia Iquique promueve una experiencia educativa cercana, ordenada y formativa,
+              donde cada estudiante puede desarrollar sus capacidades académicas, sociales y personales
+              en un ambiente de respeto y comunidad.
+            </p>
+
+            <p>
+              Nuestro proceso de admisión busca entregar información clara a las familias,
+              facilitando una postulación responsable y acompañada por el equipo institucional.
+            </p>
+          </div>
+
+          <div class="features">
+            <article class="feature">
+              <div class="feature__image"><img src="<?= App::asset('/images/proyecto.png') ?>" alt="Proyecto educativo"></div>
+              <div>
+                <h3>Formación académica</h3>
+                <p>
+                  Una propuesta educativa orientada al aprendizaje, la responsabilidad y el desarrollo progresivo de habilidades.
+                </p>
+              </div>
+            </article>
+
+            <article class="feature">
+              <div class="feature__image"><img src="<?= App::asset('/images/programa.png') ?>" alt="Acompañamiento educativo"></div>
+              <div>
+                <h3>Acompañamiento cercano</h3>
+                <p>
+                  Un equipo atento a las necesidades de los estudiantes y sus familias durante las distintas etapas escolares.
+                </p>
+              </div>
+            </article>
+
+            <article class="feature">
+              <div class="feature__image"><img src="<?= App::asset('/images/documentos.png') ?>" alt="Comunidad y valores"></div>
+              <div>
+                <h3>Comunidad y valores</h3>
+                <p>
+                  Un entorno que promueve el respeto, la participación y el sentido de pertenencia institucional.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="section cta">
       <div class="container">
         <div class="cta__inner">
@@ -1725,9 +1730,9 @@
           <h3>Menú</h3>
           <ul>
             <li><a href="#inicio">Inicio</a></li>
-            <li><a href="#proyecto">Proyecto educativo</a></li>
-            <li><a href="#proceso">Proceso</a></li>
             <li><a href="#formulario">Admisión 2026</a></li>
+            <li><a href="#proceso">Proceso</a></li>
+            <li><a href="#proyecto">Proyecto educativo</a></li>
           </ul>
         </div>
 
@@ -1735,9 +1740,9 @@
           <h3>Accesos</h3>
           <ul>
             <li><a href="#formulario">Postular ahora</a></li>
-            <li><a href="#contacto">Datos de contacto</a></li>
             <li><a href="#proceso">Etapas del proceso</a></li>
             <li><a href="#proyecto">Conocer el proyecto</a></li>
+            <li><a href="#contacto">Datos de contacto</a></li>
           </ul>
         </div>
 
