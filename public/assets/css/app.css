@@ -704,6 +704,23 @@ button, input, select, textarea { font: inherit; }
   cursor: pointer;
 }
 
+
+.btn {
+  border: 0;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.btn.primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(7, 29, 122, .18);
+}
+
+.btn.primary:hover { background: var(--primary-dark); }
+
 .actions .danger,
 .danger {
   background: #fff1f2 !important;
@@ -716,7 +733,48 @@ button, input, select, textarea { font: inherit; }
   padding: 34px !important;
 }
 
-.form-grid { grid-template-columns: 1fr 1fr; }
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.form-grid label {
+  display: grid;
+  gap: 8px;
+  color: #334155;
+  font-weight: 800;
+}
+
+.form-grid label small {
+  color: var(--muted);
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 13px 14px;
+  color: var(--text);
+  background: #fff;
+  outline: none;
+}
+
+.form-grid textarea {
+  resize: vertical;
+  min-height: 180px;
+}
+
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
+  border-color: rgba(7, 29, 122, .35);
+  box-shadow: 0 0 0 4px rgba(7, 29, 122, .08);
+}
 .span-2 { grid-column: span 2; }
 .form-actions { display: flex; justify-content: flex-end; }
 
