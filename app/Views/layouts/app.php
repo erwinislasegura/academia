@@ -16,6 +16,6 @@ $user = Auth::user();
     </main>
     <?php require App::root('app/Views/layouts/footer.php'); ?>
 </div>
-<script src="/assets/js/app.js"></script>
+<script src="<?= App::asset('/assets/js/app.js') ?>"></script>
 </body>
 </html>

@@ -1,2 +1,2 @@
-<div class="section-head"><div><h2><?= h($user['name']) ?></h2><p>Detalle del usuario administrativo.</p></div><a class="btn secondary" href="/users">Volver</a></div>
+<div class="section-head"><div><h2><?= h($user['name']) ?></h2><p>Detalle del usuario administrativo.</p></div><a class="btn secondary" href="<?= App::url('/users') ?>">Volver</a></div>
 <section class="panel-card detail-card"><div class="avatar big"><?= h(strtoupper(substr($user['name'],0,1))) ?></div><dl><dt>Email</dt><dd><?= h($user['email']) ?></dd><dt>Rol</dt><dd><?= h($user['role_name']) ?></dd><dt>Estado</dt><dd><?= h($user['status']) ?></dd><dt>Último acceso</dt><dd><?= h($user['last_login_at'] ?? 'Sin acceso') ?></dd><dt>Creado</dt><dd><?= h($user['created_at']) ?></dd></dl></section>

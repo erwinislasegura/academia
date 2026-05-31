@@ -1,4 +1,4 @@
-<form class="panel-card form-grid" method="post" action="<?= isset($user['id']) ? '/users/update/' . h($user['id']) : '/users/store' ?>">
+<form class="panel-card form-grid" method="post" action="<?= App::url(isset($user['id']) ? '/users/update/' . h($user['id']) : '/users/store') ?>">
     <?php foreach (($errors ?? []) as $error): ?><div class="field-error span-2"><?= h($error) ?></div><?php endforeach; ?>
     <label>Nombre<input name="name" value="<?= h($user['name'] ?? '') ?>" required></label>
     <label>Email<input type="email" name="email" value="<?= h($user['email'] ?? '') ?>" required></label>

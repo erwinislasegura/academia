@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="<?= App::asset('/assets/css/app.css') ?>">
 </head>
 <body class="login-page">
     <main class="login-hero" aria-labelledby="login-title">
@@ -17,7 +17,7 @@
         <section class="login-shell">
             <aside class="login-brand-panel">
                 <div class="brand-mark-large">
-                    <img src="/assets/img/logo.svg" alt="Academia Iquique">
+                    <img src="<?= App::asset('/assets/img/logo.svg') ?>" alt="Academia Iquique">
                 </div>
                 <p class="eyebrow light">Academia Iquique</p>
                 <h1 id="login-title">Panel Administrativo</h1>
@@ -31,7 +31,7 @@
 
             <section class="login-card" aria-label="Formulario de acceso">
                 <div class="login-mobile-logo">
-                    <img src="/assets/img/logo.svg" alt="Academia Iquique">
+                    <img src="<?= App::asset('/assets/img/logo.svg') ?>" alt="Academia Iquique">
                 </div>
                 <p class="eyebrow">Acceso seguro</p>
                 <h2>Bienvenido de vuelta</h2>
@@ -41,7 +41,7 @@
                     <div class="alert error"><?= h($msg) ?></div>
                 <?php endif; ?>
 
-                <form method="post" action="/login" class="form-stack login-form">
+                <form method="post" action="<?= App::url('/login') ?>" class="form-stack login-form">
                     <label class="input-group">
                         <span>Email institucional</span>
                         <span class="input-shell">
@@ -67,6 +67,6 @@
             </section>
         </section>
     </main>
-    <script src="/assets/js/app.js"></script>
+    <script src="<?= App::asset('/assets/js/app.js') ?>"></script>
 </body>
 </html>

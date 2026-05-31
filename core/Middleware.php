@@ -6,14 +6,14 @@ final class Middleware
     {
         if (!Auth::check()) {
             Session::flash('error', 'Debes iniciar sesión para continuar.');
-            header('Location: /login');
+            header('Location: ' . App::url('/login'));
             exit;
         }
     }
 
     public static function guest(): void
     {
-        if (Auth::check()) { header('Location: /dashboard'); exit; }
+        if (Auth::check()) { header('Location: ' . App::url('/dashboard')); exit; }
     }
 
     public static function permission(string $permission): void
