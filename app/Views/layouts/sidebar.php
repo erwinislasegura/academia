@@ -16,7 +16,7 @@ $canConfigureAdmissions = Auth::can('configurar_postulaciones');
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-head">
         <a href="<?= App::url('/dashboard') ?>" class="brand-block" aria-label="Ir al dashboard">
-            <span class="brand-logo-wrap"><img src="<?= App::asset('/assets/img/logo.svg') ?>" alt="Academia Iquique" class="brand-logo"></span>
+            <span class="brand-logo-wrap"><img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique" class="brand-logo"></span>
             <span class="brand-copy"><strong>Academia Iquique</strong><small>Panel administrativo</small></span>
         </a>
     </div>
@@ -34,7 +34,8 @@ $canConfigureAdmissions = Auth::can('configurar_postulaciones');
 
         <?php if ($canConfigureAdmissions): ?>
             <span class="nav-section">Admisión</span>
-            <a href="<?= App::url('/admission-settings') ?>" class="nav-link <?= $isActive(['/admission-settings']) ? 'is-active' : '' ?>"><span class="nav-icon">✉</span><span>Postulaciones</span></a>
+            <a href="<?= App::url('/admissions') ?>" class="nav-link <?= $isActive(['/admissions']) ? 'is-active' : '' ?>"><span class="nav-icon">▦</span><span>Solicitudes</span></a>
+            <a href="<?= App::url('/admission-settings') ?>" class="nav-link <?= $isActive(['/admission-settings']) ? 'is-active' : '' ?>"><span class="nav-icon">✉</span><span>Configuración</span></a>
         <?php endif; ?>
     </nav>
 

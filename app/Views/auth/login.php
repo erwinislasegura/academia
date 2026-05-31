@@ -17,7 +17,7 @@
         <section class="login-shell">
             <aside class="login-brand-panel">
                 <div class="brand-mark-large">
-                    <img src="<?= App::asset('/assets/img/logo.svg') ?>" alt="Academia Iquique">
+                    <img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique">
                 </div>
                 <p class="eyebrow light">Academia Iquique</p>
                 <h1 id="login-title">Panel Administrativo</h1>
@@ -31,7 +31,7 @@
 
             <section class="login-card" aria-label="Formulario de acceso">
                 <div class="login-mobile-logo">
-                    <img src="<?= App::asset('/assets/img/logo.svg') ?>" alt="Academia Iquique">
+                    <img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique">
                 </div>
                 <p class="eyebrow">Acceso seguro</p>
                 <h2>Bienvenido de vuelta</h2>
