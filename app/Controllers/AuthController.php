@@ -29,7 +29,7 @@ final class AuthController extends Controller
     {
         if (Auth::check()) { (new User())->log((int) Session::get('user_id'), 'logout', 'Cierre de sesión.'); }
         Auth::logout();
-        header('Location: /login');
+        header('Location: ' . App::url('/login'));
         exit;
     }
 }

@@ -1,6 +1,6 @@
 <section class="hero-card">
     <div><p class="eyebrow">Bienvenido de vuelta</p><h2><?= h(Auth::user()['name'] ?? 'Usuario') ?></h2><p>Gestiona usuarios, roles y privilegios desde un entorno seguro para Academia Iquique.</p></div>
-    <img src="/assets/img/logo.svg" alt="Academia Iquique">
+    <img src="<?= App::asset('/assets/img/logo.svg') ?>" alt="Academia Iquique">
 </section>
 <div class="stats-grid">
     <article class="stat-card"><span>Usuarios activos</span><strong><?= h($activeUsers) ?></strong><em>● Operativos</em></article>
@@ -12,9 +12,9 @@
     <section class="panel-card">
         <div class="section-head"><h3>Accesos rápidos</h3></div>
         <div class="quick-actions">
-            <?php if (Auth::can('crear_usuarios')): ?><a href="/users/create">Crear usuario <span>→</span></a><?php endif; ?>
-            <?php if (Auth::can('gestionar_roles')): ?><a href="/roles">Roles y permisos <span>→</span></a><?php endif; ?>
-            <?php if (Auth::can('gestionar_usuarios')): ?><a href="/users">Directorio interno <span>→</span></a><?php endif; ?>
+            <?php if (Auth::can('crear_usuarios')): ?><a href="<?= App::url('/users/create') ?>">Crear usuario <span>→</span></a><?php endif; ?>
+            <?php if (Auth::can('gestionar_roles')): ?><a href="<?= App::url('/roles') ?>">Roles y permisos <span>→</span></a><?php endif; ?>
+            <?php if (Auth::can('gestionar_usuarios')): ?><a href="<?= App::url('/users') ?>">Directorio interno <span>→</span></a><?php endif; ?>
         </div>
     </section>
     <section class="panel-card" id="actividad">

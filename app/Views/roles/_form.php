@@ -1,4 +1,4 @@
-<form class="panel-card form-grid" method="post" action="<?= isset($role['id']) ? '/roles/update/' . h($role['id']) : '/roles/store' ?>">
+<form class="panel-card form-grid" method="post" action="<?= App::url(isset($role['id']) ? '/roles/update/' . h($role['id']) : '/roles/store') ?>">
     <?php foreach (($errors ?? []) as $error): ?><div class="field-error span-2"><?= h($error) ?></div><?php endforeach; ?>
     <label>Nombre<input name="name" value="<?= h($role['name'] ?? '') ?>" required></label>
     <label>Slug<input name="slug" value="<?= h($role['slug'] ?? '') ?>" placeholder="coordinador" required></label>
