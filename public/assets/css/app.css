@@ -467,6 +467,53 @@ button, input, select, textarea { font: inherit; }
   flex: 0 0 auto;
 }
 
+
+.nav-group {
+  display: grid;
+  gap: 6px;
+}
+
+.nav-group summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.nav-group summary::-webkit-details-marker { display: none; }
+
+.nav-summary em {
+  margin-left: auto;
+  color: #94a3b8;
+  font-style: normal;
+  font-size: 14px;
+  transition: transform .18s ease;
+}
+
+.nav-group[open] .nav-summary em { transform: rotate(180deg); }
+
+.nav-submenu {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 6px 46px;
+  padding-left: 12px;
+  border-left: 1px solid rgba(226, 232, 240, .95);
+}
+
+.nav-sublink {
+  display: block;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background .18s ease, color .18s ease;
+}
+
+.nav-sublink:hover,
+.nav-sublink.is-active {
+  background: #f8faff;
+  color: var(--primary);
+}
+
 .nav-link:hover .nav-icon,
 .nav-link.is-active .nav-icon {
   background: #fff;
