@@ -1,0 +1,4 @@
+<div class="section-head"><div><h2>Roles y privilegios</h2><p>Define responsabilidades y permisos por módulo.</p></div><?php if (Auth::can('gestionar_permisos')): ?><a class="btn primary" href="/roles/create">+ Nuevo rol</a><?php endif; ?></div>
+<div class="table-card"><table class="modern-table"><thead><tr><th>Rol</th><th>Slug</th><th>Usuarios</th><th>Descripción</th><th>Acciones</th></tr></thead><tbody>
+<?php foreach ($roles as $role): ?><tr><td><strong><?= h($role['name']) ?></strong></td><td><span class="badge role"><?= h($role['slug']) ?></span></td><td><?= h($role['users_count']) ?></td><td><?= h($role['description']) ?></td><td class="actions"><?php if (Auth::can('gestionar_permisos')): ?><a href="/roles/edit/<?= h($role['id']) ?>">Editar</a><form method="post" action="/roles/delete/<?= h($role['id']) ?>" data-confirm="¿Eliminar rol?"><button class="danger">Eliminar</button></form><?php endif; ?></td></tr><?php endforeach; ?>
+</tbody></table></div>
