@@ -16,7 +16,7 @@ $canConfigureAdmissions = Auth::can('configurar_postulaciones');
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-head">
         <a href="<?= App::url('/dashboard') ?>" class="brand-block" aria-label="Ir al dashboard">
-            <span class="brand-logo-wrap"><img src="<?= App::asset('/assets/img/logo.svg') ?>" alt="Academia Iquique" class="brand-logo"></span>
+            <span class="brand-logo-wrap"><img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique" class="brand-logo"></span>
             <span class="brand-copy"><strong>Academia Iquique</strong><small>Panel administrativo</small></span>
         </a>
     </div>

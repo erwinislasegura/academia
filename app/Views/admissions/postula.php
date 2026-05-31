@@ -424,8 +424,8 @@
       min-height: 395px;
       border-radius: 18px;
       background:
-        linear-gradient(rgba(3,16,82,.08), rgba(3,16,82,.16)),
-        url("https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&w=1300&q=82") center/cover;
+        linear-gradient(rgba(3,16,82,.05), rgba(3,16,82,.12)),
+        url("<?= App::asset('/images/imagen1.png') ?>") center/cover;
     }
 
     .image-card__bottom {
@@ -589,12 +589,13 @@
 
     .feature {
       display: grid;
-      grid-template-columns: 44px 1fr;
-      gap: 16px;
+      grid-template-columns: 82px 1fr;
+      gap: 18px;
+      align-items: center;
       background: #fff;
       border: 1px solid var(--borde);
       border-radius: 18px;
-      padding: 22px;
+      padding: 18px;
       transition: .2s ease;
     }
 
@@ -604,21 +605,26 @@
       border-color: rgba(7,29,122,.18);
     }
 
-    .feature__icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 13px;
+    .feature__image {
+      width: 82px;
+      height: 82px;
+      border-radius: 18px;
       display: grid;
       place-items: center;
       background: var(--azul-suave);
-      color: var(--azul);
-      font-weight: 800;
-      font-size: 15px;
+      border: 1px solid rgba(7,29,122,.08);
+      overflow: hidden;
     }
 
-    .feature:nth-child(2) .feature__icon {
+    .feature__image img {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+    }
+
+    .feature:nth-child(2) .feature__image {
       background: var(--rojo-suave);
-      color: var(--rojo);
+      border-color: rgba(215,25,42,.10);
     }
 
     .feature h3 {
@@ -665,17 +671,47 @@
       background: var(--rojo);
     }
 
+    .step-illustration {
+      width: 86px;
+      height: 82px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      border-radius: 18px;
+      background: var(--azul-suave);
+      border: 1px solid rgba(7,29,122,.08);
+    }
+
+    .step-illustration img {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+    }
+
+    .step-card:nth-child(2) .step-illustration {
+      background: var(--rojo-suave);
+      border-color: rgba(215,25,42,.10);
+    }
+
     .step-number {
+      position: absolute;
+      right: 18px;
+      top: 18px;
       width: 36px;
       height: 36px;
       border-radius: 12px;
       display: grid;
       place-items: center;
-      background: var(--azul-suave);
-      color: var(--azul);
+      background: var(--azul);
+      color: #fff;
       font-size: 14px;
       font-weight: 800;
-      margin-bottom: 18px;
+      box-shadow: 0 10px 22px rgba(7,29,122,.18);
+    }
+
+    .step-card:nth-child(2) .step-number {
+      background: var(--rojo);
+      box-shadow: 0 10px 22px rgba(215,25,42,.18);
     }
 
     .step-card h3 {
@@ -1300,7 +1336,7 @@
   <header class="site-header">
     <nav class="nav" aria-label="Navegación principal">
       <a href="#inicio" class="logo" aria-label="Academia Iquique">
-        <img src="<?= App::asset('/assets/img/logo.svg') ?>" alt="Academia Iquique">
+        <img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique">
       </a>
 
       <ul class="menu" id="mainMenu">
@@ -1429,7 +1465,7 @@
 
           <div class="features">
             <article class="feature">
-              <div class="feature__icon">01</div>
+              <div class="feature__image"><img src="<?= App::asset('/images/proyecto.png') ?>" alt="Proyecto educativo"></div>
               <div>
                 <h3>Formación académica</h3>
                 <p>
@@ -1439,7 +1475,7 @@
             </article>
 
             <article class="feature">
-              <div class="feature__icon">02</div>
+              <div class="feature__image"><img src="<?= App::asset('/images/programa.png') ?>" alt="Acompañamiento educativo"></div>
               <div>
                 <h3>Acompañamiento cercano</h3>
                 <p>
@@ -1449,7 +1485,7 @@
             </article>
 
             <article class="feature">
-              <div class="feature__icon">03</div>
+              <div class="feature__image"><img src="<?= App::asset('/images/documentos.png') ?>" alt="Comunidad y valores"></div>
               <div>
                 <h3>Comunidad y valores</h3>
                 <p>
@@ -1476,6 +1512,7 @@
         <div class="process">
           <article class="step-card">
             <div class="step-number">1</div>
+            <div class="step-illustration"><img src="<?= App::asset('/images/documentos.png') ?>" alt="Formulario de postulación"></div>
             <h3>Completa el formulario</h3>
             <p>
               Ingresa los datos del apoderado, estudiante, curso al que postula y la información de contacto.
@@ -1484,6 +1521,7 @@
 
           <article class="step-card">
             <div class="step-number">2</div>
+            <div class="step-illustration"><img src="<?= App::asset('/images/proceso.png') ?>" alt="Revisión de solicitud"></div>
             <h3>Revisión de solicitud</h3>
             <p>
               Nuestro equipo revisará la información enviada para continuar con las etapas correspondientes.
@@ -1492,6 +1530,7 @@
 
           <article class="step-card">
             <div class="step-number">3</div>
+            <div class="step-illustration"><img src="<?= App::asset('/images/programa.png') ?>" alt="Contacto institucional"></div>
             <h3>Contacto institucional</h3>
             <p>
               Te contactaremos para entregar orientación, disponibilidad y los siguientes pasos del proceso.
@@ -1675,7 +1714,7 @@
       <div class="footer__grid">
 
         <div class="footer__about">
-          <img src="<?= App::asset('/assets/img/logo.svg') ?>" alt="Academia Iquique" class="footer__logo">
+          <img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique" class="footer__logo">
           <p>
             Academia Iquique es una comunidad educativa comprometida con la formación integral,
             el acompañamiento de sus estudiantes y la participación activa de las familias.
