@@ -4,7 +4,7 @@
         <h2>Configuración de postulaciones</h2>
         <p>Define el correo que recibirá las postulaciones y el mensaje HTML automático para cada postulante.</p>
     </div>
-    <img src="<?= App::asset('/assets/img/logo.svg') ?>" alt="Academia Iquique">
+    <img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique">
 </section>
 
 <form class="panel-card form-grid" method="post" action="<?= App::url('/admission-settings') ?>">
