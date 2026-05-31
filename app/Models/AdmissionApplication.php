@@ -23,4 +23,18 @@ final class AdmissionApplication extends Model
 
         return (int) $this->db->lastInsertId();
     }
+
+    public function all(): array
+    {
+        return $this->db->query(
+            'SELECT id, guardian_first_names, guardian_last_names, guardian_email, guardian_phone, student_name, course, message, created_at
+             FROM admission_applications
+             ORDER BY created_at DESC, id DESC'
+        )->fetchAll();
+    }
+
+    public function count(): int
+    {
+        return (int) $this->db->query('SELECT COUNT(*) FROM admission_applications')->fetchColumn();
+    }
 }

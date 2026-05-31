@@ -7,6 +7,8 @@ $router->get('/', function () {
 $router->get('/postula', [AdmissionController::class, 'show']);
 $router->get('/postula.php', [AdmissionController::class, 'show']);
 $router->post('/postula', [AdmissionController::class, 'submit']);
+$router->get('/admissions', [AdmissionController::class, 'applications']);
+$router->get('/admissions/export', [AdmissionController::class, 'exportApplications']);
 $router->get('/login', [AuthController::class, 'login']);
 $router->post('/login', [AuthController::class, 'authenticate']);
 $router->get('/logout', [AuthController::class, 'logout']);

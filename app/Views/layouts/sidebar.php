@@ -34,7 +34,8 @@ $canConfigureAdmissions = Auth::can('configurar_postulaciones');
 
         <?php if ($canConfigureAdmissions): ?>
             <span class="nav-section">Admisión</span>
-            <a href="<?= App::url('/admission-settings') ?>" class="nav-link <?= $isActive(['/admission-settings']) ? 'is-active' : '' ?>"><span class="nav-icon">✉</span><span>Postulaciones</span></a>
+            <a href="<?= App::url('/admissions') ?>" class="nav-link <?= $isActive(['/admissions']) ? 'is-active' : '' ?>"><span class="nav-icon">▦</span><span>Solicitudes</span></a>
+            <a href="<?= App::url('/admission-settings') ?>" class="nav-link <?= $isActive(['/admission-settings']) ? 'is-active' : '' ?>"><span class="nav-icon">✉</span><span>Configuración</span></a>
         <?php endif; ?>
     </nav>
 

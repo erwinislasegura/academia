@@ -6,7 +6,7 @@
     <article class="stat-card"><span>Usuarios activos</span><strong><?= h($activeUsers) ?></strong><em>● Operativos</em></article>
     <article class="stat-card"><span>Roles configurados</span><strong><?= h($rolesCount) ?></strong><em>● Privilegios</em></article>
     <article class="stat-card"><span>Permisos disponibles</span><strong><?= h($permissionsCount) ?></strong><em>● Seguridad</em></article>
-    <article class="stat-card accent"><span>Último acceso</span><strong><?= h(Auth::user()['last_login_at'] ?? 'Ahora') ?></strong><em>● Sesión segura</em></article>
+    <article class="stat-card accent"><span>Postulaciones</span><strong><?= h($admissionsCount) ?></strong><em>● Admisión 2026</em></article>
 </div>
 <div class="grid-2">
     <section class="panel-card">
@@ -15,7 +15,7 @@
             <?php if (Auth::can('crear_usuarios')): ?><a href="<?= App::url('/users/create') ?>">Crear usuario <span>→</span></a><?php endif; ?>
             <?php if (Auth::can('gestionar_roles')): ?><a href="<?= App::url('/roles') ?>">Roles y permisos <span>→</span></a><?php endif; ?>
             <?php if (Auth::can('gestionar_usuarios')): ?><a href="<?= App::url('/users') ?>">Directorio interno <span>→</span></a><?php endif; ?>
-            <?php if (Auth::can('configurar_postulaciones')): ?><a href="<?= App::url('/admission-settings') ?>">Configurar postulaciones <span>→</span></a><?php endif; ?>
+            <?php if (Auth::can('configurar_postulaciones')): ?><a href="<?= App::url('/admissions') ?>">Ver postulaciones <span>→</span></a><a href="<?= App::url('/admission-settings') ?>">Configurar postulaciones <span>→</span></a><?php endif; ?>
             <a href="<?= App::url('/postula.php') ?>" target="_blank" rel="noopener">Ver postula.php <span>↗</span></a>
         </div>
     </section>
