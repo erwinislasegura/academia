@@ -47,10 +47,14 @@ final class AdmissionController extends Controller
         (new AdmissionApplication())->create($application);
         $settings = (new ApplicationSetting())->admissionSettings();
         $mailSent = AdmissionMailer::sendApplicationEmails($application, $settings);
+        $whatsAppSent = WhatsAppNotifier::sendAdmissionMessage($application, $settings);
 
         $message = AdmissionMailer::renderTemplate($settings['applicant_html'], $application);
         if (!$mailSent) {
             $message .= '<p><small>Tu postulación quedó registrada, pero el servidor no pudo confirmar el envío de correo automático. Nuestro equipo igualmente revisará tu solicitud.</small></p>';
+        }
+        if (!$whatsAppSent) {
+            $message .= '<p><small>Tu postulación quedó registrada, pero no fue posible confirmar el envío automático por WhatsApp. Nuestro equipo igualmente podrá contactarte por los medios autorizados.</small></p>';
         }
 
         $this->view('admissions/postula', [
@@ -130,6 +134,7 @@ final class AdmissionController extends Controller
     {
         Middleware::permission('configurar_postulaciones');
         $input = $this->input();
+        $currentSettings = (new ApplicationSetting())->admissionSettings();
         $errors = [];
 
         if (!filter_var($input['notification_email'] ?? '', FILTER_VALIDATE_EMAIL)) {
@@ -142,10 +147,29 @@ final class AdmissionController extends Controller
             $errors[] = 'Debes ingresar el mensaje HTML para el postulante.';
         }
 
+        $whatsAppEnabled = !empty($input['whatsapp_enabled']);
+        $whatsAppAccessToken = trim($input['whatsapp_access_token'] ?? '') !== ''
+            ? (string) $input['whatsapp_access_token']
+            : (string) ($currentSettings['whatsapp_access_token'] ?? '');
+
+        if ($whatsAppEnabled && trim($input['whatsapp_phone_number_id'] ?? '') === '') {
+            $errors[] = 'Debes ingresar el ID del número de WhatsApp Business.';
+        }
+        if ($whatsAppEnabled && trim($whatsAppAccessToken) === '') {
+            $errors[] = 'Debes ingresar el token de acceso de WhatsApp Business.';
+        }
+        if ($whatsAppEnabled && trim($input['whatsapp_message_template'] ?? '') === '') {
+            $errors[] = 'Debes ingresar el mensaje automático de WhatsApp.';
+        }
+
         $settings = [
             'notification_email' => $input['notification_email'] ?? '',
             'applicant_subject' => $input['applicant_subject'] ?? '',
             'applicant_html' => $input['applicant_html'] ?? '',
+            'whatsapp_enabled' => $whatsAppEnabled,
+            'whatsapp_phone_number_id' => $input['whatsapp_phone_number_id'] ?? '',
+            'whatsapp_access_token' => $whatsAppAccessToken,
+            'whatsapp_message_template' => $input['whatsapp_message_template'] ?? '',
         ];
 
         if ($errors) {
@@ -161,6 +185,10 @@ final class AdmissionController extends Controller
         $model->set('admission_notification_email', $settings['notification_email']);
         $model->set('admission_applicant_success_subject', $settings['applicant_subject']);
         $model->set('admission_applicant_success_html', $settings['applicant_html']);
+        $model->set('admission_whatsapp_enabled', $settings['whatsapp_enabled'] ? '1' : '0');
+        $model->set('admission_whatsapp_phone_number_id', $settings['whatsapp_phone_number_id']);
+        $model->set('admission_whatsapp_access_token', $settings['whatsapp_access_token']);
+        $model->set('admission_whatsapp_message_template', $settings['whatsapp_message_template']);
 
         Session::flash('success', 'Configuración de postulaciones actualizada correctamente.');
         $this->redirect('/admission-settings');
