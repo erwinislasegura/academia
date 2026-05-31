@@ -61,6 +61,61 @@ final class AdmissionController extends Controller
         ], null);
     }
 
+
+    public function applications(): void
+    {
+        Middleware::permission('configurar_postulaciones');
+        $model = new AdmissionApplication();
+        $this->view('admissions/applications', [
+            'title' => 'Postulaciones recibidas',
+            'applications' => $model->all(),
+            'totalApplications' => $model->count(),
+        ]);
+    }
+
+    public function exportApplications(): void
+    {
+        Middleware::permission('configurar_postulaciones');
+        $applications = (new AdmissionApplication())->all();
+        $filename = 'postulaciones-' . date('Y-m-d') . '.xls';
+
+        header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        echo "\xEF\xBB\xBF";
+        echo '<table border="1">';
+        echo '<thead><tr>';
+        foreach (['ID', 'Fecha', 'Apoderado', 'Email', 'Teléfono', 'Estudiante', 'Curso', 'Mensaje'] as $heading) {
+            echo '<th>' . htmlspecialchars($heading, ENT_QUOTES, 'UTF-8') . '</th>';
+        }
+        echo '</tr></thead><tbody>';
+
+        foreach ($applications as $application) {
+            $guardian = trim(($application['guardian_first_names'] ?? '') . ' ' . ($application['guardian_last_names'] ?? ''));
+            $cells = [
+                $application['id'] ?? '',
+                $application['created_at'] ?? '',
+                $guardian,
+                $application['guardian_email'] ?? '',
+                $application['guardian_phone'] ?? '',
+                $application['student_name'] ?? '',
+                $application['course'] ?? '',
+                $application['message'] ?? '',
+            ];
+
+            echo '<tr>';
+            foreach ($cells as $cell) {
+                echo '<td>' . htmlspecialchars((string) $cell, ENT_QUOTES, 'UTF-8') . '</td>';
+            }
+            echo '</tr>';
+        }
+
+        echo '</tbody></table>';
+        exit;
+    }
+
     public function settings(): void
     {
         Middleware::permission('configurar_postulaciones');

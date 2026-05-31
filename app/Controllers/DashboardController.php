@@ -11,6 +11,7 @@ final class DashboardController extends Controller
             'activeUsers' => $userModel->activeCount(),
             'rolesCount' => (new Role())->count(),
             'permissionsCount' => (new Permission())->count(),
+            'admissionsCount' => (new AdmissionApplication())->count(),
             'activity' => $userModel->recentActivity(),
         ]);
     }
