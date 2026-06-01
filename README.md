@@ -100,6 +100,16 @@ http://localhost:8000/postula
 
 El formulario registra la postulación, envía el detalle al correo configurado en el panel y envía un correo HTML de confirmación al postulante. La configuración se administra desde el panel en **Postulaciones**, donde puedes definir el correo receptor y editar el mensaje HTML usando variables como `{{nombres_apoderado}}`, `{{estudiante}}` y `{{curso}}`.
 
+Para integrar solo el formulario en WordPress, incrusta la vista aislada con un bloque de HTML personalizado:
+
+```html
+<iframe
+  src="https://tu-dominio.cl/postula-embed"
+  style="width:100%; min-height:900px; border:0;"
+  loading="lazy">
+</iframe>
+```
+
 Opcionalmente, desde el mismo panel puedes activar el envío automático por WhatsApp Cloud API al teléfono informado por el postulante. Para usarlo debes configurar el **Phone Number ID**, un token de acceso válido y el texto del mensaje; WhatsApp puede exigir plantillas aprobadas para conversaciones iniciadas por la institución.
 
 Para desarrollo con el servidor embebido de PHP y rutas limpias, puedes usar:
