@@ -16,7 +16,27 @@ final class AdmissionController extends Controller
 
     public function show(): void
     {
-        $this->view('admissions/postula', [
+        $this->renderPublicForm('admissions/postula');
+    }
+
+    public function showEmbed(): void
+    {
+        $this->renderPublicForm('admissions/postula_embed');
+    }
+
+    public function submit(): void
+    {
+        $this->handleSubmission('admissions/postula');
+    }
+
+    public function submitEmbed(): void
+    {
+        $this->handleSubmission('admissions/postula_embed');
+    }
+
+    private function renderPublicForm(string $view): void
+    {
+        $this->view($view, [
             'old' => [],
             'errors' => [],
             'success' => false,
@@ -24,7 +44,7 @@ final class AdmissionController extends Controller
         ], null);
     }
 
-    public function submit(): void
+    private function handleSubmission(string $view): void
     {
         $input = $this->input();
         $errors = $this->validate($input);
@@ -34,7 +54,7 @@ final class AdmissionController extends Controller
         }
 
         if ($errors) {
-            $this->view('admissions/postula', [
+            $this->view($view, [
                 'old' => $input,
                 'errors' => $errors,
                 'success' => false,
@@ -57,14 +77,13 @@ final class AdmissionController extends Controller
             $message .= '<p><small>Tu postulación quedó registrada, pero no fue posible confirmar el envío automático por WhatsApp. Nuestro equipo igualmente podrá contactarte por los medios autorizados.</small></p>';
         }
 
-        $this->view('admissions/postula', [
+        $this->view($view, [
             'old' => [],
             'errors' => [],
             'success' => true,
             'successMessageHtml' => $message,
         ], null);
     }
-
 
     public function applications(): void
     {
