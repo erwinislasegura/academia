@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Login | Academia Iquique</title>
+    <title>Acceso Postulación | Academia Iquique</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -12,20 +12,27 @@
 </head>
 <body class="login-page">
     <main class="login-hero" aria-labelledby="login-title">
-        <div class="login-orb orb-one"></div>
-        <div class="login-orb orb-two"></div>
         <section class="login-shell">
-            <aside class="login-brand-panel">
-                <div class="brand-mark-large">
-                    <img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique">
+            <aside class="login-brand-panel" aria-label="Información de postulación">
+                <div class="brand-content">
+                    <div class="brand-mark-large">
+                        <img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique">
+                    </div>
+
+                    <p class="eyebrow light">Academia Iquique</p>
+                    <h1 id="login-title">Sistema de Postulación Academia Iquique</h1>
+                    <p>
+                        Acceso privado para apoderados que desean iniciar o continuar
+                        el proceso de admisión.
+                    </p>
                 </div>
-                <p class="eyebrow light">Academia Iquique</p>
-                <h1 id="login-title">Panel Administrativo</h1>
-                <p>Gestión interna segura y profesional para una academia deportiva moderna, ordenada y lista para crecer.</p>
-                <div class="login-metrics" aria-label="Características del sistema">
-                    <span>RBAC</span>
-                    <span>Usuarios</span>
-                    <span>Actividad</span>
+
+                <div class="login-admission-note">
+                    <span>Admisión 2026</span>
+                    <p>
+                        Revisa tus datos, adjunta documentos y mantente informado del estado
+                        de tu solicitud.
+                    </p>
                 </div>
             </aside>
 
@@ -33,9 +40,12 @@
                 <div class="login-mobile-logo">
                     <img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique">
                 </div>
-                <p class="eyebrow">Acceso seguro</p>
-                <h2>Bienvenido de vuelta</h2>
-                <p class="login-subtitle">Ingresa con tus credenciales institucionales.</p>
+
+                <div class="login-heading">
+                    <p class="eyebrow">Postulación online</p>
+                    <h2>Ingresar al sistema</h2>
+                    <p class="login-subtitle">Utiliza el correo registrado para acceder a tu solicitud.</p>
+                </div>
 
                 <?php if ($msg = Session::flash('error')): ?>
                     <div class="alert error"><?= h($msg) ?></div>
@@ -43,26 +53,44 @@
 
                 <form method="post" action="<?= App::url('/login') ?>" class="form-stack login-form">
                     <label class="input-group">
-                        <span>Email institucional</span>
+                        <span>Correo electrónico</span>
                         <span class="input-shell">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16v11H4z"/><path d="m4 7 8 6 8-6"/></svg>
-                            <input type="email" name="email" placeholder="admin@academiaiquique.cl" value="<?= h(Session::flash('old_email') ?? '') ?>" autocomplete="email" required>
+                            <input type="email" name="email" placeholder="correo@ejemplo.cl" value="<?= h(Session::flash('old_email') ?? '') ?>" autocomplete="email" required>
                         </span>
                     </label>
+
                     <label class="input-group">
-                        <span>Contraseña</span>
+                        <span class="password-label-row">
+                            <span>Contraseña</span>
+                            <a href="mailto:contacto@academiaiquique.cl?subject=Recuperar%20acceso%20postulaci%C3%B3n">Recuperar acceso</a>
+                        </span>
                         <span class="input-shell">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
-                            <input id="passwordField" type="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+                            <input id="passwordField" type="password" name="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" required>
                             <button class="password-toggle" type="button" data-password-toggle="passwordField" aria-label="Mostrar u ocultar contraseña">Ver</button>
                         </span>
                     </label>
-                    <button class="btn primary full login-submit" type="submit">Ingresar al panel <span>→</span></button>
+
+                    <label class="remember-row">
+                        <input type="checkbox" name="remember">
+                        <span>Mantener sesión</span>
+                    </label>
+
+                    <button class="btn primary full login-submit" type="submit">Acceder</button>
                 </form>
 
                 <div class="login-footnote">
-                    <strong>Acceso restringido</strong>
-                    <span>Sesión protegida con control de roles y permisos.</span>
+                    <strong>¿Aún no tienes una cuenta?</strong>
+                    <span>
+                        Para iniciar una nueva postulación, primero debes registrar tus datos.
+                        <a href="<?= App::url('/postula') ?>">Crear solicitud de admisión</a>
+                    </span>
+                </div>
+
+                <div class="login-support">
+                    Soporte:
+                    <a href="mailto:contacto@academiaiquique.cl">contacto@academiaiquique.cl</a>
                 </div>
             </section>
         </section>
