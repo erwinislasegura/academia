@@ -152,7 +152,7 @@ INSERT INTO application_settings (`key`, value) VALUES
 ('mail_host', 'academia.gocreative.cl'),
 ('mail_port', '465'),
 ('mail_username', 'notificacion@academia.gocreative.cl'),
-('mail_password', 'G;bD1;5z_$b1{NF2'),
+('mail_password', 'Contra3333%%%&&'),
 ('mail_encryption', 'ssl'),
 ('mail_from_address', 'notificacion@academia.gocreative.cl'),
 ('mail_from_name', 'Academia Iquique');

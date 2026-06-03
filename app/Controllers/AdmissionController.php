@@ -66,8 +66,8 @@ final class AdmissionController extends Controller
         $application = $this->normalize($input);
         (new AdmissionApplication())->create($application);
         $settings = (new ApplicationSetting())->admissionSettings();
-        $adminMailSent = AdmissionMailer::sendAdminNotification($application, $settings);
         $applicantMailSent = AdmissionMailer::sendApplicantEmail($application, $settings);
+        $adminMailSent = AdmissionMailer::sendAdminNotification($application, $settings);
         $whatsAppSent = WhatsAppNotifier::sendAdmissionMessage($application, $settings);
 
         $email = htmlspecialchars((string) $application['email'], ENT_QUOTES, 'UTF-8');

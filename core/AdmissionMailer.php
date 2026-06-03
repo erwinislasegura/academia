@@ -4,8 +4,8 @@ final class AdmissionMailer
 {
     public static function sendApplicationEmails(array $application, array $settings): bool
     {
-        $adminSent = self::sendAdminNotification($application, $settings);
         $applicantSent = self::sendApplicantEmail($application, $settings);
+        $adminSent = self::sendAdminNotification($application, $settings);
 
         return $adminSent && $applicantSent;
     }
@@ -103,24 +103,32 @@ final class AdmissionMailer
             return false;
         }
 
-        $encodedBody = self::encodeBody($html);
-        $headers = self::htmlHeaders($fromAddress, $fromName, $replyTo);
+        $boundary = self::mimeBoundary();
+        $messageBody = self::multipartBody($html, $boundary);
+        $headers = self::htmlHeaders($fromAddress, $fromName, $replyTo, $boundary);
         $encodedSubject = self::encodeHeader($subject);
 
         if (self::shouldSendWithSmtp($mailConfig)) {
-            return self::sendWithSmtp($to, $encodedSubject, $encodedBody, $headers, $mailConfig);
+            $sent = self::sendWithSmtp($to, $encodedSubject, $messageBody, $headers, $mailConfig);
+            if ($sent) {
+                return true;
+            }
+
+            self::logFailure('Se intentará el envío alternativo con mail() para ' . $to . '.');
         }
 
-        return self::sendWithPhpMail($to, $encodedSubject, $encodedBody, $headers, $fromAddress);
+        return self::sendWithPhpMail($to, $encodedSubject, $messageBody, $headers, $fromAddress);
     }
 
-    private static function htmlHeaders(string $fromAddress, string $fromName, string $replyTo = ''): array
+    private static function htmlHeaders(string $fromAddress, string $fromName, string $replyTo, string $boundary): array
     {
         $headers = [
             'MIME-Version: 1.0',
-            'Content-Type: text/html; charset=UTF-8',
-            'Content-Transfer-Encoding: quoted-printable',
+            'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
             'From: ' . self::formatAddress($fromAddress, $fromName),
+            'Date: ' . date(DATE_RFC2822),
+            'Message-ID: <' . bin2hex(random_bytes(16)) . '@' . self::smtpHostname() . '>',
+            'X-Mailer: Academia Iquique Admissions',
         ];
         if (filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
             $headers[] = 'Reply-To: ' . $replyTo;
@@ -131,8 +139,12 @@ final class AdmissionMailer
 
     private static function shouldSendWithSmtp(array $mailConfig): bool
     {
-        return strtolower((string) ($mailConfig['mailer'] ?? 'mail')) === 'smtp'
-            || trim((string) ($mailConfig['host'] ?? '')) !== '';
+        $mailer = strtolower(trim((string) ($mailConfig['mailer'] ?? '')));
+        if ($mailer === '') {
+            return trim((string) ($mailConfig['host'] ?? '')) !== '';
+        }
+
+        return $mailer === 'smtp';
     }
 
     private static function sendWithSmtp(string $to, string $subject, string $html, array $headers, array $mailConfig): bool
@@ -229,9 +241,46 @@ final class AdmissionMailer
         return preg_replace('/^\./m', '..', $body) ?? $body;
     }
 
-    private static function encodeBody(string $html): string
+    private static function multipartBody(string $html, string $boundary): string
     {
-        return quoted_printable_encode($html);
+        $plainText = self::htmlToText($html);
+        $parts = [
+            '--' . $boundary,
+            'Content-Type: text/plain; charset=UTF-8',
+            'Content-Transfer-Encoding: quoted-printable',
+            '',
+            self::encodeBody($plainText),
+            '--' . $boundary,
+            'Content-Type: text/html; charset=UTF-8',
+            'Content-Transfer-Encoding: quoted-printable',
+            '',
+            self::encodeBody($html),
+            '--' . $boundary . '--',
+            '',
+        ];
+
+        return implode("\r\n", $parts);
+    }
+
+    private static function htmlToText(string $html): string
+    {
+        $text = preg_replace('/<(br|\/p|\/li|\/tr|\/h[1-6])\b[^>]*>/i', "\n", $html) ?? $html;
+        $text = strip_tags($text);
+        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = preg_replace('/[ \t]+/', ' ', $text) ?? $text;
+        $text = preg_replace('/\n{3,}/', "\n\n", $text) ?? $text;
+
+        return trim($text);
+    }
+
+    private static function encodeBody(string $body): string
+    {
+        return quoted_printable_encode($body);
+    }
+
+    private static function mimeBoundary(): string
+    {
+        return '=_academia_' . bin2hex(random_bytes(12));
     }
 
     private static function logFailure(string $message): void
