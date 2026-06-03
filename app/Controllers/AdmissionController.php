@@ -66,12 +66,19 @@ final class AdmissionController extends Controller
         $application = $this->normalize($input);
         (new AdmissionApplication())->create($application);
         $settings = (new ApplicationSetting())->admissionSettings();
-        $mailSent = AdmissionMailer::sendApplicationEmails($application, $settings);
+        $adminMailSent = AdmissionMailer::sendAdminNotification($application, $settings);
+        $applicantMailSent = AdmissionMailer::sendApplicantEmail($application, $settings);
         $whatsAppSent = WhatsAppNotifier::sendAdmissionMessage($application, $settings);
 
-        $message = AdmissionMailer::renderTemplate($settings['applicant_html'], $application);
-        if (!$mailSent) {
-            $message .= '<p><small>Tu postulación quedó registrada, pero el servidor no pudo confirmar el envío de correo automático. Nuestro equipo igualmente revisará tu solicitud.</small></p>';
+        $email = htmlspecialchars((string) $application['email'], ENT_QUOTES, 'UTF-8');
+        $message = '<p>Tu postulación fue registrada correctamente.</p>';
+        if ($applicantMailSent) {
+            $message .= '<p>Enviamos la información de admisión en formato HTML al correo ingresado en el formulario: <strong>' . $email . '</strong>.</p>';
+        } else {
+            $message .= '<p><small>Tu postulación quedó registrada, pero el servidor no pudo confirmar el envío del correo HTML al correo ingresado (<strong>' . $email . '</strong>). Nuestro equipo igualmente revisará tu solicitud.</small></p>';
+        }
+        if (!$adminMailSent) {
+            $message .= '<p><small>Tu postulación quedó registrada, pero el servidor no pudo confirmar el aviso interno al equipo de admisión.</small></p>';
         }
         if (!$whatsAppSent) {
             $message .= '<p><small>Tu postulación quedó registrada, pero no fue posible confirmar el envío automático por WhatsApp. Nuestro equipo igualmente podrá contactarte por los medios autorizados.</small></p>';
@@ -156,10 +163,13 @@ final class AdmissionController extends Controller
     public function settings(): void
     {
         Middleware::permission('configurar_postulaciones');
+        $settings = (new ApplicationSetting())->admissionSettings();
         $this->view('admissions/settings', [
             'title' => 'Configuración de postulaciones',
-            'settings' => (new ApplicationSetting())->admissionSettings(),
+            'settings' => $settings,
             'errors' => [],
+            'previewApplication' => self::previewApplication(),
+            'applicantPreviewHtml' => self::applicantPreviewHtml($settings),
         ]);
     }
 
@@ -210,6 +220,8 @@ final class AdmissionController extends Controller
                 'title' => 'Configuración de postulaciones',
                 'settings' => $settings,
                 'errors' => $errors,
+                'previewApplication' => self::previewApplication(),
+                'applicantPreviewHtml' => self::applicantPreviewHtml($settings),
             ]);
             return;
         }
@@ -225,6 +237,26 @@ final class AdmissionController extends Controller
 
         Session::flash('success', 'Configuración de postulaciones actualizada correctamente.');
         $this->redirect('/admission-settings');
+    }
+
+
+    private static function applicantPreviewHtml(array $settings): string
+    {
+        return AdmissionMailer::renderTemplate((string) ($settings['applicant_html'] ?? ''), self::previewApplication());
+    }
+
+    private static function previewApplication(): array
+    {
+        return [
+            'nombres_apoderado' => 'María José',
+            'apellidos_apoderado' => 'González Pérez',
+            'email' => 'familia@ejemplo.cl',
+            'telefono' => '+56 9 8574 1931',
+            'estudiante' => 'Sofía González',
+            'curso' => '1º Básico',
+            'mensaje' => 'Solicito información sobre el proceso de admisión 2026.',
+            'autorizacion' => '1',
+        ];
     }
 
     private function validate(array $input): array

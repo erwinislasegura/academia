@@ -12,7 +12,7 @@
 
     <label class="span-2">Correo receptor de postulaciones
         <input type="email" name="notification_email" value="<?= h($settings['notification_email'] ?? '') ?>" required>
-        <small>Cuando una familia postule, el detalle de la postulación llegará a este correo.</small>
+        <small>Cuando una familia postule, el detalle de la postulación llegará a este correo. Para enviar el correo HTML al postulante, el servidor debe tener SMTP configurado con MAIL_HOST, MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM_ADDRESS y MAIL_FROM_NAME.</small>
     </label>
 
     <label class="span-2">Asunto del correo al postulante
@@ -47,9 +47,71 @@
     </div>
 
     <div class="panel-card span-2" style="background:#f8faff; box-shadow:none;">
-        <div class="section-head"><h3>Vista previa</h3></div>
-        <div class="muted-text">El correo se enviará como HTML. El WhatsApp se enviará como texto plano al teléfono de contacto normalizado a formato internacional cuando sea posible.</div>
+        <div class="section-head"><h3>Vista previa del correo</h3></div>
+        <div class="muted-text" style="margin-bottom:14px;">Esta vista se actualiza mientras editas el asunto y el HTML. Se usan datos de ejemplo para reemplazar variables.</div>
+        <div style="display:grid;gap:12px;">
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;">
+                <div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;font-weight:700;margin-bottom:6px;">Asunto</div>
+                <div id="applicant-email-subject-preview" style="font-weight:700;color:#0f172a;"><?= h($settings['applicant_subject'] ?? '') ?></div>
+            </div>
+            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;">
+                <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;background:#f1f5f9;border-bottom:1px solid #e2e8f0;padding:10px 14px;color:#475569;font-size:13px;">
+                    <strong>Correo al postulante</strong>
+                    <span>Vista HTML</span>
+                </div>
+                <iframe id="applicant-email-preview" title="Vista previa del correo al postulante" sandbox="" srcdoc="<?= h($applicantPreviewHtml ?? '') ?>" style="display:block;width:100%;min-height:560px;border:0;background:#fff;"></iframe>
+            </div>
+        </div>
     </div>
 
     <div class="span-2 form-actions"><button class="btn primary">Guardar configuración</button></div>
 </form>
+
+<?php
+$previewReplacements = [];
+foreach (($previewApplication ?? []) as $key => $value) {
+    $previewReplacements['{{' . $key . '}}'] = (string) $value;
+}
+$previewReplacements['{{nombre_apoderado}}'] = trim(($previewApplication['nombres_apoderado'] ?? '') . ' ' . ($previewApplication['apellidos_apoderado'] ?? ''));
+?>
+<script>
+(() => {
+    const htmlInput = document.querySelector('[name="applicant_html"]');
+    const subjectInput = document.querySelector('[name="applicant_subject"]');
+    const previewFrame = document.getElementById('applicant-email-preview');
+    const subjectPreview = document.getElementById('applicant-email-subject-preview');
+    const replacements = <?= json_encode($previewReplacements, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
+
+    const escapeHtml = (value) => String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+    const renderTemplate = (template) => {
+        let rendered = template || '';
+        Object.entries(replacements).forEach(([placeholder, value]) => {
+            rendered = rendered.split(placeholder).join(escapeHtml(value));
+        });
+        return rendered;
+    };
+
+    const updatePreview = () => {
+        if (previewFrame && htmlInput) {
+            previewFrame.srcdoc = renderTemplate(htmlInput.value);
+        }
+        if (subjectPreview && subjectInput) {
+            subjectPreview.textContent = subjectInput.value || 'Sin asunto';
+        }
+    };
+
+    if (htmlInput) {
+        htmlInput.addEventListener('input', updatePreview);
+    }
+    if (subjectInput) {
+        subjectInput.addEventListener('input', updatePreview);
+    }
+    updatePreview();
+})();
+</script>

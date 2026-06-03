@@ -32,6 +32,8 @@ $router->post('/roles/update/{id}', [RoleController::class, 'update']);
 $router->post('/roles/delete/{id}', [RoleController::class, 'delete']);
 $router->get('/admission-settings', [AdmissionController::class, 'settings']);
 $router->post('/admission-settings', [AdmissionController::class, 'updateSettings']);
+$router->get('/mail-settings', [MailSettingsController::class, 'edit']);
+$router->post('/mail-settings', [MailSettingsController::class, 'update']);
 
 $router->get('/admission-statuses', [AdmissionStatusController::class, 'index']);
 $router->get('/admission-statuses/create', [AdmissionStatusController::class, 'create']);

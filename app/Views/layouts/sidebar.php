@@ -14,7 +14,8 @@ $canViewLogs = Auth::can('ver_logs');
 $canConfigureAdmissions = Auth::can('configurar_postulaciones');
 $hasConfigItems = $canManageUsers || $canManageRoles || $canViewLogs || $canConfigureAdmissions;
 $isAdmissionsOpen = str_starts_with($currentPath, '/admissions') || str_starts_with($currentPath, '/admission-statuses') || $isActive(['/admission-settings']);
-$isConfigOpen = str_starts_with($currentPath, '/users') || str_starts_with($currentPath, '/roles');
+$isMailSettingsActive = $isActive(['/mail-settings']);
+$isConfigOpen = str_starts_with($currentPath, '/users') || str_starts_with($currentPath, '/roles') || $isMailSettingsActive;
 $icon = static function (string $name): string {
     $icons = [
         'dashboard' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h7V4H4v9Zm0 7h7v-5H4v5Zm9 0h7v-9h-7v9Zm0-18v7h7V2h-7Z"/></svg>',
@@ -61,6 +62,7 @@ $icon = static function (string $name): string {
                     <?php if ($canManageUsers): ?><a href="<?= App::url('/users') ?>" class="nav-sublink <?= str_starts_with($currentPath, '/users') ? 'is-active' : '' ?>">Usuarios</a><?php endif; ?>
                     <?php if ($canManageRoles): ?><a href="<?= App::url('/roles') ?>" class="nav-sublink <?= str_starts_with($currentPath, '/roles') ? 'is-active' : '' ?>">Roles y permisos</a><?php endif; ?>
                     <?php if ($canViewLogs): ?><a href="<?= App::url('/dashboard#actividad') ?>" class="nav-sublink">Actividad</a><?php endif; ?>
+                    <?php if ($canConfigureAdmissions): ?><a href="<?= App::url('/mail-settings') ?>" class="nav-sublink <?= $isMailSettingsActive ? 'is-active' : '' ?>">Correo de notificaciones</a><?php endif; ?>
                 </div>
             </details>
         <?php endif; ?>

@@ -100,6 +100,21 @@ http://localhost:8000/postula
 
 El formulario registra la postulación, envía el detalle al correo configurado en Academiapp y envía un correo HTML de confirmación al postulante. La configuración se administra desde Sistema Academiapp en **Postulaciones**, donde puedes definir el correo receptor y editar el mensaje HTML usando variables como `{{nombres_apoderado}}`, `{{estudiante}}` y `{{curso}}`.
 
+Para que el correo HTML se envíe de forma confiable al correo ingresado por el postulante, configura un servicio SMTP real del dominio o proveedor transaccional. Puedes hacerlo con variables de entorno:
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=academia.gocreative.cl
+MAIL_PORT=465
+MAIL_USERNAME=notificacion@academia.gocreative.cl
+MAIL_PASSWORD=contraseña-de-la-cuenta
+MAIL_ENCRYPTION=ssl
+MAIL_FROM_ADDRESS=notificacion@academia.gocreative.cl
+MAIL_FROM_NAME="Academia Iquique"
+```
+
+Si no configuras SMTP, el sistema intentará usar `mail()` de PHP, lo que requiere que el servidor tenga un MTA/sendmail local funcionando y correctamente autorizado por SPF/DKIM/DMARC.
+
 Para integrar solo el formulario en WordPress, incrusta la vista aislada con un bloque de HTML personalizado:
 
 ```html
