@@ -1,1 +1,1 @@
-<footer class="footer">© <?= date('Y') ?> Academia Iquique · Gestión interna segura y profesional</footer>
+<footer class="footer">© <?= date('Y') ?> Academia Iquique · Sistema Academiapp</footer>

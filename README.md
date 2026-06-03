@@ -1,6 +1,6 @@
-# Academia Iquique · Panel Administrativo MVC
+# Academia Iquique · Sistema Academiapp MVC
 
-Sistema web administrativo desarrollado en **PHP 8+ puro**, arquitectura **MVC**, **PDO** y **MySQL**. Incluye login seguro, dashboard, gestión de usuarios, roles, permisos y registro de actividad con una identidad visual institucional inspirada en Academia Iquique.
+Sistema web administrativo desarrollado en **PHP 8+ puro**, arquitectura **MVC**, **PDO** y **MySQL**. Incluye login seguro para administradores y administrativos, dashboard, gestión de usuarios, roles, permisos y registro de actividad con una identidad visual institucional inspirada en Academia Iquique.
 
 ## Requisitos
 
@@ -98,7 +98,7 @@ La página pública de admisión queda disponible sin iniciar sesión en:
 http://localhost:8000/postula
 ```
 
-El formulario registra la postulación, envía el detalle al correo configurado en el panel y envía un correo HTML de confirmación al postulante. La configuración se administra desde el panel en **Postulaciones**, donde puedes definir el correo receptor y editar el mensaje HTML usando variables como `{{nombres_apoderado}}`, `{{estudiante}}` y `{{curso}}`.
+El formulario registra la postulación, envía el detalle al correo configurado en Academiapp y envía un correo HTML de confirmación al postulante. La configuración se administra desde Sistema Academiapp en **Postulaciones**, donde puedes definir el correo receptor y editar el mensaje HTML usando variables como `{{nombres_apoderado}}`, `{{estudiante}}` y `{{curso}}`.
 
 Para integrar solo el formulario en WordPress, incrusta la vista aislada con un bloque de HTML personalizado:
 
@@ -110,7 +110,7 @@ Para integrar solo el formulario en WordPress, incrusta la vista aislada con un 
 </iframe>
 ```
 
-Opcionalmente, desde el mismo panel puedes activar el envío automático por WhatsApp Cloud API al teléfono informado por el postulante. Para usarlo debes configurar el **Phone Number ID**, un token de acceso válido y el texto del mensaje; WhatsApp puede exigir plantillas aprobadas para conversaciones iniciadas por la institución.
+Opcionalmente, desde Sistema Academiapp puedes activar el envío automático por WhatsApp Cloud API al teléfono informado por el postulante. Para usarlo debes configurar el **Phone Number ID**, un token de acceso válido y el texto del mensaje; WhatsApp puede exigir plantillas aprobadas para conversaciones iniciadas por la institución.
 
 Para desarrollo con el servidor embebido de PHP y rutas limpias, puedes usar:
 

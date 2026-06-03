@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Acceso Postulación | Academia Iquique</title>
+    <title>Academiapp | Academia Iquique</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -13,25 +13,25 @@
 <body class="login-page">
     <main class="login-hero" aria-labelledby="login-title">
         <section class="login-shell">
-            <aside class="login-brand-panel" aria-label="Información de postulación">
+            <aside class="login-brand-panel" aria-label="Información de acceso institucional">
                 <div class="brand-content">
                     <div class="brand-mark-large">
                         <img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique">
                     </div>
 
                     <p class="eyebrow light">Academia Iquique</p>
-                    <h1 id="login-title">Sistema de Postulación Academia Iquique</h1>
+                    <h1 id="login-title">Sistema Academiapp</h1>
                     <p>
-                        Acceso privado para apoderados que desean iniciar o continuar
-                        el proceso de admisión.
+                        Acceso privado para administradores y administrativos de
+                        Academia Iquique.
                     </p>
                 </div>
 
-                <div class="login-admission-note">
-                    <span>Admisión 2026</span>
+                <div class="login-admin-note">
+                    <span>Gestión interna</span>
                     <p>
-                        Revisa tus datos, adjunta documentos y mantente informado del estado
-                        de tu solicitud.
+                        Administra postulaciones, usuarios, roles y actividad desde
+                        un entorno seguro y ordenado.
                     </p>
                 </div>
             </aside>
@@ -42,9 +42,9 @@
                 </div>
 
                 <div class="login-heading">
-                    <p class="eyebrow">Postulación online</p>
-                    <h2>Ingresar al sistema</h2>
-                    <p class="login-subtitle">Utiliza el correo registrado para acceder a tu solicitud.</p>
+                    <p class="eyebrow">Acceso institucional</p>
+                    <h2>Ingresar a Academiapp</h2>
+                    <p class="login-subtitle">Utiliza tus credenciales institucionales para acceder al sistema.</p>
                 </div>
 
                 <?php if ($msg = Session::flash('error')): ?>
@@ -53,17 +53,17 @@
 
                 <form method="post" action="<?= App::url('/login') ?>" class="form-stack login-form">
                     <label class="input-group">
-                        <span>Correo electrónico</span>
+                        <span>Correo institucional</span>
                         <span class="input-shell">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16v11H4z"/><path d="m4 7 8 6 8-6"/></svg>
-                            <input type="email" name="email" placeholder="correo@ejemplo.cl" value="<?= h(Session::flash('old_email') ?? '') ?>" autocomplete="email" required>
+                            <input type="email" name="email" placeholder="usuario@academiaiquique.cl" value="<?= h(Session::flash('old_email') ?? '') ?>" autocomplete="email" required>
                         </span>
                     </label>
 
                     <label class="input-group">
                         <span class="password-label-row">
                             <span>Contraseña</span>
-                            <a href="mailto:contacto@academiaiquique.cl?subject=Recuperar%20acceso%20postulaci%C3%B3n">Recuperar acceso</a>
+                            <a href="mailto:contacto@academiaiquique.cl?subject=Recuperar%20acceso%20Academiapp">Recuperar acceso</a>
                         </span>
                         <span class="input-shell">
                             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
@@ -81,10 +81,10 @@
                 </form>
 
                 <div class="login-footnote">
-                    <strong>¿Aún no tienes una cuenta?</strong>
+                    <strong>Acceso exclusivo del equipo interno</strong>
                     <span>
-                        Para iniciar una nueva postulación, primero debes registrar tus datos.
-                        <a href="<?= App::url('/postula') ?>">Crear solicitud de admisión</a>
+                        Si necesitas una cuenta o recuperar permisos, solicita apoyo al equipo administrador.
+                        <a href="mailto:contacto@academiaiquique.cl?subject=Soporte%20Academiapp">Solicitar soporte</a>
                     </span>
                 </div>
 

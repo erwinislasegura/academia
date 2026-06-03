@@ -1,5 +1,5 @@
 <section class="hero-card">
-    <div><p class="eyebrow">Bienvenido de vuelta</p><h2><?= h(Auth::user()['name'] ?? 'Usuario') ?></h2><p>Gestiona usuarios, roles y privilegios desde un entorno seguro para Academia Iquique.</p></div>
+    <div><p class="eyebrow">Bienvenido de vuelta</p><h2><?= h(Auth::user()['name'] ?? 'Usuario') ?></h2><p>Gestiona usuarios, postulaciones, roles y privilegios desde Sistema Academiapp.</p></div>
     <img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique">
 </section>
 <div class="stats-grid">
