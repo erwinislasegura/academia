@@ -11,6 +11,7 @@ $router->post('/postula', [AdmissionController::class, 'submit']);
 $router->post('/postula-embed', [AdmissionController::class, 'submitEmbed']);
 $router->get('/admissions', [AdmissionController::class, 'applications']);
 $router->get('/admissions/export', [AdmissionController::class, 'exportApplications']);
+$router->post('/admissions/status/{id}', [AdmissionController::class, 'updateApplicationStatus']);
 $router->get('/login', [AuthController::class, 'login']);
 $router->post('/login', [AuthController::class, 'authenticate']);
 $router->get('/logout', [AuthController::class, 'logout']);
@@ -31,3 +32,10 @@ $router->post('/roles/update/{id}', [RoleController::class, 'update']);
 $router->post('/roles/delete/{id}', [RoleController::class, 'delete']);
 $router->get('/admission-settings', [AdmissionController::class, 'settings']);
 $router->post('/admission-settings', [AdmissionController::class, 'updateSettings']);
+
+$router->get('/admission-statuses', [AdmissionStatusController::class, 'index']);
+$router->get('/admission-statuses/create', [AdmissionStatusController::class, 'create']);
+$router->post('/admission-statuses/store', [AdmissionStatusController::class, 'store']);
+$router->get('/admission-statuses/edit/{id}', [AdmissionStatusController::class, 'edit']);
+$router->post('/admission-statuses/update/{id}', [AdmissionStatusController::class, 'update']);
+$router->post('/admission-statuses/delete/{id}', [AdmissionStatusController::class, 'delete']);

@@ -13,7 +13,18 @@ $canManageRoles = Auth::can('gestionar_roles');
 $canViewLogs = Auth::can('ver_logs');
 $canConfigureAdmissions = Auth::can('configurar_postulaciones');
 $hasConfigItems = $canManageUsers || $canManageRoles || $canViewLogs || $canConfigureAdmissions;
-$isConfigOpen = str_starts_with($currentPath, '/users') || str_starts_with($currentPath, '/roles') || $isActive(['/admission-settings']);
+$isAdmissionsOpen = str_starts_with($currentPath, '/admissions') || str_starts_with($currentPath, '/admission-statuses') || $isActive(['/admission-settings']);
+$isConfigOpen = str_starts_with($currentPath, '/users') || str_starts_with($currentPath, '/roles');
+$icon = static function (string $name): string {
+    $icons = [
+        'dashboard' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h7V4H4v9Zm0 7h7v-5H4v5Zm9 0h7v-9h-7v9Zm0-18v7h7V2h-7Z"/></svg>',
+        'admissions' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm8 1.5V8h4.5M8 12h8M8 16h8M8 8h3"/></svg>',
+        'settings' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Zm8.4-3.5c0-.6-.1-1.2-.2-1.7l2-1.5-2-3.5-2.4 1a8.5 8.5 0 0 0-3-1.7L14.5 2h-4l-.4 2.6a8.5 8.5 0 0 0-3 1.7l-2.4-1-2 3.5 2 1.5a8.7 8.7 0 0 0 0 3.4l-2 1.5 2 3.5 2.4-1a8.5 8.5 0 0 0 3 1.7l.4 2.6h4l.4-2.6a8.5 8.5 0 0 0 3-1.7l2.4 1 2-3.5-2-1.5c.1-.5.2-1.1.2-1.7Z"/></svg>',
+        'external' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M20 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5"/></svg>',
+        'logout' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M21 3v18h-8"/></svg>',
+    ];
+    return $icons[$name] ?? '';
+};
 ?>
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-head">
@@ -25,23 +36,31 @@ $isConfigOpen = str_starts_with($currentPath, '/users') || str_starts_with($curr
 
     <nav class="side-nav" aria-label="Menú principal">
         <?php if ($canViewDashboard): ?>
-            <a href="<?= App::url('/dashboard') ?>" class="nav-link <?= $isActive(['/dashboard']) ? 'is-active' : '' ?>"><span class="nav-icon">⌁</span><span>Dashboard</span></a>
+            <a href="<?= App::url('/dashboard') ?>" class="nav-link <?= $isActive(['/dashboard']) ? 'is-active' : '' ?>"><span class="nav-icon"><?= $icon('dashboard') ?></span><span>Dashboard</span></a>
         <?php endif; ?>
 
         <?php if ($canConfigureAdmissions): ?>
-            <a href="<?= App::url('/admissions') ?>" class="nav-link <?= $isActive(['/admissions']) ? 'is-active' : '' ?>"><span class="nav-icon">▦</span><span>Solicitudes</span></a>
+            <details class="nav-group" <?= $isAdmissionsOpen ? 'open' : '' ?>>
+                <summary class="nav-link nav-summary <?= $isAdmissionsOpen ? 'is-active' : '' ?>">
+                    <span class="nav-icon"><?= $icon('admissions') ?></span><span>Postulaciones</span><em>⌄</em>
+                </summary>
+                <div class="nav-submenu">
+                    <a href="<?= App::url('/admissions') ?>" class="nav-sublink <?= str_starts_with($currentPath, '/admissions') ? 'is-active' : '' ?>">Solicitudes</a>
+                    <a href="<?= App::url('/admission-statuses') ?>" class="nav-sublink <?= str_starts_with($currentPath, '/admission-statuses') ? 'is-active' : '' ?>">Estados</a>
+                    <a href="<?= App::url('/admission-settings') ?>" class="nav-sublink <?= $isActive(['/admission-settings']) ? 'is-active' : '' ?>">Configuración</a>
+                </div>
+            </details>
         <?php endif; ?>
 
         <?php if ($hasConfigItems): ?>
             <details class="nav-group" <?= $isConfigOpen ? 'open' : '' ?>>
                 <summary class="nav-link nav-summary <?= $isConfigOpen ? 'is-active' : '' ?>">
-                    <span class="nav-icon">⚙</span><span>Configuración</span><em>⌄</em>
+                    <span class="nav-icon"><?= $icon('settings') ?></span><span>Administración</span><em>⌄</em>
                 </summary>
                 <div class="nav-submenu">
                     <?php if ($canManageUsers): ?><a href="<?= App::url('/users') ?>" class="nav-sublink <?= str_starts_with($currentPath, '/users') ? 'is-active' : '' ?>">Usuarios</a><?php endif; ?>
                     <?php if ($canManageRoles): ?><a href="<?= App::url('/roles') ?>" class="nav-sublink <?= str_starts_with($currentPath, '/roles') ? 'is-active' : '' ?>">Roles y permisos</a><?php endif; ?>
                     <?php if ($canViewLogs): ?><a href="<?= App::url('/dashboard#actividad') ?>" class="nav-sublink">Actividad</a><?php endif; ?>
-                    <?php if ($canConfigureAdmissions): ?><a href="<?= App::url('/admission-settings') ?>" class="nav-sublink <?= $isActive(['/admission-settings']) ? 'is-active' : '' ?>">Postulaciones</a><?php endif; ?>
                 </div>
             </details>
         <?php endif; ?>
@@ -53,9 +72,9 @@ $isConfigOpen = str_starts_with($currentPath, '/users') || str_starts_with($curr
                 <strong>Ver página pública</strong>
                 <small>postula.php</small>
             </span>
-            <em>↗</em>
+            <em><?= $icon('external') ?></em>
         </a>
-        <a href="<?= App::url('/logout') ?>" class="logout-link"><span>Salir</span><small>Cerrar sesión</small></a>
+        <a href="<?= App::url('/logout') ?>" class="logout-link"><em><?= $icon('logout') ?></em><span>Salir<small>Cerrar sesión</small></span></a>
     </div>
 </aside>
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>

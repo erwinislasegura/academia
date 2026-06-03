@@ -96,6 +96,25 @@ CREATE TABLE application_settings (
   updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
+CREATE TABLE admission_statuses (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  slug VARCHAR(120) NOT NULL UNIQUE,
+  color VARCHAR(7) NOT NULL DEFAULT '#071D7A',
+  description TEXT NULL,
+  sort_order INT UNSIGNED NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+INSERT INTO admission_statuses (id, name, slug, color, description, sort_order, is_active) VALUES
+(1, 'Recibida', 'recibida', '#2563EB', 'Solicitud ingresada desde el formulario público.', 10, 1),
+(2, 'En revisión', 'en-revision', '#F59E0B', 'El equipo de admisión está revisando los antecedentes.', 20, 1),
+(3, 'Contactada', 'contactada', '#7C3AED', 'La familia ya fue contactada para continuar el proceso.', 30, 1),
+(4, 'Aceptada', 'aceptada', '#16A34A', 'Postulación aceptada para avanzar a matrícula.', 40, 1),
+(5, 'Rechazada', 'rechazada', '#DC2626', 'Postulación cerrada sin cupo o sin continuidad.', 50, 1);
+
 CREATE TABLE admission_applications (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   guardian_first_names VARCHAR(150) NOT NULL,
@@ -105,11 +124,14 @@ CREATE TABLE admission_applications (
   student_name VARCHAR(180) NOT NULL,
   course VARCHAR(80) NOT NULL,
   message TEXT NULL,
+  status_id BIGINT UNSIGNED NULL DEFAULT 1,
   ip_address VARCHAR(45) NULL,
   user_agent VARCHAR(255) NULL,
   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_admission_applications_email (guardian_email),
-  INDEX idx_admission_applications_created_at (created_at)
+  INDEX idx_admission_applications_created_at (created_at),
+  INDEX idx_admission_applications_status (status_id),
+  CONSTRAINT fk_admission_applications_status FOREIGN KEY (status_id) REFERENCES admission_statuses(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 INSERT INTO permissions (id, name, slug, module, description) VALUES

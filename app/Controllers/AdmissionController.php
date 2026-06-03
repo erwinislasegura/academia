@@ -92,8 +92,21 @@ final class AdmissionController extends Controller
         $this->view('admissions/applications', [
             'title' => 'Postulaciones recibidas',
             'applications' => $model->all(),
+            'statuses' => (new AdmissionStatus())->all(true),
             'totalApplications' => $model->count(),
         ]);
+    }
+
+    public function updateApplicationStatus(int $id): void
+    {
+        Middleware::permission('configurar_postulaciones');
+        $input = $this->input();
+        $statusId = trim((string) ($input['status_id'] ?? '')) === '' ? null : (int) $input['status_id'];
+
+        $ok = (new AdmissionApplication())->updateStatus($id, $statusId);
+        (new User())->log((int) Session::get('user_id'), 'admission_status_changed', 'Actualizó el estado de la postulación #' . $id . '.');
+        Session::flash($ok ? 'success' : 'error', $ok ? 'Estado de postulación actualizado.' : 'No fue posible actualizar el estado seleccionado.');
+        $this->redirect('/admissions');
     }
 
     public function exportApplications(): void
@@ -110,7 +123,7 @@ final class AdmissionController extends Controller
         echo "\xEF\xBB\xBF";
         echo '<table border="1">';
         echo '<thead><tr>';
-        foreach (['ID', 'Fecha', 'Apoderado', 'Email', 'Teléfono', 'Estudiante', 'Curso', 'Mensaje'] as $heading) {
+        foreach (['ID', 'Fecha', 'Apoderado', 'Email', 'Teléfono', 'Estudiante', 'Curso', 'Estado', 'Mensaje'] as $heading) {
             echo '<th>' . htmlspecialchars($heading, ENT_QUOTES, 'UTF-8') . '</th>';
         }
         echo '</tr></thead><tbody>';
@@ -125,6 +138,7 @@ final class AdmissionController extends Controller
                 $application['guardian_phone'] ?? '',
                 $application['student_name'] ?? '',
                 $application['course'] ?? '',
+                $application['status_name'] ?? 'Sin estado',
                 $application['message'] ?? '',
             ];
 
