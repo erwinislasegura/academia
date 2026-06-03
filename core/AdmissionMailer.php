@@ -4,8 +4,8 @@ final class AdmissionMailer
 {
     public static function sendApplicationEmails(array $application, array $settings): bool
     {
-        $adminSent = self::sendAdminNotification($application, $settings);
         $applicantSent = self::sendApplicantEmail($application, $settings);
+        $adminSent = self::sendAdminNotification($application, $settings);
 
         return $adminSent && $applicantSent;
     }
@@ -91,28 +91,44 @@ final class AdmissionMailer
     private static function sendHtml(string $to, string $subject, string $html, string $replyTo = '', ?array $mailConfig = null): bool
     {
         if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+            self::logFailure('Dirección de destino inválida: ' . $to);
             return false;
         }
 
         $mailConfig ??= (new ApplicationSetting())->mailSettings();
         $fromAddress = (string) ($mailConfig['from_address'] ?? 'no-reply@academiaiquique.cl');
         $fromName = (string) ($mailConfig['from_name'] ?? 'Academia Iquique');
-        $headers = self::htmlHeaders($fromAddress, $fromName, $replyTo);
+        if (!filter_var($fromAddress, FILTER_VALIDATE_EMAIL)) {
+            self::logFailure('Dirección remitente inválida: ' . $fromAddress);
+            return false;
+        }
+
+        $boundary = self::mimeBoundary();
+        $messageBody = self::multipartBody($html, $boundary);
+        $headers = self::htmlHeaders($fromAddress, $fromName, $replyTo, $boundary);
         $encodedSubject = self::encodeHeader($subject);
 
         if (self::shouldSendWithSmtp($mailConfig)) {
-            return self::sendWithSmtp($to, $encodedSubject, $html, $headers, $mailConfig);
+            $sent = self::sendWithSmtp($to, $encodedSubject, $messageBody, $headers, $mailConfig);
+            if ($sent) {
+                return true;
+            }
+
+            self::logFailure('Se intentará el envío alternativo con mail() para ' . $to . '.');
         }
 
-        return mail($to, $encodedSubject, $html, implode("\r\n", $headers));
+        return self::sendWithPhpMail($to, $encodedSubject, $messageBody, $headers, $fromAddress);
     }
 
-    private static function htmlHeaders(string $fromAddress, string $fromName, string $replyTo = ''): array
+    private static function htmlHeaders(string $fromAddress, string $fromName, string $replyTo, string $boundary): array
     {
         $headers = [
             'MIME-Version: 1.0',
-            'Content-Type: text/html; charset=UTF-8',
+            'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
             'From: ' . self::formatAddress($fromAddress, $fromName),
+            'Date: ' . date(DATE_RFC2822),
+            'Message-ID: <' . bin2hex(random_bytes(16)) . '@' . self::smtpHostname() . '>',
+            'X-Mailer: Academia Iquique Admissions',
         ];
         if (filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
             $headers[] = 'Reply-To: ' . $replyTo;
@@ -123,8 +139,12 @@ final class AdmissionMailer
 
     private static function shouldSendWithSmtp(array $mailConfig): bool
     {
-        return strtolower((string) ($mailConfig['mailer'] ?? 'mail')) === 'smtp'
-            || trim((string) ($mailConfig['host'] ?? '')) !== '';
+        $mailer = strtolower(trim((string) ($mailConfig['mailer'] ?? '')));
+        if ($mailer === '') {
+            return trim((string) ($mailConfig['host'] ?? '')) !== '';
+        }
+
+        return $mailer === 'smtp';
     }
 
     private static function sendWithSmtp(string $to, string $subject, string $html, array $headers, array $mailConfig): bool
@@ -137,12 +157,14 @@ final class AdmissionMailer
         $fromAddress = (string) ($mailConfig['from_address'] ?? 'no-reply@academiaiquique.cl');
 
         if ($host === '' || !filter_var($fromAddress, FILTER_VALIDATE_EMAIL)) {
+            self::logFailure('Configuración SMTP incompleta: host o remitente inválido.');
             return false;
         }
 
         $target = $encryption === 'ssl' ? 'ssl://' . $host : $host;
-        $socket = @fsockopen($target, $port, $errno, $errstr, 15);
+        $socket = @stream_socket_client($target . ':' . $port, $errno, $errstr, 15, STREAM_CLIENT_CONNECT);
         if (!is_resource($socket)) {
+            self::logFailure(sprintf('No fue posible conectar con SMTP %s:%d (%d: %s).', $host, $port, $errno, $errstr));
             return false;
         }
         stream_set_timeout($socket, 15);
@@ -152,7 +174,7 @@ final class AdmissionMailer
 
         if ($ok && $encryption === 'tls') {
             $ok = self::smtpCommand($socket, 'STARTTLS', [220])
-                && stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)
+                && @stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)
                 && self::smtpCommand($socket, 'EHLO ' . self::smtpHostname(), [250]);
         }
 
@@ -176,7 +198,22 @@ final class AdmissionMailer
         self::smtpCommand($socket, 'QUIT', [221]);
         fclose($socket);
 
+        if (!$ok) {
+            self::logFailure('El servidor SMTP rechazó el envío del correo a ' . $to . '.');
+        }
+
         return $ok;
+    }
+
+    private static function sendWithPhpMail(string $to, string $subject, string $body, array $headers, string $fromAddress): bool
+    {
+        $additionalParams = '-f' . escapeshellarg($fromAddress);
+        $sent = mail($to, $subject, $body, implode("\r\n", $headers), $additionalParams);
+        if (!$sent) {
+            self::logFailure('mail() no pudo enviar el correo a ' . $to . '.');
+        }
+
+        return $sent;
     }
 
     private static function smtpCommand($socket, string $command, array $expectedCodes): bool
@@ -202,6 +239,53 @@ final class AdmissionMailer
     {
         $body = preg_replace("/\r\n|\r|\n/", "\r\n", $html) ?? $html;
         return preg_replace('/^\./m', '..', $body) ?? $body;
+    }
+
+    private static function multipartBody(string $html, string $boundary): string
+    {
+        $plainText = self::htmlToText($html);
+        $parts = [
+            '--' . $boundary,
+            'Content-Type: text/plain; charset=UTF-8',
+            'Content-Transfer-Encoding: quoted-printable',
+            '',
+            self::encodeBody($plainText),
+            '--' . $boundary,
+            'Content-Type: text/html; charset=UTF-8',
+            'Content-Transfer-Encoding: quoted-printable',
+            '',
+            self::encodeBody($html),
+            '--' . $boundary . '--',
+            '',
+        ];
+
+        return implode("\r\n", $parts);
+    }
+
+    private static function htmlToText(string $html): string
+    {
+        $text = preg_replace('/<(br|\/p|\/li|\/tr|\/h[1-6])\b[^>]*>/i', "\n", $html) ?? $html;
+        $text = strip_tags($text);
+        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = preg_replace('/[ \t]+/', ' ', $text) ?? $text;
+        $text = preg_replace('/\n{3,}/', "\n\n", $text) ?? $text;
+
+        return trim($text);
+    }
+
+    private static function encodeBody(string $body): string
+    {
+        return quoted_printable_encode($body);
+    }
+
+    private static function mimeBoundary(): string
+    {
+        return '=_academia_' . bin2hex(random_bytes(12));
+    }
+
+    private static function logFailure(string $message): void
+    {
+        error_log('[AdmissionMailer] ' . $message);
     }
 
     private static function formatAddress(string $email, string $name): string

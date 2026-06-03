@@ -2,6 +2,10 @@
 
 final class ApplicationSetting extends Model
 {
+    private const LEGACY_MAIL_PASSWORDS = [
+        'G;bD1;5z_$b1{NF2',
+    ];
+
     public function get(string $key, ?string $default = null): ?string
     {
         $stmt = $this->db->prepare('SELECT value FROM application_settings WHERE `key` = ? LIMIT 1');
@@ -24,17 +28,28 @@ final class ApplicationSetting extends Model
     public function mailSettings(): array
     {
         $defaults = App::config('mail');
+        $defaultPassword = (string) ($defaults['password'] ?? '');
 
         return [
             'mailer' => $this->get('mail_mailer', (string) ($defaults['mailer'] ?? 'smtp')),
             'host' => $this->get('mail_host', (string) ($defaults['host'] ?? '')),
             'port' => (int) $this->get('mail_port', (string) ($defaults['port'] ?? 465)),
             'username' => $this->get('mail_username', (string) ($defaults['username'] ?? '')),
-            'password' => $this->get('mail_password', (string) ($defaults['password'] ?? '')),
+            'password' => $this->currentMailPassword($defaultPassword),
             'encryption' => $this->get('mail_encryption', (string) ($defaults['encryption'] ?? 'ssl')),
             'from_address' => $this->get('mail_from_address', (string) ($defaults['from_address'] ?? 'notificacion@academia.gocreative.cl')),
             'from_name' => $this->get('mail_from_name', (string) ($defaults['from_name'] ?? 'Academia Iquique')),
         ];
+    }
+
+    private function currentMailPassword(string $defaultPassword): string
+    {
+        $storedPassword = $this->get('mail_password', $defaultPassword);
+        if ($storedPassword === null || in_array($storedPassword, self::LEGACY_MAIL_PASSWORDS, true)) {
+            return $defaultPassword;
+        }
+
+        return $storedPassword;
     }
 
     public function saveMailSettings(array $settings): void
