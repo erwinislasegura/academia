@@ -1234,3 +1234,81 @@ button, input, select, textarea { font: inherit; }
   .login-subtitle,
   .login-card h2 { text-align: center; }
 }
+
+.nav-icon svg,
+.public-page-link em svg,
+.logout-link em svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.logout-link em {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #fff1f2;
+  color: #b4232f;
+  font-style: normal;
+  flex: 0 0 auto;
+}
+
+.status-dot {
+  width: 11px;
+  height: 11px;
+  display: inline-block;
+  border-radius: 999px;
+  background: var(--status-color, #94a3b8);
+  box-shadow: 0 0 0 4px rgba(148, 163, 184, .18);
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.status-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 190px;
+}
+
+.status-form select {
+  min-width: 150px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 9px 10px;
+  background: #fff;
+  color: var(--text);
+  font-weight: 600;
+  outline: none;
+}
+
+.status-form select:focus {
+  border-color: rgba(7, 29, 122, .35);
+  box-shadow: 0 0 0 4px rgba(7, 29, 122, .08);
+}
+
+.check-row {
+  display: flex !important;
+  grid-template-columns: none !important;
+  align-items: center;
+  gap: 10px !important;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #f8faff;
+}
+
+.check-row input {
+  width: auto;
+}
+
+.admissions-table { min-width: 1080px; }
+
+.logout-link { justify-content: flex-start; gap: 12px; }
