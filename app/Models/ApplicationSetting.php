@@ -35,6 +35,13 @@ final class ApplicationSetting extends Model
 
     public static function defaultApplicantHtml(): string
     {
-        return '<p>Hola {{nombres_apoderado}},</p><p>Tu postulación para {{estudiante}} al curso {{curso}} fue recibida exitosamente.</p><p>Nuestro equipo de admisión revisará los antecedentes y se contactará contigo para orientar los próximos pasos.</p><p><strong>Academia Iquique</strong></p>';
+        return <<<'HTML'
+<p>Mensaje de Admision 2026 Academia Iquique"<br /><br />Nombres del Apoderado: {name-2-first-name}</p>
+<p>Apellidos del Apoderado: {name-2-last-name}</p>
+<p>Email: {email-1}</p>
+<p>Teléfono: {phone-1}</p>
+<p><span class="pill auto-tooltip" title="" data-original-title="curso">Curso: </span>{select-1}</p>
+<p>Acepto condiciones de envio de información: {consent-1}<br /><br />Este mensaje fue enviado desde {site_url}.</p>
+HTML;
     }
 }
