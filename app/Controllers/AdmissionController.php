@@ -156,10 +156,13 @@ final class AdmissionController extends Controller
     public function settings(): void
     {
         Middleware::permission('configurar_postulaciones');
+        $settings = (new ApplicationSetting())->admissionSettings();
         $this->view('admissions/settings', [
             'title' => 'Configuración de postulaciones',
-            'settings' => (new ApplicationSetting())->admissionSettings(),
+            'settings' => $settings,
             'errors' => [],
+            'previewApplication' => self::previewApplication(),
+            'applicantPreviewHtml' => self::applicantPreviewHtml($settings),
         ]);
     }
 
@@ -210,6 +213,8 @@ final class AdmissionController extends Controller
                 'title' => 'Configuración de postulaciones',
                 'settings' => $settings,
                 'errors' => $errors,
+                'previewApplication' => self::previewApplication(),
+                'applicantPreviewHtml' => self::applicantPreviewHtml($settings),
             ]);
             return;
         }
@@ -225,6 +230,26 @@ final class AdmissionController extends Controller
 
         Session::flash('success', 'Configuración de postulaciones actualizada correctamente.');
         $this->redirect('/admission-settings');
+    }
+
+
+    private static function applicantPreviewHtml(array $settings): string
+    {
+        return AdmissionMailer::renderTemplate((string) ($settings['applicant_html'] ?? ''), self::previewApplication());
+    }
+
+    private static function previewApplication(): array
+    {
+        return [
+            'nombres_apoderado' => 'María José',
+            'apellidos_apoderado' => 'González Pérez',
+            'email' => 'familia@ejemplo.cl',
+            'telefono' => '+56 9 8574 1931',
+            'estudiante' => 'Sofía González',
+            'curso' => '1º Básico',
+            'mensaje' => 'Solicito información sobre el proceso de admisión 2026.',
+            'autorizacion' => '1',
+        ];
     }
 
     private function validate(array $input): array
