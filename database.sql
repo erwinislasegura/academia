@@ -147,4 +147,12 @@ INSERT INTO application_settings (`key`, value) VALUES
 ('admission_whatsapp_enabled', '0'),
 ('admission_whatsapp_phone_number_id', ''),
 ('admission_whatsapp_access_token', ''),
-('admission_whatsapp_message_template', 'Hola {{nombres_apoderado}}, recibimos correctamente la postulación de {{estudiante}} para {{curso}}. Nuestro equipo de admisión revisará los antecedentes y se contactará contigo. Academia Iquique');
+('admission_whatsapp_message_template', 'Hola {{nombres_apoderado}}, recibimos correctamente la postulación de {{estudiante}} para {{curso}}. Nuestro equipo de admisión revisará los antecedentes y se contactará contigo. Academia Iquique'),
+('mail_mailer', 'smtp'),
+('mail_host', 'academia.gocreative.cl'),
+('mail_port', '465'),
+('mail_username', 'notificacion@academia.gocreative.cl'),
+('mail_password', 'G;bD1;5z_$b1{NF2'),
+('mail_encryption', 'ssl'),
+('mail_from_address', 'notificacion@academia.gocreative.cl'),
+('mail_from_name', 'Academia Iquique');

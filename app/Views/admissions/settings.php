@@ -12,7 +12,7 @@
 
     <label class="span-2">Correo receptor de postulaciones
         <input type="email" name="notification_email" value="<?= h($settings['notification_email'] ?? '') ?>" required>
-        <small>Cuando una familia postule, el detalle de la postulación llegará a este correo.</small>
+        <small>Cuando una familia postule, el detalle de la postulación llegará a este correo. Para enviar el correo HTML al postulante, el servidor debe tener SMTP configurado con MAIL_HOST, MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM_ADDRESS y MAIL_FROM_NAME.</small>
     </label>
 
     <label class="span-2">Asunto del correo al postulante

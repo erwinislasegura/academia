@@ -20,6 +20,39 @@ final class ApplicationSetting extends Model
         $stmt->execute([$key, $value]);
     }
 
+
+    public function mailSettings(): array
+    {
+        $defaults = App::config('mail');
+
+        return [
+            'mailer' => $this->get('mail_mailer', (string) ($defaults['mailer'] ?? 'smtp')),
+            'host' => $this->get('mail_host', (string) ($defaults['host'] ?? '')),
+            'port' => (int) $this->get('mail_port', (string) ($defaults['port'] ?? 465)),
+            'username' => $this->get('mail_username', (string) ($defaults['username'] ?? '')),
+            'password' => $this->get('mail_password', (string) ($defaults['password'] ?? '')),
+            'encryption' => $this->get('mail_encryption', (string) ($defaults['encryption'] ?? 'ssl')),
+            'from_address' => $this->get('mail_from_address', (string) ($defaults['from_address'] ?? 'notificacion@academia.gocreative.cl')),
+            'from_name' => $this->get('mail_from_name', (string) ($defaults['from_name'] ?? 'Academia Iquique')),
+        ];
+    }
+
+    public function saveMailSettings(array $settings): void
+    {
+        foreach ([
+            'mail_mailer' => 'mailer',
+            'mail_host' => 'host',
+            'mail_port' => 'port',
+            'mail_username' => 'username',
+            'mail_password' => 'password',
+            'mail_encryption' => 'encryption',
+            'mail_from_address' => 'from_address',
+            'mail_from_name' => 'from_name',
+        ] as $key => $settingKey) {
+            $this->set($key, (string) ($settings[$settingKey] ?? ''));
+        }
+    }
+
     public function admissionSettings(): array
     {
         $applicantHtml = $this->get('admission_applicant_success_html', self::defaultApplicantHtml());
