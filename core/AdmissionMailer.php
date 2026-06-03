@@ -91,20 +91,27 @@ final class AdmissionMailer
     private static function sendHtml(string $to, string $subject, string $html, string $replyTo = '', ?array $mailConfig = null): bool
     {
         if (!filter_var($to, FILTER_VALIDATE_EMAIL)) {
+            self::logFailure('Dirección de destino inválida: ' . $to);
             return false;
         }
 
         $mailConfig ??= (new ApplicationSetting())->mailSettings();
         $fromAddress = (string) ($mailConfig['from_address'] ?? 'no-reply@academiaiquique.cl');
         $fromName = (string) ($mailConfig['from_name'] ?? 'Academia Iquique');
+        if (!filter_var($fromAddress, FILTER_VALIDATE_EMAIL)) {
+            self::logFailure('Dirección remitente inválida: ' . $fromAddress);
+            return false;
+        }
+
+        $encodedBody = self::encodeBody($html);
         $headers = self::htmlHeaders($fromAddress, $fromName, $replyTo);
         $encodedSubject = self::encodeHeader($subject);
 
         if (self::shouldSendWithSmtp($mailConfig)) {
-            return self::sendWithSmtp($to, $encodedSubject, $html, $headers, $mailConfig);
+            return self::sendWithSmtp($to, $encodedSubject, $encodedBody, $headers, $mailConfig);
         }
 
-        return mail($to, $encodedSubject, $html, implode("\r\n", $headers));
+        return self::sendWithPhpMail($to, $encodedSubject, $encodedBody, $headers, $fromAddress);
     }
 
     private static function htmlHeaders(string $fromAddress, string $fromName, string $replyTo = ''): array
@@ -112,6 +119,7 @@ final class AdmissionMailer
         $headers = [
             'MIME-Version: 1.0',
             'Content-Type: text/html; charset=UTF-8',
+            'Content-Transfer-Encoding: quoted-printable',
             'From: ' . self::formatAddress($fromAddress, $fromName),
         ];
         if (filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
@@ -137,12 +145,14 @@ final class AdmissionMailer
         $fromAddress = (string) ($mailConfig['from_address'] ?? 'no-reply@academiaiquique.cl');
 
         if ($host === '' || !filter_var($fromAddress, FILTER_VALIDATE_EMAIL)) {
+            self::logFailure('Configuración SMTP incompleta: host o remitente inválido.');
             return false;
         }
 
         $target = $encryption === 'ssl' ? 'ssl://' . $host : $host;
-        $socket = @fsockopen($target, $port, $errno, $errstr, 15);
+        $socket = @stream_socket_client($target . ':' . $port, $errno, $errstr, 15, STREAM_CLIENT_CONNECT);
         if (!is_resource($socket)) {
+            self::logFailure(sprintf('No fue posible conectar con SMTP %s:%d (%d: %s).', $host, $port, $errno, $errstr));
             return false;
         }
         stream_set_timeout($socket, 15);
@@ -152,7 +162,7 @@ final class AdmissionMailer
 
         if ($ok && $encryption === 'tls') {
             $ok = self::smtpCommand($socket, 'STARTTLS', [220])
-                && stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)
+                && @stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)
                 && self::smtpCommand($socket, 'EHLO ' . self::smtpHostname(), [250]);
         }
 
@@ -176,7 +186,22 @@ final class AdmissionMailer
         self::smtpCommand($socket, 'QUIT', [221]);
         fclose($socket);
 
+        if (!$ok) {
+            self::logFailure('El servidor SMTP rechazó el envío del correo a ' . $to . '.');
+        }
+
         return $ok;
+    }
+
+    private static function sendWithPhpMail(string $to, string $subject, string $body, array $headers, string $fromAddress): bool
+    {
+        $additionalParams = '-f' . escapeshellarg($fromAddress);
+        $sent = mail($to, $subject, $body, implode("\r\n", $headers), $additionalParams);
+        if (!$sent) {
+            self::logFailure('mail() no pudo enviar el correo a ' . $to . '.');
+        }
+
+        return $sent;
     }
 
     private static function smtpCommand($socket, string $command, array $expectedCodes): bool
@@ -202,6 +227,16 @@ final class AdmissionMailer
     {
         $body = preg_replace("/\r\n|\r|\n/", "\r\n", $html) ?? $html;
         return preg_replace('/^\./m', '..', $body) ?? $body;
+    }
+
+    private static function encodeBody(string $html): string
+    {
+        return quoted_printable_encode($html);
+    }
+
+    private static function logFailure(string $message): void
+    {
+        error_log('[AdmissionMailer] ' . $message);
     }
 
     private static function formatAddress(string $email, string $name): string
