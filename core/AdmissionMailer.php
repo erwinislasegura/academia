@@ -4,21 +4,30 @@ final class AdmissionMailer
 {
     public static function sendApplicationEmails(array $application, array $settings): bool
     {
-        $adminSent = self::sendHtml(
+        $adminSent = self::sendAdminNotification($application, $settings);
+        $applicantSent = self::sendApplicantEmail($application, $settings);
+
+        return $adminSent && $applicantSent;
+    }
+
+    public static function sendAdminNotification(array $application, array $settings): bool
+    {
+        return self::sendHtml(
             $settings['notification_email'],
             'Nueva postulación de admisión 2026',
             self::adminMessage($application),
             $application['email']
         );
+    }
 
-        $applicantSent = self::sendHtml(
+    public static function sendApplicantEmail(array $application, array $settings): bool
+    {
+        return self::sendHtml(
             $application['email'],
             $settings['applicant_subject'],
             self::renderTemplate($settings['applicant_html'], $application),
             $settings['notification_email']
         );
-
-        return $adminSent && $applicantSent;
     }
 
     public static function renderTemplate(string $html, array $application): string
