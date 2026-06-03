@@ -1,7 +1,7 @@
 <header class="topbar">
     <button class="icon-button" id="sidebarToggle" type="button">☰</button>
     <div>
-        <p class="eyebrow">Panel Administrativo</p>
+        <p class="eyebrow">Sistema Academiapp</p>
         <h1><?= h($title ?? 'Dashboard') ?></h1>
     </div>
     <div class="user-chip">

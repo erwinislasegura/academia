@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
   <title id="title">Academia Iquique</title>
-  <desc id="desc">Insignia vectorial en azul, rojo y blanco para el panel administrativo.</desc>
+  <desc id="desc">Insignia vectorial en azul, rojo y blanco para Sistema Academiapp.</desc>
   <defs>
     <linearGradient id="blue" x1="86" x2="426" y1="80" y2="432" gradientUnits="userSpaceOnUse">
       <stop stop-color="#071D7A"/>

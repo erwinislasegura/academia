@@ -21,7 +21,7 @@ final class AuthController extends Controller
         }
         Auth::login($user);
         $userModel->touchLogin((int) $user['id']);
-        $userModel->log((int) $user['id'], 'login', 'Inicio de sesión en el panel administrativo.');
+        $userModel->log((int) $user['id'], 'login', 'Inicio de sesión en Sistema Academiapp.');
         $this->redirect('/dashboard');
     }
 

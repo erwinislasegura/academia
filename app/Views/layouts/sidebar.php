@@ -19,7 +19,7 @@ $isConfigOpen = str_starts_with($currentPath, '/users') || str_starts_with($curr
     <div class="sidebar-head">
         <a href="<?= App::url('/dashboard') ?>" class="brand-block" aria-label="Ir al dashboard">
             <span class="brand-logo-wrap"><img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique" class="brand-logo"></span>
-            <span class="brand-copy"><strong>Academia Iquique</strong><small>Panel administrativo</small></span>
+            <span class="brand-copy"><strong>Academia Iquique</strong><small>Sistema Academiapp</small></span>
         </a>
     </div>
 

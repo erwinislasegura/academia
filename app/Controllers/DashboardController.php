@@ -7,7 +7,7 @@ final class DashboardController extends Controller
         Middleware::permission('ver_dashboard');
         $userModel = new User();
         $this->view('dashboard/index', [
-            'title' => 'Panel principal',
+            'title' => 'Inicio Academiapp',
             'activeUsers' => $userModel->activeCount(),
             'rolesCount' => (new Role())->count(),
             'permissionsCount' => (new Permission())->count(),
