@@ -21,7 +21,7 @@
 
     <label class="span-2">Mensaje HTML para el postulante
         <textarea name="applicant_html" rows="12" required><?= h($settings['applicant_html'] ?? '') ?></textarea>
-        <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}.</small>
+        <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. Compatibles con el mensaje predeterminado: {name-2-first-name}, {name-2-last-name}, {email-1}, {phone-1}, {select-1}, {consent-1}, {site_url}.</small>
     </label>
 
     <div class="panel-card span-2" style="background:#f8faff; box-shadow:none;">

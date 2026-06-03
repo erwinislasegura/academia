@@ -27,7 +27,25 @@ final class AdmissionMailer
         foreach ($application as $key => $value) {
             $replacements['{{' . $key . '}}'] = htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
         }
-        $replacements['{{nombre_apoderado}}'] = trim(($replacements['{{nombres_apoderado}}'] ?? '') . ' ' . ($replacements['{{apellidos_apoderado}}'] ?? ''));
+        $replacements['{{nombre_apoderado}}'] = htmlspecialchars(
+            trim((string) ($application['nombres_apoderado'] ?? '') . ' ' . (string) ($application['apellidos_apoderado'] ?? '')),
+            ENT_QUOTES,
+            'UTF-8'
+        );
+
+        $legacyAliases = [
+            '{name-2-first-name}' => 'nombres_apoderado',
+            '{name-2-last-name}' => 'apellidos_apoderado',
+            '{email-1}' => 'email',
+            '{phone-1}' => 'telefono',
+            '{select-1}' => 'curso',
+            '{consent-1}' => 'autorizacion',
+        ];
+        foreach ($legacyAliases as $placeholder => $key) {
+            $replacements[$placeholder] = htmlspecialchars((string) ($application[$key] ?? ''), ENT_QUOTES, 'UTF-8');
+        }
+        $replacements['{consent-1}'] = !empty($application['autorizacion']) ? 'Sí' : 'No';
+        $replacements['{site_url}'] = htmlspecialchars((string) App::config('app.url'), ENT_QUOTES, 'UTF-8');
 
         return strtr($html, $replacements);
     }
