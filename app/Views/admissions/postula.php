@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Admisión 2026 | Academia Iquique</title>
+  <title>Proceso de postulación 2027 | Academia Iquique</title>
 
-  <meta name="description" content="Proceso de Admisión 2026 de Academia Iquique. Postula y conoce nuestro proyecto educativo." />
+  <meta name="description" content="Proceso de postulación 2027 de Academia Iquique. Postula y conoce nuestro proyecto educativo." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1346,7 +1346,7 @@
 
       <ul class="menu" id="mainMenu">
         <li><a href="#inicio">Inicio</a></li>
-        <li><a href="#formulario" class="is-active">Admisión 2026</a></li>
+        <li><a href="#formulario" class="is-active">Proceso de postulación 2027</a></li>
         <li><a href="#proceso">Proceso</a></li>
         <li><a href="#proyecto">Proyecto educativo</a></li>
         <li><a href="#contacto">Contacto</a></li>
@@ -1367,14 +1367,14 @@
     <section class="hero">
       <div class="hero__inner">
         <div class="hero__content">
-          <div class="label">Admisión 2026 abierta</div>
+          <div class="label">Proceso de postulación 2027 abierto</div>
 
           <h1>
-            Un proceso de admisión claro para ser parte de <span>Academia Iquique</span>
+            Un proceso de postulación claro para ser parte de <span>Academia Iquique</span>
           </h1>
 
           <p class="hero__text">
-            Te invitamos a conocer nuestro proyecto educativo y completar tu postulación para el año escolar 2026.
+            Te invitamos a conocer nuestro proyecto educativo y completar tu postulación para el año escolar 2027.
             Acompañamos a cada familia con información clara, orientación cercana y un proceso ordenado.
           </p>
 
@@ -1387,7 +1387,7 @@
             <div class="hero__note-mark">AI</div>
             <div>
               <strong>Atención a familias postulantes.</strong>
-              Completa el formulario y nuestro equipo de admisión se pondrá en contacto para orientar los siguientes pasos.
+              Completa el formulario y nuestro equipo de postulación se pondrá en contacto para orientar los siguientes pasos.
             </div>
           </div>
         </div>
@@ -1403,8 +1403,8 @@
               </div>
 
               <div class="mini-stat">
-                <strong>2026</strong>
-                <span>Proceso de admisión</span>
+                <strong>2027</strong>
+                <span>Proceso de postulación</span>
               </div>
 
               <div class="mini-stat">
@@ -1440,7 +1440,7 @@
         </div>
 
         <div class="trust-item">
-          <strong>2026</strong>
+          <strong>2027</strong>
           <span>Nuevo año escolar</span>
         </div>
       </div>
@@ -1451,10 +1451,10 @@
         <div class="admission-wrap">
 
           <aside class="admission-aside" id="contacto">
-            <div class="eyebrow">Admisión 2026</div>
+            <div class="eyebrow">Proceso de postulación 2027</div>
             <h2>¿Tienes dudas sobre el proceso?</h2>
             <p>
-              Nuestro equipo de admisión puede orientarte y entregar información sobre disponibilidad,
+              Nuestro equipo de postulación puede orientarte y entregar información sobre disponibilidad,
               requisitos y etapas de postulación.
             </p>
 
@@ -1501,7 +1501,7 @@
     <section class="section section--soft" id="proceso">
       <div class="container">
         <div class="section-head">
-          <div class="eyebrow">Proceso de admisión</div>
+          <div class="eyebrow">Proceso de postulación</div>
           <h2>Postular es simple y ordenado</h2>
           <p>
             Hemos estructurado el proceso para que cada familia pueda entregar sus datos,
@@ -1557,7 +1557,7 @@
             </p>
 
             <p>
-              Nuestro proceso de admisión busca entregar información clara a las familias,
+              Nuestro proceso de postulación busca entregar información clara a las familias,
               facilitando una postulación responsable y acompañada por el equipo institucional.
             </p>
           </div>
@@ -1601,7 +1601,7 @@
       <div class="container">
         <div class="cta__inner">
           <div>
-            <h2>Comienza hoy el proceso de admisión</h2>
+            <h2>Comienza hoy el proceso de postulación</h2>
             <p>
               Completa el formulario y nuestro equipo se pondrá en contacto contigo para orientar los siguientes pasos.
             </p>
@@ -1630,7 +1630,7 @@
           <h3>Menú</h3>
           <ul>
             <li><a href="#inicio">Inicio</a></li>
-            <li><a href="#formulario">Admisión 2026</a></li>
+            <li><a href="#formulario">Proceso de postulación 2027</a></li>
             <li><a href="#proceso">Proceso</a></li>
             <li><a href="#proyecto">Proyecto educativo</a></li>
           </ul>
@@ -1660,8 +1660,8 @@
       </div>
 
       <div class="footer__bottom">
-        <span>© 2026 Academia Iquique. Todos los derechos reservados.</span>
-        <span>Proceso de admisión 2026</span>
+        <span>© 2027 Academia Iquique. Todos los derechos reservados.</span>
+        <span>Proceso de postulación 2027</span>
       </div>
     </div>
   </footer>

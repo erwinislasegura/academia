@@ -14,7 +14,7 @@ final class AdmissionMailer
     {
         return self::sendHtml(
             $settings['notification_email'],
-            'Nueva postulación de admisión 2026',
+            'Nueva postulación 2027',
             self::adminMessage($application),
             $application['email']
         );
@@ -81,7 +81,7 @@ final class AdmissionMailer
             'Curso al que postula' => $application['curso'],
             'Mensaje adicional' => $application['mensaje'] ?: 'Sin mensaje adicional',
         ];
-        $html = '<h2>Nueva postulación de admisión 2026</h2><table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;border-color:#e2e8f0">';
+        $html = '<h2>Nueva postulación 2027</h2><table cellpadding="8" cellspacing="0" border="1" style="border-collapse:collapse;border-color:#e2e8f0">';
         foreach ($rows as $label => $value) {
             $html .= '<tr><th align="left">' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</th><td>' . nl2br(htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8')) . '</td></tr>';
         }
