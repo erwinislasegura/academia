@@ -92,7 +92,7 @@ storage/logs      Carpeta preparada para logs futuros
 
 ## 7. Postulación pública
 
-La página pública de admisión queda disponible sin iniciar sesión en:
+La página pública del proceso de postulación queda disponible sin iniciar sesión en:
 
 ```txt
 http://localhost:8000/postula
@@ -125,11 +125,9 @@ Para integrar solo el formulario en WordPress, incrusta la vista aislada con un 
 </iframe>
 ```
 
-Opcionalmente, desde Sistema Academiapp puedes activar el envío automático por WhatsApp al teléfono informado por el postulante. La integración usa un servicio reutilizable `InfobipWhatsAppService`, registra cada intento en `whatsapp_logs` y recibe estados en `POST /webhook/infobip-whatsapp`. Al registrar una postulación, el sistema dispara el template aprobado `confirmacion_postulacion` con las variables: nombre del apoderado, nombre del estudiante, curso y fecha de registro.
+La API de WhatsApp aún no está implementada, por lo que el envío automático al teléfono informado por el postulante permanece desactivado en el panel de postulaciones.
 
-El formulario valida que el teléfono sea un celular chileno con WhatsApp y lo normaliza antes de enviar (`+56 9 1234 5678`, `9 1234 5678` o `12345678` terminan como `56912345678` para Infobip). Para iniciar conversaciones fuera de la ventana de 24 horas se deben usar templates aprobados; el envío de texto libre queda disponible sólo para conversaciones iniciadas por el usuario dentro de esa ventana.
-
-Configura las credenciales por variables de entorno o desde el panel de postulaciones. La API Key no queda escrita en el código ni en los seeds SQL:
+Cuando se retome la integración, configura las credenciales por variables de entorno o desde el panel de postulaciones. La API Key no debe quedar escrita en el código ni en los seeds SQL:
 
 ```env
 INFOBIP_BASE_URL=https://4k99ym.api.infobip.com

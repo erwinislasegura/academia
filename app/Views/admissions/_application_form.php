@@ -3,16 +3,15 @@
             <div class="form-card__head">
               <div>
                 <h2>Formulario de postulación</h2>
-                <p>Completa los datos solicitados para iniciar el proceso de admisión 2026.</p>
+                <p>Completa los datos solicitados para iniciar el proceso de postulación 2027.</p>
               </div>
 
-              <span class="form-badge">Año escolar 2026</span>
+              <span class="form-badge">Año escolar 2027</span>
             </div>
 
             <?php if (!empty($success)): ?>
               <div class="public-alert public-alert--success">
-                <strong>Postulación enviada correctamente.</strong>
-                <div><?= $successMessageHtml ?></div>
+                <strong>Se envió su postulación con éxito.</strong>
               </div>
             <?php endif; ?>
             <?php if (!empty($errors)): ?>
@@ -83,14 +82,14 @@
                 <input type="checkbox" id="autorizacion" name="autorizacion" value="1" <?= !empty($old['autorizacion']) ? 'checked' : '' ?> required>
                 <span>
                   Autorizo a Academia Iquique a contactarme por teléfono, WhatsApp o correo electrónico
-                  para entregar información relacionada con el proceso de admisión 2026.
+                  para entregar información relacionada con el proceso de postulación 2027.
                 </span>
               </label>
 
               <div class="form-actions">
                 <small>
                   Los campos marcados con asterisco son obligatorios. La información será utilizada únicamente
-                  para gestionar tu solicitud de admisión.
+                  para gestionar tu solicitud de postulación.
                 </small>
 
                 <button class="btn btn--red" type="submit">Enviar postulación</button>

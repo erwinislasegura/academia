@@ -1,6 +1,6 @@
 <section class="hero-card">
     <div>
-        <p class="eyebrow">Admisión pública</p>
+        <p class="eyebrow">Postulación pública</p>
         <h2>Configuración de postulaciones</h2>
         <p>Define el correo que recibirá las postulaciones y el mensaje HTML automático para cada postulante.</p>
     </div>
@@ -57,8 +57,9 @@
 
     <div class="panel-card span-2" style="background:#f8faff; box-shadow:none;">
         <div class="section-head"><h3>WhatsApp automático por Infobip</h3></div>
+        <p class="field-error">La API de WhatsApp aún no está implementada, por lo que el envío automático permanece desactivado.</p>
         <label style="display:flex;gap:10px;align-items:center;margin-bottom:14px;">
-            <input type="checkbox" name="whatsapp_enabled" value="1" <?= !empty($settings['whatsapp_enabled']) ? 'checked' : '' ?>>
+            <input type="checkbox" name="whatsapp_enabled" value="1" disabled>
             Enviar un WhatsApp al teléfono informado cuando se registre la postulación.
         </label>
         <div class="form-grid" style="padding:0;">

@@ -55,32 +55,16 @@ final class AdmissionController extends Controller
         }
 
         $application = $this->normalize($input);
-        $applicationId = (new AdmissionApplication())->create($application);
+        (new AdmissionApplication())->create($application);
         $settings = (new ApplicationSetting())->admissionSettings();
-        $applicantMailSent = AdmissionMailer::sendApplicantEmail($application, $settings);
-        $adminMailSent = AdmissionMailer::sendAdminNotification($application, $settings);
-        $whatsAppApplication = $application + ['id' => $applicationId];
-        $whatsAppSent = WhatsAppNotifier::sendAdmissionMessage($whatsAppApplication, $settings);
-
-        $email = htmlspecialchars((string) $application['email'], ENT_QUOTES, 'UTF-8');
-        $message = '<p>Tu postulación fue registrada correctamente.</p>';
-        if ($applicantMailSent) {
-            $message .= '<p>Enviamos la información de admisión en formato HTML al correo ingresado en el formulario: <strong>' . $email . '</strong>.</p>';
-        } else {
-            $message .= '<p><small>Tu postulación quedó registrada, pero el servidor no pudo confirmar el envío del correo HTML al correo ingresado (<strong>' . $email . '</strong>). Nuestro equipo igualmente revisará tu solicitud.</small></p>';
-        }
-        if (!$adminMailSent) {
-            $message .= '<p><small>Tu postulación quedó registrada, pero el servidor no pudo confirmar el aviso interno al equipo de admisión.</small></p>';
-        }
-        if (!$whatsAppSent) {
-            $message .= '<p><small>Tu postulación quedó registrada, pero no fue posible confirmar el envío automático por WhatsApp. Nuestro equipo igualmente podrá contactarte por los medios autorizados.</small></p>';
-        }
+        AdmissionMailer::sendApplicantEmail($application, $settings);
+        AdmissionMailer::sendAdminNotification($application, $settings);
 
         $this->view($view, [
             'old' => [],
             'errors' => [],
             'success' => true,
-            'successMessageHtml' => $message,
+            'successMessageHtml' => '',
             'courses' => (new AdmissionCourse())->activeOptions(),
         ], null);
     }
@@ -268,7 +252,7 @@ final class AdmissionController extends Controller
             'telefono' => '+56 9 8574 1931',
             'estudiante' => 'Sofía González',
             'curso' => '1º Básico',
-            'mensaje' => 'Solicito información sobre el proceso de admisión 2026.',
+            'mensaje' => 'Solicito información sobre el proceso de postulación 2027.',
             'autorizacion' => '1',
         ];
     }

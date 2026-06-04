@@ -6,7 +6,7 @@
     <article class="stat-card"><span>Usuarios activos</span><strong><?= h($activeUsers) ?></strong><em>● Operativos</em></article>
     <article class="stat-card"><span>Roles configurados</span><strong><?= h($rolesCount) ?></strong><em>● Privilegios</em></article>
     <article class="stat-card"><span>Permisos disponibles</span><strong><?= h($permissionsCount) ?></strong><em>● Seguridad</em></article>
-    <article class="stat-card accent"><span>Postulaciones</span><strong><?= h($admissionsCount) ?></strong><em>● Admisión 2026</em></article>
+    <article class="stat-card accent"><span>Postulaciones</span><strong><?= h($admissionsCount) ?></strong><em>● Proceso de postulación 2027</em></article>
 </div>
 <div class="grid-2">
     <section class="panel-card">

@@ -1,6 +1,6 @@
 <section class="hero-card compact-hero">
     <div>
-        <p class="eyebrow">Admisión 2026</p>
+        <p class="eyebrow">Proceso de postulación 2027</p>
         <h2>Postulaciones recibidas</h2>
         <p>Revisa, clasifica y actualiza el estado de cada solicitud desde el formulario público.</p>
     </div>

@@ -81,7 +81,7 @@ final class ApplicationSetting extends Model
             'notification_email' => $this->get('admission_notification_email', 'contacto@academiaiquique.cl'),
             'applicant_subject' => $this->get('admission_applicant_success_subject', 'Postulación recibida · Academia Iquique'),
             'applicant_html' => $applicantHtml,
-            'whatsapp_enabled' => $this->get('admission_whatsapp_enabled', '1') === '1',
+            'whatsapp_enabled' => $this->get('admission_whatsapp_enabled', '0') === '1',
             'whatsapp_base_url' => $this->firstFilled([
                 $this->get('admission_whatsapp_base_url'),
                 (string) ($infobip['base_url'] ?? ''),
@@ -130,14 +130,14 @@ final class ApplicationSetting extends Model
 <table class="container" style="max-width: 600px; margin: 0 auto; background: #ffffff;" role="presentation" border="0" width="100%" cellspacing="0" cellpadding="0">
 <tbody>
 <tr>
-<td style="padding: 0;"><img class="full-img" style="width: 100%; height: auto; border: 0; text-decoration: none;" src="https://academiaiquique.cl/wp-content/uploads/2025/10/banner.png" alt="Admisión 2026 - Academia Iquique" width="600" /></td>
+<td style="padding: 0;"><img class="full-img" style="width: 100%; height: auto; border: 0; text-decoration: none;" src="https://academiaiquique.cl/wp-content/uploads/2025/10/banner.png" alt="Proceso de postulación 2027 - Academia Iquique" width="600" /></td>
 </tr>
 <tr>
 <td class="p-24" style="padding: 24px 28px 8px 28px; font-family: Arial, Helvetica, sans-serif; color: #0b2239; font-size: 14px; line-height: 1.6;">
-<h2 style="margin: 0 0 12px 0; font-size: 20px; color: #114b8b; font-weight: bold;">Información Admisión 2026 - Academia Iquique</h2>
+<h2 style="margin: 0 0 12px 0; font-size: 20px; color: #114b8b; font-weight: bold;">Información proceso de postulación 2027 - Academia Iquique</h2>
 <p style="margin: 0 0 12px 0;">Hola</p>
 <p style="margin: 0 0 12px 0;">Gracias por su interés en postular a nuestro colegio.</p>
-<p style="margin: 0 0 12px 0;">El proceso de <strong>admisión 2026</strong> ya se encuentra abierto y permanecerá vigente hasta completar los cupos disponibles por curso. Para continuar con su postulación, le solicitamos completar la ficha en la siguiente plataforma:</p>
+<p style="margin: 0 0 12px 0;">El proceso de <strong>postulación 2027</strong> ya se encuentra abierto y permanecerá vigente hasta completar los cupos disponibles por curso. Para continuar con su postulación, le solicitamos completar la ficha en la siguiente plataforma:</p>
 <table style="margin: 16px 0px 20px; height: 83px;" role="presentation" border="0" width="290" cellspacing="0" cellpadding="0" align="left">
 <tbody>
 <tr>
@@ -155,16 +155,16 @@ final class ApplicationSetting extends Model
 <li><strong>No contamos</strong> con Programa de Integración Escolar (PIE).</li>
 </ul>
 <p style="margin: 0 0 12px 0;">Ante cualquier consulta, puede escribirnos a <a style="color: #114b8b; text-decoration: none;" href="mailto:admision@academiaiquique.cl">admision@academiaiquique.cl</a> o llamarnos al <a style="color: #114b8b; text-decoration: none;" href="tel:+56985741931">+56 9 85741931</a>.</p>
-<p style="margin: 0 0 12px 0;">Adjunto encontrará el <strong>Reglamento de Admisión</strong>, donde se detallan las etapas y fechas del proceso.</p>
+<p style="margin: 0 0 12px 0;">Adjunto encontrará el <strong>Reglamento de Postulación</strong>, donde se detallan las etapas y fechas del proceso.</p>
 </td>
 </tr>
 <tr>
-<td style="padding: 8px 20px 0 20px;"><img class="full-img" style="width: 100%; max-width: 560px; height: auto; margin: 0 auto; border: 0;" src="https://academiaiquique.cl/wp-content/uploads/2025/10/etapas3-1024x723.png" alt="Proceso de Admisión - Etapas" width="560" /></td>
+<td style="padding: 8px 20px 0 20px;"><img class="full-img" style="width: 100%; max-width: 560px; height: auto; margin: 0 auto; border: 0;" src="https://academiaiquique.cl/wp-content/uploads/2025/10/etapas3-1024x723.png" alt="Proceso de postulación - Etapas" width="560" /></td>
 </tr>
 <tr>
 <td style="padding: 20px 28px 6px 28px; font-family: Arial, Helvetica, sans-serif; color: #0b2239; font-size: 14px; line-height: 1.6;">
 <p style="margin: 0 0 12px 0;">Atentamente,</p>
-<p style="margin: 0 0 12px 0;"><strong>Equipo de Admisión<br />Academia Iquique</strong></p>
+<p style="margin: 0 0 12px 0;"><strong>Equipo de Postulación<br />Academia Iquique</strong></p>
 <p style="margin: 0; font-size: 12px; color: #5f6b7a;">** valores corresponden sólo para alumnos nuevos.</p>
 </td>
 </tr>
@@ -179,14 +179,14 @@ HTML;
     private static function isOutdatedDefaultApplicantHtml(?string $html): bool
     {
         return in_array($html, [
-            '<p>Hola {{nombres_apoderado}},</p><p>Tu postulación para {{estudiante}} al curso {{curso}} fue recibida exitosamente.</p><p>Nuestro equipo de admisión revisará los antecedentes y se contactará contigo para orientar los próximos pasos.</p><p><strong>Academia Iquique</strong></p>',
-            '<p>Mensaje de Admision 2026 Academia Iquique"<br /><br />Nombres del Apoderado: {name-2-first-name}</p>
+            '<p>Hola {{nombres_apoderado}},</p><p>Tu postulación para {{estudiante}} al curso {{curso}} fue recibida exitosamente.</p><p>Nuestro equipo de postulación revisará los antecedentes y se contactará contigo para orientar los próximos pasos.</p><p><strong>Academia Iquique</strong></p>',
+            '<p>Mensaje de Postulacion 2027 Academia Iquique"<br /><br />Nombres del Apoderado: {name-2-first-name}</p>
 <p>Apellidos del Apoderado: {name-2-last-name}</p>
 <p>Email: {email-1}</p>
 <p>Teléfono: {phone-1}</p>
 <p><span class="pill auto-tooltip" title="" data-original-title="curso">Curso: </span>{select-1}</p>
 <p>Acepto condiciones de envio de información: {consent-1}<br /><br />Este mensaje fue enviado desde {site_url}.</p>',
-            '<p>Mensaje de Admision 2026 Academia Iquique"<br /><br />Nombres del Apoderado: {name-2-first-name}</p><p>Apellidos del Apoderado: {name-2-last-name}</p><p>Email: {email-1}</p><p>Teléfono: {phone-1}</p><p><span class="pill auto-tooltip" title="" data-original-title="curso">Curso: </span>{select-1}</p><p>Acepto condiciones de envio de información: {consent-1}<br /><br />Este mensaje fue enviado desde {site_url}.</p>',
+            '<p>Mensaje de Postulacion 2027 Academia Iquique"<br /><br />Nombres del Apoderado: {name-2-first-name}</p><p>Apellidos del Apoderado: {name-2-last-name}</p><p>Email: {email-1}</p><p>Teléfono: {phone-1}</p><p><span class="pill auto-tooltip" title="" data-original-title="curso">Curso: </span>{select-1}</p><p>Acepto condiciones de envio de información: {consent-1}<br /><br />Este mensaje fue enviado desde {site_url}.</p>',
         ], true);
     }
 
