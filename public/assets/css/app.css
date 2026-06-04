@@ -7,8 +7,10 @@
   --text: #1F2937;
   --muted: #6B7280;
   --border: #E5E7EB;
-  --shadow: 0 22px 60px rgba(7, 29, 122, .12);
-  --radius: 24px;
+  --shadow: 0 16px 36px rgba(15, 23, 42, .07);
+  --radius: 20px;
+  --surface-soft: #F8FAFC;
+  --surface-muted: #F1F5F9;
 }
 
 * { box-sizing: border-box; }
@@ -414,15 +416,36 @@ button, input, select, textarea { font: inherit; }
   min-height: 100vh;
 }
 
+/* Professional administration refinements: flatter surfaces, compact typography and consistent controls. */
+.app-shell {
+  background: #f6f8fb;
+  font-size: 13px;
+}
+
+.app-shell .eyebrow {
+  padding: 6px 9px;
+  font-size: 10px;
+  letter-spacing: .075em;
+  background: #eef2f7;
+}
+
+.app-shell input,
+.app-shell select,
+.app-shell textarea {
+  font-size: 13px;
+}
+
+.app-shell strong {
+  font-weight: 650;
+}
+
 .sidebar {
   width: 292px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .98), rgba(248, 250, 252, .98)),
-    #fff;
+  background: #fff;
   color: var(--text);
   border-right: 1px solid rgba(226, 232, 240, .92);
-  box-shadow: 18px 0 45px rgba(15, 23, 42, .04);
-  padding: 22px 18px;
+  box-shadow: 12px 0 32px rgba(15, 23, 42, .035);
+  padding: 20px 16px;
   position: fixed;
   inset: 0 auto 0 0;
   display: flex;
@@ -512,13 +535,13 @@ button, input, select, textarea { font: inherit; }
 }
 
 .nav-link:hover {
-  background: #f1f5ff;
+  background: #f8fafc;
   color: var(--primary);
   transform: translateX(2px);
 }
 
 .nav-link.is-active {
-  background: #eef3ff;
+  background: #eef2ff;
   color: var(--primary);
   box-shadow: inset 0 0 0 1px rgba(7, 29, 122, .08);
 }
@@ -591,7 +614,7 @@ button, input, select, textarea { font: inherit; }
 
 .nav-sublink:hover,
 .nav-sublink.is-active {
-  background: #f8faff;
+  background: var(--surface-soft);
   color: var(--primary);
 }
 
@@ -617,7 +640,7 @@ button, input, select, textarea { font: inherit; }
   gap: 12px;
   padding: 14px;
   border-radius: 18px;
-  background: linear-gradient(135deg, #f8faff, #fff);
+  background: #fff;
   border: 1px solid rgba(226, 232, 240, .95);
   color: var(--primary-dark);
 }
@@ -726,7 +749,7 @@ button, input, select, textarea { font: inherit; }
   width: 42px;
   height: 42px;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--accent), #ff6671);
+  background: var(--accent);
   color: #fff;
   display: grid;
   place-items: center;
@@ -771,7 +794,7 @@ button, input, select, textarea { font: inherit; }
   position: absolute;
   inset: 0 0 0 auto;
   width: 38%;
-  background: linear-gradient(135deg, rgba(7, 29, 122, .09), rgba(229, 27, 43, .08));
+  background: #f3f6fb;
   clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
 }
 
@@ -929,7 +952,7 @@ button, input, select, textarea { font: inherit; }
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: .08em;
-  background: #f8faff;
+  background: var(--surface-soft);
 }
 
 .modern-table th,
@@ -968,7 +991,7 @@ button, input, select, textarea { font: inherit; }
 .actions a,
 .actions button {
   border: 0;
-  background: #f3f6ff;
+  background: var(--surface-muted);
   color: var(--primary);
   border-radius: 12px;
   padding: 9px 11px;
@@ -1058,7 +1081,7 @@ button, input, select, textarea { font: inherit; }
 }
 
 .permission-group {
-  background: #f8faff;
+  background: var(--surface-soft);
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 18px;
@@ -1111,7 +1134,7 @@ button, input, select, textarea { font: inherit; }
 
 
 .btn.secondary {
-  background: #f8faff;
+  background: var(--surface-soft);
   color: var(--primary);
   border: 1px solid var(--border);
 }
@@ -1302,7 +1325,7 @@ button, input, select, textarea { font: inherit; }
   padding: 14px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: #f8faff;
+  background: var(--surface-soft);
 }
 
 .check-row input {
@@ -1312,3 +1335,253 @@ button, input, select, textarea { font: inherit; }
 .admissions-table { min-width: 1080px; }
 
 .logout-link { justify-content: flex-start; gap: 12px; }
+
+/* Admin visual pass: compact, flat and consistent across dashboard modules. */
+.content-wrap {
+  font-size: 13px;
+}
+
+.hero-card,
+.panel-card,
+.table-card,
+.filters-card,
+.stat-card {
+  box-shadow: var(--shadow);
+}
+
+.table-card {
+  overflow: hidden;
+}
+
+.topbar {
+  height: 68px;
+  background: rgba(255, 255, 255, .94);
+}
+
+.topbar h1 {
+  font-size: 18px;
+  letter-spacing: -.02em;
+}
+
+.user-chip {
+  border-radius: 14px;
+  padding: 7px 12px;
+}
+
+.user-chip strong {
+  font-size: 13px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.nav-link {
+  min-height: 38px;
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 11px;
+}
+
+.nav-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+}
+
+.nav-sublink {
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+.public-page-link,
+.logout-link {
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.hero-card {
+  padding: 22px;
+}
+
+.hero-card::before {
+  width: 32%;
+  background: #f7f9fc;
+}
+
+.hero-card h2 {
+  font-size: 23px;
+  letter-spacing: -.02em;
+}
+
+.hero-card p {
+  font-size: 13px;
+}
+
+.stat-card {
+  padding: 16px;
+}
+
+.stat-card::after {
+  background: #f4f7fb;
+}
+
+.stat-card span {
+  font-size: 12px;
+}
+
+.stat-card strong {
+  font-size: 22px;
+}
+
+.section-head h2,
+.section-head h3 {
+  font-size: 16px;
+}
+
+.section-head p,
+.activity-item p,
+.message-cell,
+.form-grid label small {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.quick-actions a {
+  padding: 13px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  background: #fff;
+  transition: border-color .18s ease, background .18s ease, color .18s ease, transform .18s ease;
+}
+
+.quick-actions a:hover {
+  background: var(--surface-soft);
+  border-color: rgba(7, 29, 122, .18);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.filters-card {
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.filters-card input,
+.filters-card select,
+.status-form select,
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+  min-height: 38px;
+  border-radius: 11px;
+  font-size: 13px;
+}
+
+.filters-card input,
+.filters-card select {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  outline: none;
+  padding: 9px 11px;
+}
+
+.filters-card input:focus,
+.filters-card select:focus {
+  border-color: rgba(7, 29, 122, .32);
+  box-shadow: 0 0 0 3px rgba(7, 29, 122, .07);
+}
+
+.modern-table th {
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.modern-table th,
+.modern-table td {
+  padding: 11px 12px;
+}
+
+.modern-table td,
+.modern-table td strong {
+  font-size: 13px;
+}
+
+.modern-table td span:not(.badge) {
+  font-size: 12px;
+}
+
+.badge {
+  padding: 5px 8px;
+  font-size: 10.5px;
+  font-weight: 650;
+}
+
+.btn,
+.actions a,
+.actions button {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.2;
+  box-shadow: none;
+  transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease;
+}
+
+.btn.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: none;
+}
+
+.btn.secondary,
+.actions a,
+.actions button {
+  background: #fff;
+  border-color: var(--border);
+  color: var(--primary-dark);
+}
+
+.btn:hover,
+.actions a:hover,
+.actions button:hover {
+  transform: translateY(-1px);
+}
+
+.btn.secondary:hover,
+.actions a:hover,
+.actions button:hover {
+  background: var(--surface-soft);
+  border-color: rgba(7, 29, 122, .2);
+  color: var(--primary);
+}
+
+.actions .danger,
+.danger {
+  border-color: #ffd4d9 !important;
+}
+
+.permission-group,
+.check-row {
+  background: #fff;
+}
+
+.permission-group h3 {
+  font-size: 15px;
+}
+
+.footer {
+  font-size: 12px;
+}
