@@ -59,7 +59,7 @@ final class App
 
     public static function autoload(string $class): void
     {
-        foreach (['/core/', '/app/Controllers/', '/app/Models/'] as $path) {
+        foreach (['/core/', '/app/Controllers/', '/app/Models/', '/app/Services/'] as $path) {
             $file = self::$root . $path . $class . '.php';
             if (is_file($file)) {
                 require_once $file;
