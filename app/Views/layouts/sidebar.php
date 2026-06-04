@@ -13,7 +13,7 @@ $canManageRoles = Auth::can('gestionar_roles');
 $canViewLogs = Auth::can('ver_logs');
 $canConfigureAdmissions = Auth::can('configurar_postulaciones');
 $hasConfigItems = $canManageUsers || $canManageRoles || $canViewLogs || $canConfigureAdmissions;
-$isAdmissionsOpen = str_starts_with($currentPath, '/admissions') || str_starts_with($currentPath, '/admission-statuses') || $isActive(['/admission-settings']);
+$isAdmissionsOpen = str_starts_with($currentPath, '/admissions') || str_starts_with($currentPath, '/admission-statuses') || str_starts_with($currentPath, '/admission-courses') || $isActive(['/admission-settings']);
 $isMailSettingsActive = $isActive(['/mail-settings']);
 $isConfigOpen = str_starts_with($currentPath, '/users') || str_starts_with($currentPath, '/roles') || $isMailSettingsActive;
 $icon = static function (string $name): string {
@@ -48,6 +48,7 @@ $icon = static function (string $name): string {
                 <div class="nav-submenu">
                     <a href="<?= App::url('/admissions') ?>" class="nav-sublink <?= str_starts_with($currentPath, '/admissions') ? 'is-active' : '' ?>">Solicitudes</a>
                     <a href="<?= App::url('/admission-statuses') ?>" class="nav-sublink <?= str_starts_with($currentPath, '/admission-statuses') ? 'is-active' : '' ?>">Estados</a>
+                    <a href="<?= App::url('/admission-courses') ?>" class="nav-sublink <?= str_starts_with($currentPath, '/admission-courses') ? 'is-active' : '' ?>">Cursos</a>
                     <a href="<?= App::url('/admission-settings') ?>" class="nav-sublink <?= $isActive(['/admission-settings']) ? 'is-active' : '' ?>">Configuración</a>
                 </div>
             </details>

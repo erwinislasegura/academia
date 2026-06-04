@@ -62,16 +62,14 @@
                   <label for="curso">Curso al que postula <span class="required">*</span></label>
                   <select id="curso" name="curso" required>
                     <option value="">Selecciona un curso</option>
-                    <option value="kinder" <?= ($old['curso'] ?? '') === 'kinder' ? 'selected' : '' ?>>Kínder</option>
-                    <option value="1-basico" <?= ($old['curso'] ?? '') === '1-basico' ? 'selected' : '' ?>>1º Básico</option>
-                    <option value="2-basico" <?= ($old['curso'] ?? '') === '2-basico' ? 'selected' : '' ?>>2º Básico</option>
-                    <option value="3-basico" <?= ($old['curso'] ?? '') === '3-basico' ? 'selected' : '' ?>>3º Básico</option>
-                    <option value="4-basico" <?= ($old['curso'] ?? '') === '4-basico' ? 'selected' : '' ?>>4º Básico</option>
-                    <option value="5-basico" <?= ($old['curso'] ?? '') === '5-basico' ? 'selected' : '' ?>>5º Básico</option>
-                    <option value="6-basico" <?= ($old['curso'] ?? '') === '6-basico' ? 'selected' : '' ?>>6º Básico</option>
-                    <option value="7-basico" <?= ($old['curso'] ?? '') === '7-basico' ? 'selected' : '' ?>>7º Básico</option>
-                    <option value="8-basico" <?= ($old['curso'] ?? '') === '8-basico' ? 'selected' : '' ?>>8º Básico</option>
+                    <?php foreach (($courses ?? []) as $course): ?>
+                      <?php $courseLabel = $course['name'] . (!empty($course['is_new_slots']) ? ' · Nuevos cupos' : ''); ?>
+                      <option value="<?= h($course['slug']) ?>" <?= ($old['curso'] ?? '') === $course['slug'] ? 'selected' : '' ?>><?= h($courseLabel) ?></option>
+                    <?php endforeach; ?>
                   </select>
+                  <?php if (empty($courses)): ?>
+                    <span class="field-help">Por ahora no hay cursos habilitados para nuevas postulaciones.</span>
+                  <?php endif; ?>
                 </div>
               </div>
 

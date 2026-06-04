@@ -2,17 +2,6 @@
 
 final class AdmissionController extends Controller
 {
-    private const COURSES = [
-        'kinder' => 'Kínder',
-        '1-basico' => '1º Básico',
-        '2-basico' => '2º Básico',
-        '3-basico' => '3º Básico',
-        '4-basico' => '4º Básico',
-        '5-basico' => '5º Básico',
-        '6-basico' => '6º Básico',
-        '7-basico' => '7º Básico',
-        '8-basico' => '8º Básico',
-    ];
 
     public function show(): void
     {
@@ -41,6 +30,7 @@ final class AdmissionController extends Controller
             'errors' => [],
             'success' => false,
             'successMessageHtml' => '',
+            'courses' => (new AdmissionCourse())->activeOptions(),
         ], null);
     }
 
@@ -59,6 +49,7 @@ final class AdmissionController extends Controller
                 'errors' => $errors,
                 'success' => false,
                 'successMessageHtml' => '',
+                'courses' => (new AdmissionCourse())->activeOptions(),
             ], null);
             return;
         }
@@ -89,6 +80,7 @@ final class AdmissionController extends Controller
             'errors' => [],
             'success' => true,
             'successMessageHtml' => $message,
+            'courses' => (new AdmissionCourse())->activeOptions(),
         ], null);
     }
 
@@ -270,14 +262,19 @@ final class AdmissionController extends Controller
         if (!filter_var($input['email'] ?? '', FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'Ingresa un correo electrónico válido.';
         }
-        if (!array_key_exists((string) ($input['curso'] ?? ''), self::COURSES)) {
-            $errors[] = 'Selecciona un curso válido.';
+        if (!$this->selectedCourse($input)) {
+            $errors[] = 'Selecciona un curso válido y disponible.';
         }
         if (empty($input['autorizacion'])) {
             $errors[] = 'Debes autorizar el contacto para continuar con la postulación.';
         }
 
         return $errors;
+    }
+
+    private function selectedCourse(array $input): ?array
+    {
+        return (new AdmissionCourse())->findActiveBySlug((string) ($input['curso'] ?? ''));
     }
 
     private function normalize(array $input): array
@@ -288,7 +285,7 @@ final class AdmissionController extends Controller
             'email' => strtolower($input['email']),
             'telefono' => $input['telefono'],
             'estudiante' => $input['estudiante'],
-            'curso' => self::COURSES[$input['curso']],
+            'curso' => $this->selectedCourse($input)['name'],
             'mensaje' => $input['mensaje'] ?? '',
             'autorizacion' => '1',
         ];
