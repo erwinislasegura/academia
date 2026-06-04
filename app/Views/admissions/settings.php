@@ -19,10 +19,41 @@
         <input type="text" name="applicant_subject" value="<?= h($settings['applicant_subject'] ?? '') ?>" required>
     </label>
 
-    <label class="span-2">Mensaje HTML para el postulante
-        <textarea name="applicant_html" rows="12" required><?= h($settings['applicant_html'] ?? '') ?></textarea>
-        <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. Compatibles con el mensaje predeterminado: {name-2-first-name}, {name-2-last-name}, {email-1}, {phone-1}, {select-1}, {consent-1}, {site_url}.</small>
-    </label>
+    <section class="span-2 email-template-workspace" aria-labelledby="email-template-title">
+        <div class="email-template-editor panel-card">
+            <div class="section-head email-template-head">
+                <div>
+                    <h3 id="email-template-title">Mensaje HTML para el postulante</h3>
+                    <p>Edita el correo con estilo de código. Puedes dar formato automático antes de guardar.</p>
+                </div>
+                <button class="btn secondary" type="button" id="format-applicant-html">Formatear HTML</button>
+            </div>
+            <label class="code-editor-label">Código HTML
+                <textarea class="code-editor-textarea" name="applicant_html" rows="24" spellcheck="false" required><?= h($settings['applicant_html'] ?? '') ?></textarea>
+                <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. Compatibles con el mensaje predeterminado: {name-2-first-name}, {name-2-last-name}, {email-1}, {phone-1}, {select-1}, {consent-1}, {site_url}.</small>
+            </label>
+        </div>
+
+        <aside class="email-preview-panel panel-card" aria-labelledby="email-preview-title">
+            <div class="section-head email-preview-head">
+                <div>
+                    <h3 id="email-preview-title">Vista previa del correo</h3>
+                    <p>Siempre visible junto al código. Se actualiza mientras editas con datos de ejemplo.</p>
+                </div>
+            </div>
+            <div class="email-subject-preview-card">
+                <span>Asunto</span>
+                <strong id="applicant-email-subject-preview"><?= h($settings['applicant_subject'] ?? '') ?></strong>
+            </div>
+            <div class="email-preview-frame-card">
+                <div class="email-preview-frame-head">
+                    <strong>Correo al postulante</strong>
+                    <span>Vista HTML</span>
+                </div>
+                <iframe id="applicant-email-preview" title="Vista previa del correo al postulante" sandbox="" srcdoc="<?= h($applicantPreviewHtml ?? '') ?>"></iframe>
+            </div>
+        </aside>
+    </section>
 
     <div class="panel-card span-2" style="background:#f8faff; box-shadow:none;">
         <div class="section-head"><h3>WhatsApp automático</h3></div>
@@ -43,24 +74,6 @@
                 <textarea name="whatsapp_message_template" rows="5"><?= h($settings['whatsapp_message_template'] ?? '') ?></textarea>
                 <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. Para mensajes iniciados por la institución, WhatsApp puede exigir una plantilla aprobada.</small>
             </label>
-        </div>
-    </div>
-
-    <div class="panel-card span-2" style="background:#f8faff; box-shadow:none;">
-        <div class="section-head"><h3>Vista previa del correo</h3></div>
-        <div class="muted-text" style="margin-bottom:14px;">Esta vista se actualiza mientras editas el asunto y el HTML. Se usan datos de ejemplo para reemplazar variables.</div>
-        <div style="display:grid;gap:12px;">
-            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;">
-                <div style="font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;font-weight:700;margin-bottom:6px;">Asunto</div>
-                <div id="applicant-email-subject-preview" style="font-weight:700;color:#0f172a;"><?= h($settings['applicant_subject'] ?? '') ?></div>
-            </div>
-            <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;">
-                <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;background:#f1f5f9;border-bottom:1px solid #e2e8f0;padding:10px 14px;color:#475569;font-size:13px;">
-                    <strong>Correo al postulante</strong>
-                    <span>Vista HTML</span>
-                </div>
-                <iframe id="applicant-email-preview" title="Vista previa del correo al postulante" sandbox="" srcdoc="<?= h($applicantPreviewHtml ?? '') ?>" style="display:block;width:100%;min-height:560px;border:0;background:#fff;"></iframe>
-            </div>
         </div>
     </div>
 
@@ -97,6 +110,34 @@ $previewReplacements['{{nombre_apoderado}}'] = trim(($previewApplication['nombre
         return rendered;
     };
 
+    const formatHtml = (html) => {
+        const voidTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+        const tokens = String(html || '')
+            .replace(/>\s*</g, '><')
+            .match(/<!--([\s\S]*?)-->|<![^>]*>|<\/?[^>]+>|[^<]+/g) || [];
+        let level = 0;
+
+        return tokens.map((token) => token.trim()).filter(Boolean).map((token) => {
+            const closingTag = token.match(/^<\s*\/([a-z0-9:-]+)/i);
+            const openingTag = token.match(/^<\s*([a-z0-9:-]+)/i);
+            const isCommentOrDoctype = /^<!(--)?/i.test(token);
+            const isSelfClosing = /\/\s*>$/.test(token);
+            const tagName = openingTag?.[1]?.toLowerCase();
+
+            if (closingTag) {
+                level = Math.max(level - 1, 0);
+            }
+
+            const line = `${'  '.repeat(level)}${token}`;
+
+            if (openingTag && !closingTag && !isCommentOrDoctype && !isSelfClosing && !voidTags.has(tagName)) {
+                level += 1;
+            }
+
+            return line;
+        }).join('\n');
+    };
+
     const updatePreview = () => {
         if (previewFrame && htmlInput) {
             previewFrame.srcdoc = renderTemplate(htmlInput.value);
@@ -105,6 +146,13 @@ $previewReplacements['{{nombre_apoderado}}'] = trim(($previewApplication['nombre
             subjectPreview.textContent = subjectInput.value || 'Sin asunto';
         }
     };
+
+    document.getElementById('format-applicant-html')?.addEventListener('click', () => {
+        if (!htmlInput) return;
+        htmlInput.value = formatHtml(htmlInput.value);
+        htmlInput.focus();
+        updatePreview();
+    });
 
     if (htmlInput) {
         htmlInput.addEventListener('input', updatePreview);
