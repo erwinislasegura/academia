@@ -96,6 +96,11 @@ final class WhatsAppController extends Controller
         $guardianName = trim(($application['guardian_first_names'] ?? '') . ' ' . ($application['guardian_last_names'] ?? ''));
         $createdAt = $application['created_at'] ? date('d-m-Y', strtotime((string) $application['created_at'])) : date('d-m-Y');
 
+        $metadata = [
+            'modulo' => 'postulaciones',
+            'registro_id' => $postulacionId,
+            'tipo' => 'confirmacion_postulacion',
+        ];
         $result = $service->sendTemplateMessage(
             $to,
             $template['name'],
@@ -108,18 +113,53 @@ final class WhatsAppController extends Controller
             ],
             [],
             [],
-            [
-                'modulo' => 'postulaciones',
-                'registro_id' => $postulacionId,
-                'tipo' => 'confirmacion_postulacion',
-            ]
+            $metadata
         );
+
+        if (!$result['success'] && $this->shouldFallbackToText($result)) {
+            error_log('[WhatsAppController] Falló template de admisión; se intentará texto libre Infobip. Estado: ' . $result['status']);
+            $result = $service->sendTextMessage(
+                $to,
+                $this->admissionTextMessage($application, $guardianName),
+                $metadata + ['fallback' => 'text_after_template_error']
+            );
+        }
 
         if ($respondJson) {
             $this->json($this->publicResult($result), $result['success'] ? 200 : 422);
         }
 
         return $result;
+    }
+
+    private function shouldFallbackToText(array $result): bool
+    {
+        return in_array((string) ($result['status'] ?? ''), [
+            'TEMPLATE_ERROR',
+            'PARAMETER_ERROR',
+            'INFOBIP_ERROR',
+        ], true) || in_array((int) ($result['http_code'] ?? 0), [400, 404, 422], true);
+    }
+
+    private function admissionTextMessage(array $application, string $guardianName): string
+    {
+        $template = WhatsAppNotifier::defaultAdmissionMessage();
+        $data = [
+            'nombres_apoderado' => trim((string) ($application['guardian_first_names'] ?? '')),
+            'apellidos_apoderado' => trim((string) ($application['guardian_last_names'] ?? '')),
+            'nombre_apoderado' => $guardianName,
+            'email' => (string) ($application['guardian_email'] ?? ''),
+            'telefono' => (string) ($application['guardian_phone'] ?? ''),
+            'estudiante' => (string) ($application['student_name'] ?? ''),
+            'curso' => (string) ($application['course'] ?? ''),
+            'mensaje' => (string) ($application['message'] ?? ''),
+        ];
+
+        foreach ($data as $key => $value) {
+            $template = str_replace('{{' . $key . '}}', $value, $template);
+        }
+
+        return trim($template);
     }
 
     private function csvPlaceholders(string $csv): array
