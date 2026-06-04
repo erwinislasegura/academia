@@ -24,12 +24,12 @@
             <div class="section-head email-template-head">
                 <div>
                     <h3 id="email-template-title">Mensaje HTML para el postulante</h3>
-                    <p>Edita el correo con estilo de código. Puedes dar formato automático antes de guardar.</p>
+                    <p>Edita el correo en un editor claro y amplio. Puedes dar formato automático antes de guardar.</p>
                 </div>
                 <button class="btn secondary" type="button" id="format-applicant-html">Formatear HTML</button>
             </div>
-            <label class="code-editor-label">Código HTML
-                <textarea class="code-editor-textarea" name="applicant_html" rows="24" spellcheck="false" required><?= h($settings['applicant_html'] ?? '') ?></textarea>
+            <label class="code-editor-label">Editor HTML
+                <textarea class="code-editor-textarea" name="applicant_html" rows="30" spellcheck="false" wrap="off" required><?= h($settings['applicant_html'] ?? '') ?></textarea>
                 <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. Compatibles con el mensaje predeterminado: {name-2-first-name}, {name-2-last-name}, {email-1}, {phone-1}, {select-1}, {consent-1}, {site_url}.</small>
             </label>
         </div>
