@@ -75,16 +75,53 @@ final class ApplicationSetting extends Model
             $applicantHtml = self::defaultApplicantHtml();
         }
 
+        $infobip = App::config('infobip');
+
         return [
             'notification_email' => $this->get('admission_notification_email', 'contacto@academiaiquique.cl'),
             'applicant_subject' => $this->get('admission_applicant_success_subject', 'Postulación recibida · Academia Iquique'),
             'applicant_html' => $applicantHtml,
             'whatsapp_enabled' => $this->get('admission_whatsapp_enabled', '1') === '1',
-            'whatsapp_base_url' => $this->get('admission_whatsapp_base_url', getenv('INFOBIP_API_BASE_URL') ?: '4k99ym.api.infobip.com'),
-            'whatsapp_sender' => $this->get('admission_whatsapp_sender', $this->get('admission_whatsapp_phone_number_id', getenv('INFOBIP_WHATSAPP_SENDER') ?: '56985741931')),
-            'whatsapp_api_key' => $this->get('admission_whatsapp_api_key', $this->get('admission_whatsapp_access_token', getenv('INFOBIP_API_KEY') ?: '2e8f648e77b9fc422c1fda84055b99d6-d309d362-1a5c-4aa4-ac86-057666d341f3')),
+            'whatsapp_base_url' => $this->firstFilled([
+                $this->get('admission_whatsapp_base_url'),
+                (string) ($infobip['base_url'] ?? ''),
+            ]),
+            'whatsapp_sender' => $this->firstFilled([
+                $this->get('admission_whatsapp_sender'),
+                $this->get('admission_whatsapp_phone_number_id'),
+                (string) ($infobip['whatsapp_sender'] ?? ''),
+            ]),
+            'whatsapp_api_key' => $this->firstFilled([
+                $this->get('admission_whatsapp_api_key'),
+                $this->get('admission_whatsapp_access_token'),
+                (string) ($infobip['api_key'] ?? ''),
+            ]),
+            'whatsapp_notify_url' => $this->firstFilled([
+                $this->get('admission_whatsapp_notify_url'),
+                (string) ($infobip['notify_url'] ?? ''),
+            ]),
+            'whatsapp_template_name' => $this->firstFilled([
+                $this->get('admission_whatsapp_template_name'),
+                (string) ($infobip['admission_template_name'] ?? 'confirmacion_postulacion'),
+            ]),
+            'whatsapp_template_language' => $this->firstFilled([
+                $this->get('admission_whatsapp_template_language'),
+                (string) ($infobip['admission_template_language'] ?? 'es'),
+            ]),
             'whatsapp_message_template' => $this->get('admission_whatsapp_message_template', WhatsAppNotifier::defaultAdmissionMessage()),
         ];
+    }
+
+    private function firstFilled(array $values): string
+    {
+        foreach ($values as $value) {
+            $value = trim((string) $value);
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return '';
     }
 
     public static function defaultApplicantHtml(): string

@@ -125,14 +125,54 @@ Para integrar solo el formulario en WordPress, incrusta la vista aislada con un 
 </iframe>
 ```
 
-Opcionalmente, desde Sistema Academiapp puedes activar el envío automático por WhatsApp al teléfono informado por el postulante. La integración usa Infobip WhatsApp API y envía el texto configurado al endpoint `/whatsapp/1/message/text` con la URL base y clave API configuradas. Para que el envío llegue correctamente, completa también el **remitente WhatsApp habilitado en Infobip** en formato internacional; WhatsApp/Infobip puede exigir plantillas aprobadas cuando la institución inicia una conversación fuera de la ventana permitida.
+Opcionalmente, desde Sistema Academiapp puedes activar el envío automático por WhatsApp al teléfono informado por el postulante. La integración usa un servicio reutilizable `InfobipWhatsAppService`, registra cada intento en `whatsapp_logs` y recibe estados en `POST /webhook/infobip-whatsapp`. Al registrar una postulación, el sistema dispara el template aprobado `confirmacion_postulacion` con las variables: nombre del apoderado, nombre del estudiante, curso y fecha de registro.
 
-La instalación queda preparada con la URL base `4k99ym.api.infobip.com` y una clave API inicial. También puedes sobreescribir estos valores por entorno antes de entrar al panel:
+El formulario valida que el teléfono sea un celular chileno con WhatsApp y lo normaliza antes de enviar (`+56 9 1234 5678`, `9 1234 5678` o `12345678` terminan como `56912345678` para Infobip). Para iniciar conversaciones fuera de la ventana de 24 horas se deben usar templates aprobados; el envío de texto libre queda disponible sólo para conversaciones iniciadas por el usuario dentro de esa ventana.
+
+Configura las credenciales por variables de entorno o desde el panel de postulaciones. La API Key no queda escrita en el código ni en los seeds SQL:
 
 ```env
-INFOBIP_API_BASE_URL=4k99ym.api.infobip.com
+INFOBIP_BASE_URL=https://4k99ym.api.infobip.com
 INFOBIP_API_KEY=tu-clave-api-infobip
-INFOBIP_WHATSAPP_SENDER=56985741931
+INFOBIP_WHATSAPP_SENDER=56962251376
+INFOBIP_NOTIFY_URL=https://tu-dominio.cl/webhook/infobip-whatsapp
+INFOBIP_ADMISSION_TEMPLATE=confirmacion_postulacion
+INFOBIP_ADMISSION_TEMPLATE_LANGUAGE=es
+```
+
+Ejemplo de payload para template:
+
+```json
+{
+  "from": "56962251376",
+  "to": "56912345678",
+  "messageId": "tpl-20260604120000-abc123",
+  "content": {
+    "templateName": "confirmacion_postulacion",
+    "templateData": {
+      "body": {
+        "placeholders": ["Juan Pérez", "Sofía Pérez", "1° Básico", "04-06-2026"]
+      }
+    },
+    "language": "es"
+  },
+  "callbackData": "{\"modulo\":\"postulaciones\",\"registro_id\":123}",
+  "notifyUrl": "https://tu-dominio.cl/webhook/infobip-whatsapp"
+}
+```
+
+Ejemplo de payload para texto libre dentro de ventana de 24 horas:
+
+```json
+{
+  "from": "56962251376",
+  "to": "56912345678",
+  "messageId": "txt-20260604120000-def456",
+  "content": {
+    "text": "Hola, recibimos tu postulación."
+  },
+  "callbackData": "{\"modulo\":\"postulaciones\"}"
+}
 ```
 
 Para desarrollo con el servidor embebido de PHP y rutas limpias, puedes usar:

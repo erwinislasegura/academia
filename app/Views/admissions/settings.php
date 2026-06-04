@@ -63,20 +63,32 @@
         </label>
         <div class="form-grid" style="padding:0;">
             <label>URL base de Infobip
-                <input type="text" name="whatsapp_base_url" value="<?= h($settings['whatsapp_base_url'] ?? '') ?>" placeholder="4k99ym.api.infobip.com">
+                <input type="text" name="whatsapp_base_url" value="<?= h($settings['whatsapp_base_url'] ?? '') ?>" placeholder="https://4k99ym.api.infobip.com">
                 <small>Ingresa el dominio entregado por Infobip, sin ruta adicional. Si no incluye https://, el sistema lo agregará automáticamente.</small>
             </label>
             <label>Remitente WhatsApp en Infobip
                 <input type="text" name="whatsapp_sender" value="<?= h($settings['whatsapp_sender'] ?? ($settings['whatsapp_phone_number_id'] ?? '')) ?>" placeholder="Ej: 56985741931">
                 <small>Debe ser el número o sender de WhatsApp habilitado en Infobip, en formato internacional.</small>
             </label>
-            <label class="span-2">Clave API de Infobip
+            <label>Notify URL / webhook
+                <input type="url" name="whatsapp_notify_url" value="<?= h($settings['whatsapp_notify_url'] ?? '') ?>" placeholder="https://midominio.cl/webhook/infobip-whatsapp">
+                <small>Infobip enviará aquí los delivery reports y mensajes entrantes.</small>
+            </label>
+            <label>Clave API de Infobip
                 <input type="password" name="whatsapp_api_key" value="" autocomplete="off" placeholder="<?= !empty($settings['whatsapp_api_key']) ? 'Clave API ya configurada' : '' ?>">
                 <small>Déjala en blanco para mantener la clave actual. Debe tener permiso <code>whatsapp:message:send</code>.</small>
             </label>
-            <label class="span-2">Mensaje de WhatsApp
+            <label>Template de confirmación
+                <input type="text" name="whatsapp_template_name" value="<?= h($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion') ?>" placeholder="confirmacion_postulacion">
+                <small>Debe existir y estar aprobado en Infobip/Meta.</small>
+            </label>
+            <label>Idioma del template
+                <input type="text" name="whatsapp_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'es') ?>" placeholder="es">
+                <small>Debe coincidir exactamente con el idioma aprobado para la plantilla.</small>
+            </label>
+            <label class="span-2">Mensaje de texto libre (sólo ventana 24h)
                 <textarea name="whatsapp_message_template" rows="5"><?= h($settings['whatsapp_message_template'] ?? '') ?></textarea>
-                <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. Si el postulante no ha escrito antes al WhatsApp del colegio, Meta/Infobip puede exigir una plantilla aprobada.</small>
+                <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. Para iniciar una conversación fuera de la ventana de 24 horas se usa el template aprobado configurado arriba.</small>
             </label>
         </div>
     </div>

@@ -55,11 +55,12 @@ final class AdmissionController extends Controller
         }
 
         $application = $this->normalize($input);
-        (new AdmissionApplication())->create($application);
+        $applicationId = (new AdmissionApplication())->create($application);
         $settings = (new ApplicationSetting())->admissionSettings();
         $applicantMailSent = AdmissionMailer::sendApplicantEmail($application, $settings);
         $adminMailSent = AdmissionMailer::sendAdminNotification($application, $settings);
-        $whatsAppSent = WhatsAppNotifier::sendAdmissionMessage($application, $settings);
+        $whatsAppResult = (new WhatsAppController())->sendAdmissionConfirmation($applicationId, false);
+        $whatsAppSent = (bool) ($whatsAppResult['success'] ?? false);
 
         $email = htmlspecialchars((string) $application['email'], ENT_QUOTES, 'UTF-8');
         $message = '<p>Tu postulación fue registrada correctamente.</p>';
@@ -196,8 +197,14 @@ final class AdmissionController extends Controller
         if ($whatsAppEnabled && trim($whatsAppApiKey) === '') {
             $errors[] = 'Debes ingresar la clave API de Infobip.';
         }
-        if ($whatsAppEnabled && trim($input['whatsapp_message_template'] ?? '') === '') {
-            $errors[] = 'Debes ingresar el mensaje automático de WhatsApp.';
+        if ($whatsAppEnabled && trim($input['whatsapp_template_name'] ?? '') === '') {
+            $errors[] = 'Debes ingresar el nombre del template aprobado de WhatsApp.';
+        }
+        if ($whatsAppEnabled && trim($input['whatsapp_template_language'] ?? '') === '') {
+            $errors[] = 'Debes ingresar el idioma del template aprobado de WhatsApp.';
+        }
+        if (trim($input['whatsapp_message_template'] ?? '') === '') {
+            $input['whatsapp_message_template'] = WhatsAppNotifier::defaultAdmissionMessage();
         }
 
         $settings = [
@@ -208,6 +215,9 @@ final class AdmissionController extends Controller
             'whatsapp_base_url' => $input['whatsapp_base_url'] ?? '',
             'whatsapp_sender' => $input['whatsapp_sender'] ?? '',
             'whatsapp_api_key' => $whatsAppApiKey,
+            'whatsapp_notify_url' => $input['whatsapp_notify_url'] ?? '',
+            'whatsapp_template_name' => $input['whatsapp_template_name'] ?? '',
+            'whatsapp_template_language' => $input['whatsapp_template_language'] ?? '',
             'whatsapp_message_template' => $input['whatsapp_message_template'] ?? '',
         ];
 
@@ -229,9 +239,14 @@ final class AdmissionController extends Controller
         $model->set('admission_whatsapp_enabled', $settings['whatsapp_enabled'] ? '1' : '0');
         $model->set('admission_whatsapp_base_url', $settings['whatsapp_base_url']);
         $model->set('admission_whatsapp_sender', $settings['whatsapp_sender']);
-        $model->set('admission_whatsapp_api_key', $settings['whatsapp_api_key']);
+        $model->set('admission_whatsapp_notify_url', $settings['whatsapp_notify_url']);
+        if (trim((string) ($input['whatsapp_api_key'] ?? '')) !== '') {
+            $model->set('admission_whatsapp_api_key', $settings['whatsapp_api_key']);
+            $model->set('admission_whatsapp_access_token', $settings['whatsapp_api_key']);
+        }
         $model->set('admission_whatsapp_phone_number_id', $settings['whatsapp_sender']);
-        $model->set('admission_whatsapp_access_token', $settings['whatsapp_api_key']);
+        $model->set('admission_whatsapp_template_name', $settings['whatsapp_template_name']);
+        $model->set('admission_whatsapp_template_language', $settings['whatsapp_template_language']);
         $model->set('admission_whatsapp_message_template', $settings['whatsapp_message_template']);
 
         Session::flash('success', 'Configuración de postulaciones actualizada correctamente.');
@@ -269,6 +284,9 @@ final class AdmissionController extends Controller
         if (!filter_var($input['email'] ?? '', FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'Ingresa un correo electrónico válido.';
         }
+        if (trim((string) ($input['telefono'] ?? '')) !== '' && !WhatsAppNotifier::isValidRecipientPhone((string) $input['telefono'])) {
+            $errors[] = 'Ingresa un teléfono móvil chileno válido para WhatsApp. Usa el formato +56 9 1234 5678.';
+        }
         if (!$this->selectedCourse($input)) {
             $errors[] = 'Selecciona un curso válido y disponible.';
         }
@@ -290,7 +308,7 @@ final class AdmissionController extends Controller
             'nombres_apoderado' => $input['nombres_apoderado'],
             'apellidos_apoderado' => $input['apellidos_apoderado'],
             'email' => strtolower($input['email']),
-            'telefono' => $input['telefono'],
+            'telefono' => WhatsAppNotifier::formatRecipientPhone((string) $input['telefono']),
             'estudiante' => $input['estudiante'],
             'curso' => $this->selectedCourse($input)['name'],
             'mensaje' => $input['mensaje'] ?? '',
