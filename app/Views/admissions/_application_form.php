@@ -25,7 +25,7 @@
                 </ul>
               </div>
             <?php endif; ?>
-            <form class="form" action="<?= App::url($formAction ?? '/postula') ?>" method="POST" novalidate>
+            <form class="form" action="<?= App::url($formAction ?? '/postula') ?>" method="POST">
               <input type="text" name="website" value="" autocomplete="off" tabindex="-1" aria-hidden="true" class="hp-field">
               <div class="form-row">
                 <div class="field">
@@ -48,7 +48,8 @@
 
                 <div class="field">
                   <label for="telefono">Teléfono de contacto <span class="required">*</span></label>
-                  <input type="tel" id="telefono" name="telefono" value="<?= h($old['telefono'] ?? '') ?>" placeholder="+56 9 1234 5678" required>
+                  <input type="tel" id="telefono" name="telefono" value="<?= h($old['telefono'] ?? '') ?>" placeholder="+56 9 1234 5678" inputmode="tel" autocomplete="tel" pattern="^(?:\+?56\s*)?9\s*\d{4}\s*\d{4}$|^\d{8}$" required>
+                  <span class="field-help">Ingresa un celular chileno con WhatsApp. Ejemplos válidos: +56 9 1234 5678, 9 1234 5678 o 12345678.</span>
                 </div>
               </div>
 

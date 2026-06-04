@@ -25,6 +25,22 @@ final class AdmissionApplication extends Model
         return (int) $this->db->lastInsertId();
     }
 
+
+    public function find(int $id): ?array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT id, guardian_first_names, guardian_last_names, guardian_email, guardian_phone,
+                    student_name, course, message, status_id, created_at
+             FROM admission_applications
+             WHERE id = ?
+             LIMIT 1'
+        );
+        $stmt->execute([$id]);
+        $row = $stmt->fetch();
+
+        return $row === false ? null : $row;
+    }
+
     public function all(): array
     {
         return $this->db->query(
