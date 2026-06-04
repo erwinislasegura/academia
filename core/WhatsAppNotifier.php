@@ -13,7 +13,8 @@ final class WhatsAppNotifier
             trim(self::renderTemplate((string) ($settings['whatsapp_message_template'] ?? self::defaultAdmissionMessage()), $application)),
             [
                 'modulo' => 'postulaciones',
-                'tipo' => 'admision_texto_libre',
+                'registro_id' => $application['id'] ?? null,
+                'tipo' => 'admision_texto_libre_numero_formulario',
             ]
         );
 

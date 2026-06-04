@@ -59,8 +59,8 @@ final class AdmissionController extends Controller
         $settings = (new ApplicationSetting())->admissionSettings();
         $applicantMailSent = AdmissionMailer::sendApplicantEmail($application, $settings);
         $adminMailSent = AdmissionMailer::sendAdminNotification($application, $settings);
-        $whatsAppResult = (new WhatsAppController())->sendAdmissionConfirmation($applicationId, false);
-        $whatsAppSent = (bool) ($whatsAppResult['success'] ?? false);
+        $whatsAppApplication = $application + ['id' => $applicationId];
+        $whatsAppSent = WhatsAppNotifier::sendAdmissionMessage($whatsAppApplication, $settings);
 
         $email = htmlspecialchars((string) $application['email'], ENT_QUOTES, 'UTF-8');
         $message = '<p>Tu postulación fue registrada correctamente.</p>';
