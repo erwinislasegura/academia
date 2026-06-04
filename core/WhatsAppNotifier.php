@@ -2,7 +2,7 @@
 
 final class WhatsAppNotifier
 {
-    private const API_VERSION = 'v20.0';
+    private const INFOBIP_TEXT_ENDPOINT = '/whatsapp/1/message/text';
 
     public static function sendAdmissionMessage(array $application, array $settings): bool
     {
@@ -10,23 +10,22 @@ final class WhatsAppNotifier
             return true;
         }
 
-        $phoneNumberId = trim((string) ($settings['whatsapp_phone_number_id'] ?? ''));
-        $accessToken = trim((string) ($settings['whatsapp_access_token'] ?? ''));
+        $baseUrl = self::normalizeBaseUrl((string) ($settings['whatsapp_base_url'] ?? ''));
+        $sender = self::normalizePhone((string) ($settings['whatsapp_sender'] ?? ($settings['whatsapp_phone_number_id'] ?? '')));
+        $apiKey = trim((string) ($settings['whatsapp_api_key'] ?? ($settings['whatsapp_access_token'] ?? '')));
         $message = trim(self::renderTemplate((string) ($settings['whatsapp_message_template'] ?? ''), $application));
         $recipient = self::normalizePhone((string) ($application['telefono'] ?? ''));
 
-        if ($phoneNumberId === '' || $accessToken === '' || $message === '' || $recipient === '') {
+        if ($baseUrl === '' || $sender === '' || $apiKey === '' || $message === '' || $recipient === '') {
             return false;
         }
 
         $payload = json_encode([
-            'messaging_product' => 'whatsapp',
-            'recipient_type' => 'individual',
+            'from' => $sender,
             'to' => $recipient,
-            'type' => 'text',
-            'text' => [
-                'preview_url' => false,
-                'body' => $message,
+            'messageId' => self::messageId(),
+            'content' => [
+                'text' => $message,
             ],
         ], JSON_UNESCAPED_UNICODE);
 
@@ -34,17 +33,13 @@ final class WhatsAppNotifier
             return false;
         }
 
-        $url = sprintf(
-            'https://graph.facebook.com/%s/%s/messages',
-            self::API_VERSION,
-            rawurlencode($phoneNumberId)
-        );
+        $url = $baseUrl . self::INFOBIP_TEXT_ENDPOINT;
 
         if (function_exists('curl_init')) {
-            return self::sendWithCurl($url, $accessToken, $payload);
+            return self::sendWithCurl($url, $apiKey, $payload);
         }
 
-        return self::sendWithStream($url, $accessToken, $payload);
+        return self::sendWithStream($url, $apiKey, $payload);
     }
 
     public static function defaultAdmissionMessage(): string
@@ -61,6 +56,20 @@ final class WhatsAppNotifier
         $replacements['{{nombre_apoderado}}'] = trim(($application['nombres_apoderado'] ?? '') . ' ' . ($application['apellidos_apoderado'] ?? ''));
 
         return strtr($template, $replacements);
+    }
+
+    private static function normalizeBaseUrl(string $baseUrl): string
+    {
+        $baseUrl = trim($baseUrl);
+        if ($baseUrl === '') {
+            return '';
+        }
+
+        if (!preg_match('#^https?://#i', $baseUrl)) {
+            $baseUrl = 'https://' . $baseUrl;
+        }
+
+        return rtrim($baseUrl, '/');
     }
 
     private static function normalizePhone(string $phone): string
@@ -96,7 +105,17 @@ final class WhatsAppNotifier
         return $digits;
     }
 
-    private static function sendWithCurl(string $url, string $accessToken, string $payload): bool
+    private static function messageId(): string
+    {
+        return bin2hex(random_bytes(16));
+    }
+
+    private static function authorizationHeader(string $apiKey): string
+    {
+        return 'Authorization: App ' . $apiKey;
+    }
+
+    private static function sendWithCurl(string $url, string $apiKey, string $payload): bool
     {
         $ch = curl_init($url);
         if ($ch === false) {
@@ -106,8 +125,9 @@ final class WhatsAppNotifier
         curl_setopt_array($ch, [
             CURLOPT_POST => true,
             CURLOPT_HTTPHEADER => [
-                'Authorization: Bearer ' . $accessToken,
+                self::authorizationHeader($apiKey),
                 'Content-Type: application/json',
+                'Accept: application/json',
             ],
             CURLOPT_POSTFIELDS => $payload,
             CURLOPT_RETURNTRANSFER => true,
@@ -122,14 +142,15 @@ final class WhatsAppNotifier
         return $error === 0 && $status >= 200 && $status < 300;
     }
 
-    private static function sendWithStream(string $url, string $accessToken, string $payload): bool
+    private static function sendWithStream(string $url, string $apiKey, string $payload): bool
     {
         $context = stream_context_create([
             'http' => [
                 'method' => 'POST',
                 'header' => implode("\r\n", [
-                    'Authorization: Bearer ' . $accessToken,
+                    self::authorizationHeader($apiKey),
                     'Content-Type: application/json',
+                    'Accept: application/json',
                 ]),
                 'content' => $payload,
                 'timeout' => 10,

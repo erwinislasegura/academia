@@ -79,9 +79,10 @@ final class ApplicationSetting extends Model
             'notification_email' => $this->get('admission_notification_email', 'contacto@academiaiquique.cl'),
             'applicant_subject' => $this->get('admission_applicant_success_subject', 'Postulación recibida · Academia Iquique'),
             'applicant_html' => $applicantHtml,
-            'whatsapp_enabled' => $this->get('admission_whatsapp_enabled', '0') === '1',
-            'whatsapp_phone_number_id' => $this->get('admission_whatsapp_phone_number_id', ''),
-            'whatsapp_access_token' => $this->get('admission_whatsapp_access_token', ''),
+            'whatsapp_enabled' => $this->get('admission_whatsapp_enabled', '1') === '1',
+            'whatsapp_base_url' => $this->get('admission_whatsapp_base_url', getenv('INFOBIP_API_BASE_URL') ?: '4k99ym.api.infobip.com'),
+            'whatsapp_sender' => $this->get('admission_whatsapp_sender', $this->get('admission_whatsapp_phone_number_id', getenv('INFOBIP_WHATSAPP_SENDER') ?: '56985741931')),
+            'whatsapp_api_key' => $this->get('admission_whatsapp_api_key', $this->get('admission_whatsapp_access_token', getenv('INFOBIP_API_KEY') ?: '2e8f648e77b9fc422c1fda84055b99d6-d309d362-1a5c-4aa4-ac86-057666d341f3')),
             'whatsapp_message_template' => $this->get('admission_whatsapp_message_template', WhatsAppNotifier::defaultAdmissionMessage()),
         ];
     }

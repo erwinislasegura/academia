@@ -56,23 +56,27 @@
     </section>
 
     <div class="panel-card span-2" style="background:#f8faff; box-shadow:none;">
-        <div class="section-head"><h3>WhatsApp automático</h3></div>
+        <div class="section-head"><h3>WhatsApp automático por Infobip</h3></div>
         <label style="display:flex;gap:10px;align-items:center;margin-bottom:14px;">
             <input type="checkbox" name="whatsapp_enabled" value="1" <?= !empty($settings['whatsapp_enabled']) ? 'checked' : '' ?>>
             Enviar un WhatsApp al teléfono informado cuando se registre la postulación.
         </label>
         <div class="form-grid" style="padding:0;">
-            <label>ID del número de WhatsApp Business
-                <input type="text" name="whatsapp_phone_number_id" value="<?= h($settings['whatsapp_phone_number_id'] ?? '') ?>" placeholder="Ej: 123456789012345">
-                <small>Corresponde al Phone Number ID de WhatsApp Cloud API.</small>
+            <label>URL base de Infobip
+                <input type="text" name="whatsapp_base_url" value="<?= h($settings['whatsapp_base_url'] ?? '') ?>" placeholder="4k99ym.api.infobip.com">
+                <small>Ingresa el dominio entregado por Infobip, sin ruta adicional. Si no incluye https://, el sistema lo agregará automáticamente.</small>
             </label>
-            <label>Token de acceso
-                <input type="password" name="whatsapp_access_token" value="" autocomplete="off" placeholder="<?= !empty($settings['whatsapp_access_token']) ? 'Token ya configurado' : '' ?>">
-                <small>Déjalo en blanco para mantener el token actual. Debe tener permiso para enviar mensajes desde el número configurado.</small>
+            <label>Remitente WhatsApp en Infobip
+                <input type="text" name="whatsapp_sender" value="<?= h($settings['whatsapp_sender'] ?? ($settings['whatsapp_phone_number_id'] ?? '')) ?>" placeholder="Ej: 56985741931">
+                <small>Debe ser el número o sender de WhatsApp habilitado en Infobip, en formato internacional.</small>
+            </label>
+            <label class="span-2">Clave API de Infobip
+                <input type="password" name="whatsapp_api_key" value="" autocomplete="off" placeholder="<?= !empty($settings['whatsapp_api_key']) ? 'Clave API ya configurada' : '' ?>">
+                <small>Déjala en blanco para mantener la clave actual. Debe tener permiso <code>whatsapp:message:send</code>.</small>
             </label>
             <label class="span-2">Mensaje de WhatsApp
                 <textarea name="whatsapp_message_template" rows="5"><?= h($settings['whatsapp_message_template'] ?? '') ?></textarea>
-                <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. Para mensajes iniciados por la institución, WhatsApp puede exigir una plantilla aprobada.</small>
+                <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. Si el postulante no ha escrito antes al WhatsApp del colegio, Meta/Infobip puede exigir una plantilla aprobada.</small>
             </label>
         </div>
     </div>

@@ -125,7 +125,15 @@ Para integrar solo el formulario en WordPress, incrusta la vista aislada con un 
 </iframe>
 ```
 
-Opcionalmente, desde Sistema Academiapp puedes activar el envío automático por WhatsApp Cloud API al teléfono informado por el postulante. Para usarlo debes configurar el **Phone Number ID**, un token de acceso válido y el texto del mensaje; WhatsApp puede exigir plantillas aprobadas para conversaciones iniciadas por la institución.
+Opcionalmente, desde Sistema Academiapp puedes activar el envío automático por WhatsApp al teléfono informado por el postulante. La integración usa Infobip WhatsApp API y envía el texto configurado al endpoint `/whatsapp/1/message/text` con la URL base y clave API configuradas. Para que el envío llegue correctamente, completa también el **remitente WhatsApp habilitado en Infobip** en formato internacional; WhatsApp/Infobip puede exigir plantillas aprobadas cuando la institución inicia una conversación fuera de la ventana permitida.
+
+La instalación queda preparada con la URL base `4k99ym.api.infobip.com` y una clave API inicial. También puedes sobreescribir estos valores por entorno antes de entrar al panel:
+
+```env
+INFOBIP_API_BASE_URL=4k99ym.api.infobip.com
+INFOBIP_API_KEY=tu-clave-api-infobip
+INFOBIP_WHATSAPP_SENDER=56985741931
+```
 
 Para desarrollo con el servidor embebido de PHP y rutas limpias, puedes usar:
 
