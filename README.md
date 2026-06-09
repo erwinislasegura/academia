@@ -119,11 +119,13 @@ Para integrar solo el formulario en WordPress, incrusta la vista aislada con un 
 
 ```html
 <iframe
-  src="https://tu-dominio.cl/postula-embed"
+  src="https://tu-dominio.cl/postula-embed.php"
   style="width:100%; min-height:900px; border:0;"
   loading="lazy">
 </iframe>
 ```
+
+> Si tu servidor tiene correctamente activadas las URLs limpias con `mod_rewrite`, también puedes usar `https://tu-dominio.cl/postula-embed`. La variante `postula-embed.php` es más compatible con hosting compartido y WordPress porque no depende de la reescritura de URLs.
 
 La API de WhatsApp aún no está implementada, por lo que el envío automático al teléfono informado por el postulante permanece desactivado en el panel de postulaciones.
 

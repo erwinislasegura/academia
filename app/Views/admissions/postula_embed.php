@@ -288,7 +288,7 @@
   </style>
 </head>
 <body>
-  <?php $formAction = '/postula-embed'; ?>
+  <?php $formAction = App::url('/postula-embed.php'); ?>
   <?php require App::root('app/Views/admissions/_application_form.php'); ?>
 </body>
 </html>
