@@ -7,8 +7,10 @@ $router->get('/', function () {
 $router->get('/postula', [AdmissionController::class, 'show']);
 $router->get('/postula.php', [AdmissionController::class, 'show']);
 $router->get('/postula-embed', [AdmissionController::class, 'showEmbed']);
+$router->get('/postula-embed.php', [AdmissionController::class, 'showEmbed']);
 $router->post('/postula', [AdmissionController::class, 'submit']);
 $router->post('/postula-embed', [AdmissionController::class, 'submitEmbed']);
+$router->post('/postula-embed.php', [AdmissionController::class, 'submitEmbed']);
 $router->post('/webhook/infobip-whatsapp', [InfobipWebhookController::class, 'handle']);
 $router->post('/whatsapp/test-template', [WhatsAppController::class, 'testTemplate']);
 $router->post('/whatsapp/test-text', [WhatsAppController::class, 'testText']);

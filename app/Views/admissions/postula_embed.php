@@ -51,42 +51,42 @@
     .form-card {
       background: #fff;
       border: 1px solid var(--borde);
-      border-radius: 22px;
-      padding: 30px;
-      box-shadow: var(--sombra);
-      max-width: 820px;
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, .07);
+      max-width: 920px;
       margin: 0 auto;
     }
 
     .form-card__head {
-      padding-bottom: 22px;
-      margin-bottom: 24px;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
       border-bottom: 1px solid var(--borde);
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
-      gap: 18px;
+      gap: 10px;
     }
 
     .form-card__head h2 {
       color: var(--azul-profundo);
-      font-size: 24px;
-      line-height: 1.24;
+      font-size: 20px;
+      line-height: 1.18;
       letter-spacing: -.02em;
-      font-weight: 500;
-      margin-bottom: 6px;
+      font-weight: 600;
+      margin-bottom: 3px;
     }
 
     .form-card__head p {
       color: var(--texto-suave);
-      font-size: 14.5px;
+      font-size: 13px;
     }
 
     .form-badge {
       flex: 0 0 auto;
       display: inline-flex;
       align-items: center;
-      padding: 8px 11px;
+      padding: 6px 9px;
       border-radius: 6px;
       background: var(--rojo-suave);
       color: var(--rojo);
@@ -96,23 +96,23 @@
 
     .form {
       display: grid;
-      gap: 18px;
+      gap: 10px;
     }
 
     .form-row {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
+      gap: 10px;
     }
 
     .field {
       display: grid;
-      gap: 7px;
+      gap: 4px;
     }
 
     label {
       color: #334155;
-      font-size: 13.5px;
+      font-size: 12.5px;
       font-weight: 600;
     }
 
@@ -126,12 +126,12 @@
       width: 100%;
       border: 1px solid var(--borde);
       background: #fff;
-      border-radius: 13px;
-      padding: 13px 14px;
+      border-radius: 9px;
+      padding: 8px 10px;
       color: var(--texto);
       outline: none;
       transition: .18s ease;
-      font-size: 14.5px;
+      font-size: 13px;
     }
 
     input::placeholder,
@@ -148,23 +148,24 @@
 
     textarea {
       resize: vertical;
-      min-height: 112px;
+      min-height: 58px;
     }
 
     .field-help {
       color: var(--texto-suave);
-      font-size: 12.5px;
-      line-height: 1.5;
+      display: none;
+      font-size: 12px;
+      line-height: 1.35;
     }
 
     .consent {
       display: grid;
       grid-template-columns: 18px 1fr;
-      gap: 12px;
+      gap: 8px;
       align-items: start;
-      padding: 15px;
+      padding: 9px 10px;
       border: 1px solid var(--borde);
-      border-radius: 14px;
+      border-radius: 10px;
       background: var(--fondo);
     }
 
@@ -178,23 +179,23 @@
 
     .consent span {
       color: #475569;
-      font-size: 13.5px;
-      line-height: 1.6;
+      font-size: 12px;
+      line-height: 1.35;
     }
 
     .form-actions {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 18px;
-      padding-top: 4px;
+      gap: 10px;
+      padding-top: 0;
     }
 
     .form-actions small {
       color: var(--texto-suave);
-      font-size: 12.5px;
-      max-width: 330px;
-      line-height: 1.55;
+      font-size: 11.5px;
+      max-width: 440px;
+      line-height: 1.35;
     }
 
     .btn {
@@ -202,12 +203,12 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      min-height: 44px;
-      padding: 0 18px;
+      min-height: 38px;
+      padding: 0 16px;
       border-radius: 6px;
       border: 1px solid transparent;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       line-height: 1;
       transition: .22s ease;
@@ -227,8 +228,8 @@
 
     .public-alert {
       border-radius: 16px;
-      padding: 16px 18px;
-      margin-bottom: 20px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
       border: 1px solid transparent;
       font-size: 14px;
     }
@@ -239,7 +240,7 @@
     }
 
     .public-alert ul {
-      margin: 8px 0 0 18px;
+      margin: 4px 0 0 18px;
     }
 
     .public-alert--success {
@@ -268,8 +269,8 @@
       }
 
       .form-card {
-        padding: 22px;
-        border-radius: 18px;
+        padding: 14px;
+        border-radius: 14px;
       }
 
       .form-card__head {
@@ -288,7 +289,7 @@
   </style>
 </head>
 <body>
-  <?php $formAction = '/postula-embed'; ?>
+  <?php $formAction = '/postula-embed.php'; ?>
   <?php require App::root('app/Views/admissions/_application_form.php'); ?>
 </body>
 </html>
