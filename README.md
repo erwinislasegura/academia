@@ -120,7 +120,7 @@ Para integrar solo el formulario en WordPress, incrusta la vista aislada con un 
 ```html
 <iframe
   src="https://tu-dominio.cl/postula-embed.php"
-  style="width:100%; min-height:900px; border:0;"
+  style="width:100%; min-height:680px; border:0;"
   loading="lazy">
 </iframe>
 ```
