@@ -347,6 +347,9 @@ final class MetaWhatsAppService
         if ($httpCode === 400) {
             return 'PARAMETER_ERROR';
         }
+        if ($httpCode === 404) {
+            return 'TEMPLATE_ERROR';
+        }
         if ($httpCode === 0) {
             return 'CONNECTION_ERROR';
         }

@@ -9,7 +9,7 @@ final class WhatsAppController extends Controller
         $to = (string) ($input['to'] ?? '');
         $settings = (new ApplicationSetting())->admissionSettings();
         $templateName = (string) ($input['template_name'] ?? ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027'));
-        $language = (string) ($input['language'] ?? ($settings['whatsapp_template_language'] ?? 'es_CL'));
+        $language = (string) ($input['language'] ?? ($settings['whatsapp_template_language'] ?? 'en_US'));
         $placeholders = $templateName === 'hello_world' ? [] : $this->csvPlaceholders((string) ($input['placeholders'] ?? 'Familia Academia Iquique,Estudiante de prueba,Curso de prueba,' . date('d-m-Y')));
 
         $service = new MetaWhatsAppService($settings);
@@ -17,7 +17,7 @@ final class WhatsAppController extends Controller
             $service,
             $to,
             $templateName !== '' ? $templateName : (string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027'),
-            $language !== '' ? $language : (string) ($settings['whatsapp_template_language'] ?? 'es_CL'),
+            $language !== '' ? $language : (string) ($settings['whatsapp_template_language'] ?? 'en_US'),
             $placeholders,
             ['modulo' => 'whatsapp_test', 'tipo' => 'template']
         );
@@ -134,7 +134,7 @@ final class WhatsAppController extends Controller
         $service = new MetaWhatsAppService($settings);
         $template = [
             'name' => trim((string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027')),
-            'language' => trim((string) ($settings['whatsapp_template_language'] ?? 'es_CL')),
+            'language' => trim((string) ($settings['whatsapp_template_language'] ?? 'en_US')),
         ];
         $guardianName = trim(($application['guardian_first_names'] ?? '') . ' ' . ($application['guardian_last_names'] ?? ''));
         $createdAt = $application['created_at'] ? date('d-m-Y', strtotime((string) $application['created_at'])) : date('d-m-Y');
@@ -178,7 +178,7 @@ final class WhatsAppController extends Controller
     {
         $settings['whatsapp_base_url'] = trim((string) ($input['test_base_url'] ?? '')) ?: (string) ($settings['whatsapp_base_url'] ?? 'https://graph.facebook.com/v25.0');
         $settings['whatsapp_template_name'] = trim((string) ($input['test_template_name'] ?? '')) ?: (string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027');
-        $settings['whatsapp_template_language'] = trim((string) ($input['test_template_language'] ?? '')) ?: (string) ($settings['whatsapp_template_language'] ?? 'es_CL');
+        $settings['whatsapp_template_language'] = trim((string) ($input['test_template_language'] ?? '')) ?: (string) ($settings['whatsapp_template_language'] ?? 'en_US');
 
         return $settings;
     }
@@ -193,12 +193,38 @@ final class WhatsAppController extends Controller
     ): array {
         $templateName = trim($templateName);
         $language = trim($language);
+        $availableLanguages = $service->templateLanguages($templateName);
+        if ($availableLanguages !== [] && !in_array($language, $availableLanguages, true)) {
+            foreach ($this->preferredTemplateLanguages($language, $availableLanguages) as $availableLanguage) {
+                $retry = $service->sendTemplateMessage(
+                    $to,
+                    $templateName,
+                    $availableLanguage,
+                    $parameters,
+                    $metadata + ['retry_language' => $availableLanguage, 'configured_language' => $language, 'reason' => 'language_preflight']
+                );
+                if ($retry['success']) {
+                    return $retry;
+                }
+                $result = $retry;
+            }
+
+            return $result ?? [
+                'success' => false,
+                'http_code' => 422,
+                'message_id' => '',
+                'status' => 'TEMPLATE_LANGUAGE_NOT_APPROVED',
+                'response' => null,
+                'error' => 'El idioma configurado "' . $language . '" no está aprobado para el template "' . $templateName . '". Idiomas aprobados detectados: ' . implode(', ', $availableLanguages) . '.',
+            ];
+        }
+
         $result = $service->sendTemplateMessage($to, $templateName, $language, $parameters, $metadata);
         if ($result['success'] || !$this->isTemplateTranslationError($result)) {
             return $result;
         }
 
-        foreach ($service->templateLanguages($templateName) as $availableLanguage) {
+        foreach ($this->preferredTemplateLanguages($language, $availableLanguages ?: $service->templateLanguages($templateName)) as $availableLanguage) {
             if ($availableLanguage === $language) {
                 continue;
             }
@@ -215,7 +241,30 @@ final class WhatsAppController extends Controller
             $result = $retry;
         }
 
+        if ($availableLanguages === []) {
+            $result['error'] = trim((string) ($result['error'] ?? '')) . ' No se encontró el template "' . $templateName . '" como plantilla aprobada en el WhatsApp Business Account configurado; verifica el nombre exacto en Meta o guarda una plantilla aprobada.';
+        }
+
         return $result;
+    }
+
+    private function preferredTemplateLanguages(string $configuredLanguage, array $availableLanguages): array
+    {
+        $preferred = array_values(array_filter([
+            $configuredLanguage,
+            str_replace('_', '-', $configuredLanguage),
+            str_replace('-', '_', $configuredLanguage),
+            preg_replace('/[_-].+$/', '', $configuredLanguage) ?: null,
+            'en_US',
+            'es_CL',
+            'es',
+            'es_ES',
+        ], static fn($language): bool => is_string($language) && trim($language) !== ''));
+
+        return array_values(array_unique(array_merge(
+            array_values(array_intersect($preferred, $availableLanguages)),
+            $availableLanguages
+        )));
     }
 
     private function isTemplateTranslationError(array $result): bool
