@@ -108,7 +108,7 @@ final class AdmissionController extends Controller
         echo "\xEF\xBB\xBF";
         echo '<table border="1">';
         echo '<thead><tr>';
-        foreach (['ID', 'Fecha', 'Apoderado', 'Email', 'Teléfono', 'Estudiante', 'Curso', 'Estado', 'Mensaje'] as $heading) {
+        foreach (['ID', 'Fecha', 'Apoderado', 'Email', 'Teléfono', 'Estudiante', 'Sexo', 'Fecha nacimiento', 'Edad', 'Curso', 'Estado', 'Mensaje'] as $heading) {
             echo '<th>' . htmlspecialchars($heading, ENT_QUOTES, 'UTF-8') . '</th>';
         }
         echo '</tr></thead><tbody>';
@@ -122,6 +122,9 @@ final class AdmissionController extends Controller
                 $application['guardian_email'] ?? '',
                 $application['guardian_phone'] ?? '',
                 $application['student_name'] ?? '',
+                ($application['student_gender'] ?? '') === 'nina' ? 'Niña' : (($application['student_gender'] ?? '') === 'nino' ? 'Niño' : ''),
+                $application['student_birthdate'] ?? '',
+                $application['student_age'] ?? '',
                 $application['course'] ?? '',
                 $application['status_name'] ?? 'Sin estado',
                 $application['message'] ?? '',
@@ -252,6 +255,8 @@ final class AdmissionController extends Controller
             'email' => 'familia@ejemplo.cl',
             'telefono' => '+56 9 8574 1931',
             'estudiante' => 'Sofía González',
+            'sexo_estudiante' => 'nina',
+            'fecha_nacimiento' => '2020-05-14',
             'curso' => '1º Básico',
             'mensaje' => 'Solicito información sobre el proceso de postulación 2027.',
             'autorizacion' => '1',
@@ -261,7 +266,7 @@ final class AdmissionController extends Controller
     private function validate(array $input): array
     {
         $errors = [];
-        foreach (['nombres_apoderado', 'apellidos_apoderado', 'email', 'telefono', 'estudiante', 'curso'] as $field) {
+        foreach (['nombres_apoderado', 'apellidos_apoderado', 'email', 'telefono', 'estudiante', 'sexo_estudiante', 'fecha_nacimiento', 'curso'] as $field) {
             if (trim((string) ($input[$field] ?? '')) === '') {
                 $errors[] = 'El campo ' . str_replace('_', ' ', $field) . ' es obligatorio.';
             }
@@ -272,6 +277,12 @@ final class AdmissionController extends Controller
         if (trim((string) ($input['telefono'] ?? '')) !== '' && !WhatsAppNotifier::isValidRecipientPhone((string) $input['telefono'])) {
             $errors[] = 'Ingresa un teléfono móvil chileno válido para WhatsApp. Usa el formato +56 9 1234 5678.';
         }
+        if (!in_array(($input['sexo_estudiante'] ?? ''), ['nino', 'nina'], true)) {
+            $errors[] = 'Selecciona si el postulante es niño o niña.';
+        }
+        if (!$this->validBirthdate((string) ($input['fecha_nacimiento'] ?? ''))) {
+            $errors[] = 'Ingresa una fecha de nacimiento válida.';
+        }
         if (!$this->selectedCourse($input)) {
             $errors[] = 'Selecciona un curso válido y disponible.';
         }
@@ -280,6 +291,17 @@ final class AdmissionController extends Controller
         }
 
         return $errors;
+    }
+
+    private function validBirthdate(string $date): bool
+    {
+        $birthdate = DateTime::createFromFormat('Y-m-d', $date);
+        if (!$birthdate || $birthdate->format('Y-m-d') !== $date) {
+            return false;
+        }
+
+        $today = new DateTime('today');
+        return $birthdate <= $today && $birthdate >= $today->modify('-25 years');
     }
 
     private function selectedCourse(array $input): ?array
@@ -295,6 +317,8 @@ final class AdmissionController extends Controller
             'email' => strtolower($input['email']),
             'telefono' => WhatsAppNotifier::formatRecipientPhone((string) $input['telefono']),
             'estudiante' => $input['estudiante'],
+            'sexo_estudiante' => $input['sexo_estudiante'],
+            'fecha_nacimiento' => $input['fecha_nacimiento'],
             'curso' => $this->selectedCourse($input)['name'],
             'mensaje' => $input['mensaje'] ?? '',
             'autorizacion' => '1',
