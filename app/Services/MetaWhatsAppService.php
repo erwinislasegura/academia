@@ -87,39 +87,72 @@ final class MetaWhatsAppService
     public function templateLanguages(string $templateName): array
     {
         $templateName = trim($templateName);
-        if ($this->businessAccountId === '' || $this->accessToken === '' || $templateName === '') {
+        if ($this->accessToken === '' || $templateName === '') {
             return [];
         }
 
-        $query = http_build_query([
-            'name' => $templateName,
-            'fields' => 'name,language,status',
-            'access_token' => $this->accessToken,
-        ]);
-        [$raw, $httpCode, $transportError] = $this->get($this->baseUrl . '/' . $this->businessAccountId . '/message_templates?' . $query);
-        if ($transportError !== null || $httpCode !== 200) {
-            return [];
-        }
-
-        $decoded = $this->decodeResponse($raw);
         $languages = [];
-        foreach (($decoded['data'] ?? []) as $template) {
-            if (!is_array($template)) {
-                continue;
-            }
-            if (($template['name'] ?? '') !== $templateName) {
-                continue;
-            }
-            if (($template['status'] ?? '') !== '' && strtoupper((string) $template['status']) !== 'APPROVED') {
-                continue;
-            }
-            $language = trim((string) ($template['language'] ?? ''));
-            if ($language !== '') {
-                $languages[] = $language;
+        foreach ($this->templateBusinessAccountIds() as $businessAccountId) {
+            foreach ($this->fetchTemplates($businessAccountId, $templateName) as $template) {
+                if (!$this->isExactTemplate($template, $templateName) || !$this->isApprovedTemplate($template)) {
+                    continue;
+                }
+                $language = trim((string) ($template['language'] ?? ''));
+                if ($language !== '') {
+                    $languages[] = $language;
+                }
             }
         }
 
         return array_values(array_unique($languages));
+    }
+
+    public function templateDiagnostics(string $templateName): array
+    {
+        $templateName = trim($templateName);
+        $diagnostics = [
+            'phone_number_id' => $this->phoneNumberId,
+            'configured_business_account_id' => $this->businessAccountId,
+            'phone_business_account_id' => $this->businessAccountIdFromPhone(),
+            'exact' => [],
+            'similar' => [],
+            'errors' => [],
+        ];
+
+        if ($this->accessToken === '' || $templateName === '') {
+            return $diagnostics;
+        }
+
+        foreach ($this->templateBusinessAccountIds() as $businessAccountId) {
+            $templates = $this->fetchTemplates($businessAccountId, null, $error);
+            if ($error !== null) {
+                $diagnostics['errors'][] = 'WABA ' . $businessAccountId . ': ' . $error;
+                continue;
+            }
+
+            foreach ($templates as $template) {
+                $name = trim((string) ($template['name'] ?? ''));
+                if ($name === '') {
+                    continue;
+                }
+                $item = [
+                    'business_account_id' => $businessAccountId,
+                    'name' => $name,
+                    'language' => trim((string) ($template['language'] ?? '')),
+                    'status' => trim((string) ($template['status'] ?? '')),
+                    'category' => trim((string) ($template['category'] ?? '')),
+                ];
+                if ($name === $templateName) {
+                    $diagnostics['exact'][] = $item;
+                    continue;
+                }
+                if (stripos($name, $templateName) !== false || stripos($templateName, $name) !== false || levenshtein($name, $templateName) <= 4) {
+                    $diagnostics['similar'][] = $item;
+                }
+            }
+        }
+
+        return $diagnostics;
     }
 
     public function sendTextMessage(string $to, string $text, array $metadata = []): array
@@ -217,6 +250,86 @@ final class MetaWhatsAppService
         }
         preg_match('/^HTTP\/\S+\s+(\d{3})\b/', $http_response_header[0], $matches);
         return [(string) $raw, (int) ($matches[1] ?? 0), null];
+    }
+
+    private function templateBusinessAccountIds(): array
+    {
+        return array_values(array_unique(array_filter([
+            $this->businessAccountId,
+            $this->businessAccountIdFromPhone(),
+        ], static fn(string $id): bool => $id !== '')));
+    }
+
+    private function businessAccountIdFromPhone(): string
+    {
+        if ($this->phoneNumberId === '' || $this->accessToken === '') {
+            return '';
+        }
+
+        $query = http_build_query([
+            'fields' => 'whatsapp_business_account',
+            'access_token' => $this->accessToken,
+        ]);
+        [$raw, $httpCode, $transportError] = $this->get($this->baseUrl . '/' . $this->phoneNumberId . '?' . $query);
+        if ($transportError !== null || $httpCode !== 200) {
+            return '';
+        }
+
+        $decoded = $this->decodeResponse($raw);
+        return preg_replace('/\D+/', '', (string) ($decoded['whatsapp_business_account']['id'] ?? '')) ?? '';
+    }
+
+    private function fetchTemplates(string $businessAccountId, ?string $templateName = null, ?string &$error = null): array
+    {
+        $error = null;
+        if ($businessAccountId === '' || $this->accessToken === '') {
+            return [];
+        }
+
+        $templates = [];
+        $query = [
+            'fields' => 'name,language,status,category',
+            'limit' => 100,
+            'access_token' => $this->accessToken,
+        ];
+        if ($templateName !== null && trim($templateName) !== '') {
+            $query['name'] = trim($templateName);
+        }
+        $url = $this->baseUrl . '/' . $businessAccountId . '/message_templates?' . http_build_query($query);
+
+        for ($page = 0; $page < 5 && $url !== ''; $page++) {
+            [$raw, $httpCode, $transportError] = $this->get($url);
+            if ($transportError !== null || $httpCode !== 200) {
+                $decoded = $this->decodeResponse($raw);
+                $error = $transportError ?: ((string) ($decoded['error']['message'] ?? ('HTTP ' . $httpCode)));
+                break;
+            }
+
+            $decoded = $this->decodeResponse($raw);
+            foreach (($decoded['data'] ?? []) as $template) {
+                if (is_array($template)) {
+                    $templates[] = $template;
+                }
+            }
+            $url = (string) ($decoded['paging']['next'] ?? '');
+        }
+
+        if ($templates === [] && $templateName !== null) {
+            return $this->fetchTemplates($businessAccountId, null, $error);
+        }
+
+        return $templates;
+    }
+
+    private function isExactTemplate(array $template, string $templateName): bool
+    {
+        return trim((string) ($template['name'] ?? '')) === $templateName;
+    }
+
+    private function isApprovedTemplate(array $template): bool
+    {
+        $status = strtoupper(trim((string) ($template['status'] ?? '')));
+        return $status === '' || in_array($status, ['APPROVED', 'ACTIVE'], true);
     }
 
     private function post(string $url, string $json): array

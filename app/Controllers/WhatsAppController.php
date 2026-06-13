@@ -57,7 +57,7 @@ final class WhatsAppController extends Controller
             }
             $result = $service->sendTextMessage($to, $message, $metadata);
         } else {
-            $templateName = (string) ($settings['whatsapp_template_name'] ?? 'hello_world');
+            $templateName = (string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027');
             $result = $this->sendTemplateWithLanguageRetry(
                 $service,
                 $to,
@@ -242,10 +242,41 @@ final class WhatsAppController extends Controller
         }
 
         if ($availableLanguages === []) {
-            $result['error'] = trim((string) ($result['error'] ?? '')) . ' No se encontró el template "' . $templateName . '" como plantilla aprobada en el WhatsApp Business Account configurado; verifica el nombre exacto en Meta o guarda una plantilla aprobada.';
+            $result['error'] = trim((string) ($result['error'] ?? '')) . ' ' . $this->templateDiagnosticMessage($service, $templateName);
         }
 
         return $result;
+    }
+
+    private function templateDiagnosticMessage(MetaWhatsAppService $service, string $templateName): string
+    {
+        $diagnostics = $service->templateDiagnostics($templateName);
+        $exact = array_map(
+            static fn(array $item): string => $item['name'] . ' / ' . $item['language'] . ' / ' . ($item['status'] ?: 'sin estado') . ' / WABA ' . $item['business_account_id'],
+            array_slice($diagnostics['exact'] ?? [], 0, 5)
+        );
+        if ($exact !== []) {
+            return 'Se encontró el template "' . $templateName . '", pero ninguna traducción aparece como aprobada para envío. Traducciones detectadas: ' . implode('; ', $exact) . '.';
+        }
+
+        $similar = array_map(
+            static fn(array $item): string => $item['name'] . ' / ' . $item['language'] . ' / ' . ($item['status'] ?: 'sin estado') . ' / WABA ' . $item['business_account_id'],
+            array_slice($diagnostics['similar'] ?? [], 0, 5)
+        );
+        $message = 'No se encontró el template "' . $templateName . '" como plantilla aprobada en el WhatsApp Business Account asociado al número configurado.';
+        $phoneWaba = (string) ($diagnostics['phone_business_account_id'] ?? '');
+        $configuredWaba = (string) ($diagnostics['configured_business_account_id'] ?? '');
+        if ($phoneWaba !== '' && $configuredWaba !== '' && $phoneWaba !== $configuredWaba) {
+            $message .= ' El número pertenece al WABA ' . $phoneWaba . ', pero la configuración usa WABA ' . $configuredWaba . '.';
+        }
+        if ($similar !== []) {
+            $message .= ' Plantillas similares detectadas: ' . implode('; ', $similar) . '.';
+        }
+        if (!empty($diagnostics['errors'])) {
+            $message .= ' Diagnóstico Meta: ' . implode('; ', array_slice($diagnostics['errors'], 0, 3)) . '.';
+        }
+
+        return $message;
     }
 
     private function preferredTemplateLanguages(string $configuredLanguage, array $availableLanguages): array
