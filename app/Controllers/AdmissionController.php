@@ -59,7 +59,10 @@ final class AdmissionController extends Controller
         $settings = (new ApplicationSetting())->admissionSettings();
         AdmissionMailer::sendApplicantEmail($application, $settings);
         AdmissionMailer::sendAdminNotification($application, $settings);
-        WhatsAppNotifier::sendAdmissionMessage($application, $settings);
+        $whatsAppResult = WhatsAppNotifier::sendAdmissionMessageResult($application, $settings);
+        if (!$whatsAppResult['success']) {
+            error_log('[AdmissionController] WhatsApp automático no enviado para postulación #' . $application['id'] . ': ' . (string) ($whatsAppResult['error'] ?? $whatsAppResult['status'] ?? 'error desconocido'));
+        }
 
         $this->view($view, [
             'old' => [],

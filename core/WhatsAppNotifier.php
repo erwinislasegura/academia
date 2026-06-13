@@ -4,8 +4,20 @@ final class WhatsAppNotifier
 {
     public static function sendAdmissionMessage(array $application, array $settings): bool
     {
+        return self::sendAdmissionMessageResult($application, $settings)['success'];
+    }
+
+    public static function sendAdmissionMessageResult(array $application, array $settings): array
+    {
         if (empty($settings['whatsapp_enabled'])) {
-            return true;
+            return [
+                'success' => true,
+                'http_code' => 0,
+                'message_id' => '',
+                'status' => 'DISABLED',
+                'response' => null,
+                'error' => null,
+            ];
         }
 
         $service = new MetaWhatsAppService($settings);
@@ -35,10 +47,13 @@ final class WhatsAppNotifier
             );
 
             if ($result['success']) {
-                return true;
+                return $result;
             }
 
             error_log('[WhatsAppNotifier] Falló envío de template WhatsApp Cloud API: ' . (string) ($result['error'] ?? $result['status'] ?? 'error desconocido'));
+            if (!self::shouldFallbackToText($result)) {
+                return $result;
+            }
         }
 
         $result = $service->sendTextMessage(
@@ -51,7 +66,16 @@ final class WhatsAppNotifier
             error_log('[WhatsAppNotifier] Falló envío de texto WhatsApp Cloud API: ' . (string) ($result['error'] ?? $result['status'] ?? 'error desconocido'));
         }
 
-        return (bool) $result['success'];
+        return $result;
+    }
+
+    private static function shouldFallbackToText(array $result): bool
+    {
+        return in_array((string) ($result['status'] ?? ''), [
+            'TEMPLATE_ERROR',
+            'PARAMETER_ERROR',
+            'META_ERROR',
+        ], true) || in_array((int) ($result['http_code'] ?? 0), [400, 404, 422], true);
     }
 
     private static function sendTemplateWithLanguageRetry(
