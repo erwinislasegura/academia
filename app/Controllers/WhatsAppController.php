@@ -9,15 +9,14 @@ final class WhatsAppController extends Controller
         $to = (string) ($input['to'] ?? '');
         $templateName = (string) ($input['template_name'] ?? 'confirmacion_postulacion');
         $language = (string) ($input['language'] ?? 'es');
-        $placeholders = $this->csvPlaceholders((string) ($input['placeholders'] ?? 'Juan Pérez,1° Medio,' . date('d-m-Y')));
+        $placeholders = $this->csvPlaceholders((string) ($input['placeholders'] ?? 'Familia Academia Iquique,Estudiante de prueba,Curso de prueba,' . date('d-m-Y')));
 
-        $result = (new InfobipWhatsAppService())->sendTemplateMessage(
+        $settings = (new ApplicationSetting())->admissionSettings();
+        $result = (new MetaWhatsAppService($settings))->sendTemplateMessage(
             $to,
-            $templateName,
-            $language,
+            $templateName !== '' ? $templateName : (string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion'),
+            $language !== '' ? $language : (string) ($settings['whatsapp_template_language'] ?? 'es'),
             $placeholders,
-            [],
-            [],
             ['modulo' => 'whatsapp_test', 'tipo' => 'template']
         );
 
@@ -28,13 +27,50 @@ final class WhatsAppController extends Controller
     {
         Middleware::permission('configurar_postulaciones');
         $input = $this->input();
-        $result = (new InfobipWhatsAppService())->sendTextMessage(
+        $settings = (new ApplicationSetting())->admissionSettings();
+        $result = (new MetaWhatsAppService($settings))->sendTextMessage(
             (string) ($input['to'] ?? ''),
             (string) ($input['text'] ?? 'Mensaje de prueba desde Academia Iquique.'),
             ['modulo' => 'whatsapp_test', 'tipo' => 'texto_24h']
         );
 
         $this->json($this->publicResult($result), $result['success'] ? 200 : 422);
+    }
+
+
+    public function testSettingsMessage(): void
+    {
+        Middleware::permission('configurar_postulaciones');
+        $input = $this->input();
+        $to = (string) ($input['to'] ?? '');
+        $mode = (string) ($input['send_mode'] ?? 'template');
+        $message = trim((string) ($input['message'] ?? ''));
+        $settings = (new ApplicationSetting())->admissionSettings();
+        $service = new MetaWhatsAppService($settings);
+        $metadata = ['modulo' => 'whatsapp_test', 'tipo' => 'panel_configuracion_' . ($mode === 'text' ? 'texto' : 'template')];
+
+        if ($mode === 'text') {
+            if ($message === '') {
+                $message = 'Mensaje de prueba desde el panel de administración de Academia Iquique.';
+            }
+            $result = $service->sendTextMessage($to, $message, $metadata);
+        } else {
+            $result = $service->sendTemplateMessage(
+                $to,
+                (string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion'),
+                (string) ($settings['whatsapp_template_language'] ?? 'es'),
+                $this->testTemplateParameters($input),
+                $metadata
+            );
+        }
+
+        if ($result['success']) {
+            Session::flash('success', 'WhatsApp de prueba enviado correctamente. ID: ' . (string) $result['message_id']);
+        } else {
+            Session::flash('error', $this->failureFlashMessage($result));
+        }
+
+        $this->redirect('/admission-settings');
     }
 
     public function sendAdmissionConfirmation(int $postulacionId, bool $respondJson = true): array
@@ -91,8 +127,11 @@ final class WhatsAppController extends Controller
             return $result;
         }
 
-        $service = new InfobipWhatsAppService($settings);
-        $template = $service->admissionTemplateConfig($settings);
+        $service = new MetaWhatsAppService($settings);
+        $template = [
+            'name' => trim((string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion')),
+            'language' => trim((string) ($settings['whatsapp_template_language'] ?? 'es')),
+        ];
         $guardianName = trim(($application['guardian_first_names'] ?? '') . ' ' . ($application['guardian_last_names'] ?? ''));
         $createdAt = $application['created_at'] ? date('d-m-Y', strtotime((string) $application['created_at'])) : date('d-m-Y');
 
@@ -111,13 +150,11 @@ final class WhatsAppController extends Controller
                 (string) ($application['course'] ?? ''),
                 $createdAt,
             ],
-            [],
-            [],
             $metadata
         );
 
         if (!$result['success'] && $this->shouldFallbackToText($result)) {
-            error_log('[WhatsAppController] Falló template de admisión; se intentará texto libre Infobip. Estado: ' . $result['status']);
+            error_log('[WhatsAppController] Falló template de admisión; se intentará texto libre WhatsApp Cloud API. Estado: ' . $result['status']);
             $result = $service->sendTextMessage(
                 $to,
                 $this->admissionTextMessage($application, $guardianName),
@@ -132,12 +169,32 @@ final class WhatsAppController extends Controller
         return $result;
     }
 
+    private function testTemplateParameters(array $input): array
+    {
+        return [
+            trim((string) ($input['guardian_name'] ?? 'Familia Academia Iquique')),
+            trim((string) ($input['student_name'] ?? 'Estudiante de prueba')),
+            trim((string) ($input['course'] ?? 'Curso de prueba')),
+            date('d-m-Y'),
+        ];
+    }
+
+    private function failureFlashMessage(array $result): string
+    {
+        $error = trim((string) ($result['error'] ?? ''));
+        $status = trim((string) ($result['status'] ?? ''));
+        $httpCode = (int) ($result['http_code'] ?? 0);
+        $detail = $error !== '' ? $error : ($status !== '' ? $status : 'error desconocido');
+
+        return 'No fue posible enviar el WhatsApp de prueba' . ($httpCode > 0 ? ' (HTTP ' . $httpCode . ')' : '') . ': ' . $detail;
+    }
+
     private function shouldFallbackToText(array $result): bool
     {
         return in_array((string) ($result['status'] ?? ''), [
             'TEMPLATE_ERROR',
             'PARAMETER_ERROR',
-            'INFOBIP_ERROR',
+            'META_ERROR',
         ], true) || in_array((int) ($result['http_code'] ?? 0), [400, 404, 422], true);
     }
 

@@ -96,6 +96,43 @@
     <div class="span-2 form-actions"><button class="btn primary">Guardar configuración</button></div>
 </form>
 
+<form class="panel-card form-grid" method="post" action="<?= App::url('/whatsapp/test-settings') ?>" style="margin-top:18px;">
+    <div class="span-2 section-head">
+        <div>
+            <h3>Probar API de WhatsApp</h3>
+            <p>Envía un mensaje de prueba con la configuración guardada de WhatsApp Cloud API. Si cambiaste credenciales o plantillas, guarda primero la configuración.</p>
+        </div>
+    </div>
+    <label>Teléfono destinatario
+        <input type="text" name="to" placeholder="+56 9 1234 5678" required>
+        <small>Usa un celular chileno habilitado para WhatsApp.</small>
+    </label>
+    <label>Tipo de envío
+        <select name="send_mode">
+            <option value="template">Template configurado (recomendado)</option>
+            <option value="text">Texto libre (sólo ventana 24h)</option>
+        </select>
+        <small>El template configurado funciona para pruebas fuera de la ventana de 24 horas, siempre que esté aprobado en Meta.</small>
+    </label>
+    <label>Mensaje de prueba para texto libre
+        <input type="text" name="message" value="Mensaje de prueba desde el panel de administración de Academia Iquique.">
+        <small>Este campo se usa sólo si eliges texto libre; WhatsApp Cloud API puede rechazarlo si no hay una conversación reciente.</small>
+    </label>
+    <label>Nombre apoderado de prueba
+        <input type="text" name="guardian_name" value="Familia Academia Iquique">
+    </label>
+    <label>Estudiante de prueba
+        <input type="text" name="student_name" value="Estudiante de prueba">
+    </label>
+    <label>Curso de prueba
+        <input type="text" name="course" value="Curso de prueba">
+        <small>Estos datos completan las variables del template de confirmación.</small>
+    </label>
+    <div class="span-2 form-actions">
+        <button class="btn secondary" type="submit">Enviar prueba por WhatsApp</button>
+    </div>
+</form>
+
 <?php
 $previewReplacements = [];
 foreach (($previewApplication ?? []) as $key => $value) {
