@@ -40,20 +40,29 @@
                         $guardian = trim(($application['guardian_first_names'] ?? '') . ' ' . ($application['guardian_last_names'] ?? ''));
                         $message = trim((string) ($application['message'] ?? ''));
                         $messageLabel = $message !== '' ? 'Ver mensaje' : 'Sin mensaje';
+                        $createdAt = (string) ($application['created_at'] ?? '');
+                        $createdTimestamp = $createdAt !== '' ? strtotime($createdAt) : false;
+                        $createdDate = $createdTimestamp !== false ? date('d/m/Y', $createdTimestamp) : 'Sin fecha';
+                        $createdTime = $createdTimestamp !== false ? date('H:i', $createdTimestamp) : '';
                     ?>
                     <tr>
-                        <td><strong><?= h($application['created_at'] ?? '') ?></strong></td>
                         <td>
-                            <strong><?= h($guardian) ?></strong>
+                            <time class="date-stack" datetime="<?= h($createdAt) ?>">
+                                <span><?= h($createdDate) ?></span>
+                                <?php if ($createdTime !== ''): ?><small><?= h($createdTime) ?> hrs</small><?php endif; ?>
+                            </time>
+                        </td>
+                        <td>
+                            <span class="table-primary-data"><?= h($guardian) ?></span>
                             <span>#<?= h($application['id'] ?? '') ?></span>
                         </td>
                         <td>
-                            <strong><?= h($application['guardian_email'] ?? '') ?></strong>
+                            <span class="table-primary-data"><?= h($application['guardian_email'] ?? '') ?></span>
                             <span><?= h($application['guardian_phone'] ?? '') ?></span>
                         </td>
-                        <td><strong><?= h($application['student_name'] ?? '') ?></strong></td>
+                        <td><span class="table-primary-data"><?= h($application['student_name'] ?? '') ?></span></td>
                         <td>
-                            <strong><?= h(($application['student_gender'] ?? '') === 'nina' ? 'Niña' : (($application['student_gender'] ?? '') === 'nino' ? 'Niño' : 'Sin dato')) ?></strong>
+                            <span class="table-primary-data"><?= h(($application['student_gender'] ?? '') === 'nina' ? 'Niña' : (($application['student_gender'] ?? '') === 'nino' ? 'Niño' : 'Sin dato')) ?></span>
                             <span><?= h($application['student_age'] !== null ? $application['student_age'] . ' años' : 'Sin edad') ?></span>
                         </td>
                         <td><span class="badge ok"><?= h($application['course'] ?? '') ?></span></td>
