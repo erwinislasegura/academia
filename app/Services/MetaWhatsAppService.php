@@ -14,7 +14,12 @@ final class MetaWhatsAppService
     public function __construct(array $overrides = [], ?WhatsAppLog $logs = null)
     {
         $config = App::config('infobip');
-        $this->baseUrl = rtrim((string) ($overrides['meta_whatsapp_base_url'] ?? $overrides['whatsapp_base_url'] ?? getenv('META_WHATSAPP_BASE_URL') ?: self::GRAPH_BASE_URL), '/');
+        $this->baseUrl = rtrim($this->firstFilled([
+            $overrides['meta_whatsapp_base_url'] ?? null,
+            $overrides['whatsapp_base_url'] ?? null,
+            getenv('META_WHATSAPP_BASE_URL') ?: null,
+            self::GRAPH_BASE_URL,
+        ]), '/');
         if ($this->baseUrl === '' || stripos($this->baseUrl, 'infobip.com') !== false) {
             $this->baseUrl = self::GRAPH_BASE_URL;
         }
@@ -22,10 +27,55 @@ final class MetaWhatsAppService
         if ($version !== '' && !str_ends_with($this->baseUrl, '/' . $version) && preg_match('#graph\.facebook\.com$#i', $this->baseUrl)) {
             $this->baseUrl .= '/' . $version;
         }
-        $this->phoneNumberId = preg_replace('/\D+/', '', (string) ($overrides['whatsapp_phone_number_id'] ?? getenv('META_WHATSAPP_PHONE_NUMBER_ID') ?: $config['meta_phone_number_id'] ?? '')) ?? '';
-        $this->accessToken = trim((string) ($overrides['whatsapp_access_token'] ?? $overrides['whatsapp_api_key'] ?? getenv('META_WHATSAPP_ACCESS_TOKEN') ?: $config['meta_access_token'] ?? ''));
+        $this->phoneNumberId = preg_replace('/\D+/', '', $this->firstFilled([
+            $overrides['whatsapp_phone_number_id'] ?? null,
+            getenv('META_WHATSAPP_PHONE_NUMBER_ID') ?: null,
+            $config['meta_phone_number_id'] ?? null,
+        ])) ?? '';
+        $this->accessToken = $this->firstFilled([
+            $overrides['whatsapp_access_token'] ?? null,
+            $overrides['whatsapp_api_key'] ?? null,
+            getenv('META_WHATSAPP_ACCESS_TOKEN') ?: null,
+            $config['meta_access_token'] ?? null,
+        ]);
         $this->timeout = max(5, (int) ($overrides['timeout'] ?? $config['timeout'] ?? 15));
         $this->logs = $logs ?? new WhatsAppLog();
+    }
+
+    public function sendTemplateMessage(string $to, string $templateName, string $languageCode, array $bodyParameters = [], array $metadata = []): array
+    {
+        $messageId = $this->generateMessageId();
+        $recipient = InfobipWhatsAppService::normalizePhone($to);
+        $payload = [
+            'messaging_product' => 'whatsapp',
+            'recipient_type' => 'individual',
+            'to' => $recipient,
+            'type' => 'template',
+            'template' => [
+                'name' => trim($templateName),
+                'language' => ['code' => trim($languageCode)],
+            ],
+        ];
+
+        if ($bodyParameters !== []) {
+            $payload['template']['components'] = [[
+                'type' => 'body',
+                'parameters' => array_map(
+                    static fn($value): array => ['type' => 'text', 'text' => (string) $value],
+                    array_values($bodyParameters)
+                ),
+            ]];
+        }
+
+        $validationError = $this->validate($recipient);
+        if ($validationError === null && trim($templateName) === '') {
+            $validationError = 'El nombre del template de WhatsApp Cloud API está vacío.';
+        }
+        if ($validationError === null && trim($languageCode) === '') {
+            $validationError = 'El idioma del template de WhatsApp Cloud API está vacío.';
+        }
+
+        return $this->send($payload, $messageId, 'meta_template', trim($templateName), $metadata, $validationError);
     }
 
     public function sendTextMessage(string $to, string $text, array $metadata = []): array
@@ -43,11 +93,14 @@ final class MetaWhatsAppService
             ],
         ];
 
-        $validationError = $this->validate($recipient, trim($text));
-        return $this->send($payload, $messageId, $metadata, $validationError);
+        $validationError = $this->validate($recipient);
+        if ($validationError === null && trim($text) === '') {
+            $validationError = 'El texto de WhatsApp está vacío.';
+        }
+        return $this->send($payload, $messageId, 'meta_text', null, $metadata, $validationError);
     }
 
-    private function validate(string $recipient, string $text): ?string
+    private function validate(string $recipient): ?string
     {
         if ($this->phoneNumberId === '') {
             return 'Phone Number ID de WhatsApp Cloud API no configurado.';
@@ -58,16 +111,12 @@ final class MetaWhatsAppService
         if ($recipient === '') {
             return 'Destinatario WhatsApp inválido. Debe ser un celular chileno en formato 569XXXXXXXX.';
         }
-        if ($text === '') {
-            return 'El texto de WhatsApp está vacío.';
-        }
-
         return null;
     }
 
-    private function send(array $payload, string $messageId, array $metadata, ?string $validationError): array
+    private function send(array $payload, string $messageId, string $messageType, ?string $templateName, array $metadata, ?string $validationError): array
     {
-        $logId = $this->createLog($payload, $messageId, $metadata, $validationError);
+        $logId = $this->createLog($payload, $messageId, $messageType, $templateName, $metadata, $validationError);
         if ($validationError !== null) {
             $result = $this->standardResult(false, 0, $messageId, 'VALIDATION_ERROR', null, $validationError);
             $this->updateLog($messageId, $result, $logId);
@@ -137,14 +186,14 @@ final class MetaWhatsAppService
         return [(string) $raw, (int) ($matches[1] ?? 0), null];
     }
 
-    private function createLog(array $payload, string $messageId, array $metadata, ?string $error): ?int
+    private function createLog(array $payload, string $messageId, string $messageType, ?string $templateName, array $metadata, ?string $error): ?int
     {
         try {
             return $this->logs->create([
                 'message_id' => $messageId,
                 'to_number' => (string) ($payload['to'] ?? ''),
-                'template_name' => null,
-                'message_type' => 'meta_text',
+                'template_name' => $templateName,
+                'message_type' => $messageType,
                 'payload_json' => json_encode($payload, JSON_UNESCAPED_UNICODE) ?: '{}',
                 'response_json' => null,
                 'status_group' => $error === null ? 'PENDING' : 'ERROR',
@@ -175,6 +224,18 @@ final class MetaWhatsAppService
         } catch (Throwable $e) {
             error_log('[MetaWhatsAppService] No fue posible actualizar log WhatsApp' . ($logId ? ' #' . $logId : '') . ': ' . $e->getMessage());
         }
+    }
+
+    private function firstFilled(array $values): string
+    {
+        foreach ($values as $value) {
+            $value = trim((string) $value);
+            if ($value !== '') {
+                return $value;
+            }
+        }
+
+        return '';
     }
 
     private function decodeResponse(string $raw): ?array

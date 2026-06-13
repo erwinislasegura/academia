@@ -99,9 +99,9 @@ final class ApplicationSetting extends Model
                 (string) ($infobip['meta_business_account_id'] ?? ''),
             ]),
             'whatsapp_api_key' => $this->firstFilled([
-                $this->get('admission_whatsapp_api_key'),
                 $this->get('admission_whatsapp_access_token'),
-                (string) ($infobip['api_key'] ?? ''),
+                $this->get('admission_whatsapp_api_key'),
+                (string) ($infobip['meta_access_token'] ?? ''),
             ]),
             'whatsapp_notify_url' => $this->firstFilled([
                 $this->get('admission_whatsapp_notify_url'),

@@ -67,11 +67,11 @@
                 <small>Opcional. Por defecto se usa https://graph.facebook.com/v20.0.</small>
             </label>
             <label>Phone Number ID
-                <input type="text" name="whatsapp_phone_number_id" value="<?= h($settings['whatsapp_phone_number_id'] ?? '') ?>" placeholder="417893274747575">
+                <input type="text" name="whatsapp_phone_number_id" value="<?= h($settings['whatsapp_phone_number_id'] ?? '') ?>" placeholder="637971779395576">
                 <small>ID del número telefónico configurado en Meta/WhatsApp Cloud API.</small>
             </label>
             <label>WhatsApp Business Account ID
-                <input type="text" name="whatsapp_business_account_id" value="<?= h($settings['whatsapp_business_account_id'] ?? '') ?>" placeholder="474074592446301">
+                <input type="text" name="whatsapp_business_account_id" value="<?= h($settings['whatsapp_business_account_id'] ?? '') ?>" placeholder="646043211679831">
                 <small>Referencia del WABA asociado al número.</small>
             </label>
             <label>Token de acceso de Meta
@@ -86,9 +86,9 @@
                 <input type="text" name="whatsapp_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'es') ?>" placeholder="es">
                 <small>Debe coincidir exactamente con el idioma aprobado para la plantilla.</small>
             </label>
-            <label class="span-2">Mensaje de texto libre (sólo ventana 24h)
+            <label class="span-2">Mensaje de texto libre (fallback, sólo ventana 24h)
                 <textarea name="whatsapp_message_template" rows="5"><?= h($settings['whatsapp_message_template'] ?? '') ?></textarea>
-                <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. El envío automático usa este texto al guardar una postulación.</small>
+                <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. El envío automático intenta primero el template aprobado; este texto se usa sólo como fallback dentro de la ventana de 24 horas.</small>
             </label>
         </div>
     </div>
