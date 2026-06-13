@@ -110,22 +110,22 @@
     </label>
     <label>Tipo de envío
         <select name="send_mode">
-            <option value="template">Template hello_world (recomendado)</option>
+            <option value="template">Template configurado (recomendado)</option>
             <option value="text">Texto libre (sólo ventana 24h)</option>
         </select>
-        <small>La prueba por template replica el envío validado con cURL y no requiere ventana de 24 horas.</small>
+        <small>La prueba por template usa la misma plantilla configurada para el envío automático al completar el formulario.</small>
     </label>
     <label>URL base para esta prueba
-        <input type="text" name="test_base_url" value="https://graph.facebook.com/v25.0">
-        <small>Usa la versión que ya validaste con cURL.</small>
+        <input type="text" name="test_base_url" value="<?= h($settings['whatsapp_base_url'] ?? 'https://graph.facebook.com/v25.0') ?>">
+        <small>Por defecto usa la misma URL base guardada para el envío automático.</small>
     </label>
     <label>Template de prueba
-        <input type="text" name="test_template_name" value="hello_world">
-        <small>Para replicar la prueba oficial de Meta, usa hello_world.</small>
+        <input type="text" name="test_template_name" value="<?= h($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027') ?>">
+        <small>Por defecto usa la misma plantilla que se enviará al llenar el formulario.</small>
     </label>
     <label>Idioma del template de prueba
-        <input type="text" name="test_template_language" value="en_US">
-        <small>Para hello_world, Meta usa en_US.</small>
+        <input type="text" name="test_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'es_CL') ?>">
+        <small>Debe coincidir con el idioma aprobado en Meta para la plantilla configurada.</small>
     </label>
     <label>Mensaje de prueba para texto libre
         <input type="text" name="message" value="Mensaje de prueba desde el panel de administración de Academia Iquique.">
@@ -139,7 +139,7 @@
     </label>
     <label>Curso de prueba
         <input type="text" name="course" value="Curso de prueba">
-        <small>Estos datos se usan sólo si pruebas un template con variables; hello_world no envía parámetros.</small>
+        <small>Estos datos completan las variables de la plantilla configurada para simular una postulación real.</small>
     </label>
     <div class="span-2 form-actions">
         <button class="btn secondary" type="submit">Enviar prueba por WhatsApp</button>

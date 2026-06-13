@@ -7,17 +7,17 @@ final class WhatsAppController extends Controller
         Middleware::permission('configurar_postulaciones');
         $input = $this->input();
         $to = (string) ($input['to'] ?? '');
-        $templateName = (string) ($input['template_name'] ?? 'hello_world');
-        $language = (string) ($input['language'] ?? 'en_US');
+        $settings = (new ApplicationSetting())->admissionSettings();
+        $templateName = (string) ($input['template_name'] ?? ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027'));
+        $language = (string) ($input['language'] ?? ($settings['whatsapp_template_language'] ?? 'es_CL'));
         $placeholders = $templateName === 'hello_world' ? [] : $this->csvPlaceholders((string) ($input['placeholders'] ?? 'Familia Academia Iquique,Estudiante de prueba,Curso de prueba,' . date('d-m-Y')));
 
-        $settings = (new ApplicationSetting())->admissionSettings();
         $service = new MetaWhatsAppService($settings);
         $result = $this->sendTemplateWithLanguageRetry(
             $service,
             $to,
-            $templateName !== '' ? $templateName : 'hello_world',
-            $language !== '' ? $language : 'en_US',
+            $templateName !== '' ? $templateName : (string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027'),
+            $language !== '' ? $language : (string) ($settings['whatsapp_template_language'] ?? 'es_CL'),
             $placeholders,
             ['modulo' => 'whatsapp_test', 'tipo' => 'template']
         );
@@ -176,9 +176,9 @@ final class WhatsAppController extends Controller
 
     private function testSettings(array $settings, array $input): array
     {
-        $settings['whatsapp_base_url'] = trim((string) ($input['test_base_url'] ?? '')) ?: 'https://graph.facebook.com/v25.0';
-        $settings['whatsapp_template_name'] = trim((string) ($input['test_template_name'] ?? '')) ?: 'hello_world';
-        $settings['whatsapp_template_language'] = trim((string) ($input['test_template_language'] ?? '')) ?: 'en_US';
+        $settings['whatsapp_base_url'] = trim((string) ($input['test_base_url'] ?? '')) ?: (string) ($settings['whatsapp_base_url'] ?? 'https://graph.facebook.com/v25.0');
+        $settings['whatsapp_template_name'] = trim((string) ($input['test_template_name'] ?? '')) ?: (string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027');
+        $settings['whatsapp_template_language'] = trim((string) ($input['test_template_language'] ?? '')) ?: (string) ($settings['whatsapp_template_language'] ?? 'es_CL');
 
         return $settings;
     }
