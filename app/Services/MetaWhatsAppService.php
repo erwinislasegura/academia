@@ -7,6 +7,7 @@ final class MetaWhatsAppService
 
     private string $baseUrl;
     private string $phoneNumberId;
+    private string $businessAccountId;
     private string $accessToken;
     private int $timeout;
     private WhatsAppLog $logs;
@@ -31,6 +32,11 @@ final class MetaWhatsAppService
             $overrides['whatsapp_phone_number_id'] ?? null,
             getenv('META_WHATSAPP_PHONE_NUMBER_ID') ?: null,
             $config['meta_phone_number_id'] ?? null,
+        ])) ?? '';
+        $this->businessAccountId = preg_replace('/\D+/', '', $this->firstFilled([
+            $overrides['whatsapp_business_account_id'] ?? null,
+            getenv('META_WHATSAPP_BUSINESS_ACCOUNT_ID') ?: null,
+            $config['meta_business_account_id'] ?? null,
         ])) ?? '';
         $this->accessToken = $this->firstFilled([
             $overrides['whatsapp_access_token'] ?? null,
@@ -76,6 +82,44 @@ final class MetaWhatsAppService
         }
 
         return $this->send($payload, $messageId, 'meta_template', trim($templateName), $metadata, $validationError);
+    }
+
+    public function templateLanguages(string $templateName): array
+    {
+        $templateName = trim($templateName);
+        if ($this->businessAccountId === '' || $this->accessToken === '' || $templateName === '') {
+            return [];
+        }
+
+        $query = http_build_query([
+            'name' => $templateName,
+            'fields' => 'name,language,status',
+            'access_token' => $this->accessToken,
+        ]);
+        [$raw, $httpCode, $transportError] = $this->get($this->baseUrl . '/' . $this->businessAccountId . '/message_templates?' . $query);
+        if ($transportError !== null || $httpCode !== 200) {
+            return [];
+        }
+
+        $decoded = $this->decodeResponse($raw);
+        $languages = [];
+        foreach (($decoded['data'] ?? []) as $template) {
+            if (!is_array($template)) {
+                continue;
+            }
+            if (($template['name'] ?? '') !== $templateName) {
+                continue;
+            }
+            if (($template['status'] ?? '') !== '' && strtoupper((string) $template['status']) !== 'APPROVED') {
+                continue;
+            }
+            $language = trim((string) ($template['language'] ?? ''));
+            if ($language !== '') {
+                $languages[] = $language;
+            }
+        }
+
+        return array_values(array_unique($languages));
     }
 
     public function sendTextMessage(string $to, string $text, array $metadata = []): array
@@ -139,6 +183,40 @@ final class MetaWhatsAppService
         $this->updateLog($messageId, $result, $logId, (string) $responseMessageId);
 
         return $result;
+    }
+
+    private function get(string $url): array
+    {
+        if (function_exists('curl_init')) {
+            $ch = curl_init($url);
+            if ($ch === false) {
+                return ['', 0, 'No fue posible inicializar cURL.'];
+            }
+            curl_setopt_array($ch, [
+                CURLOPT_HTTPHEADER => ['Accept: application/json'],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT => $this->timeout,
+            ]);
+            $response = curl_exec($ch);
+            $raw = is_string($response) ? $response : '';
+            $httpCode = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+            $error = curl_errno($ch) !== 0 ? (curl_error($ch) ?: 'Error de conexión con WhatsApp Cloud API.') : null;
+            curl_close($ch);
+            return [$raw, $httpCode, $error];
+        }
+
+        $context = stream_context_create(['http' => [
+            'method' => 'GET',
+            'header' => 'Accept: application/json',
+            'timeout' => $this->timeout,
+            'ignore_errors' => true,
+        ]]);
+        $raw = @file_get_contents($url, false, $context);
+        if ($raw === false || !isset($http_response_header[0])) {
+            return ['', 0, 'No fue posible conectar con WhatsApp Cloud API.'];
+        }
+        preg_match('/^HTTP\/\S+\s+(\d{3})\b/', $http_response_header[0], $matches);
+        return [(string) $raw, (int) ($matches[1] ?? 0), null];
     }
 
     private function post(string $url, string $json): array

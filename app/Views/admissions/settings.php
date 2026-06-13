@@ -101,6 +101,7 @@
         <div>
             <h3>Probar API de WhatsApp</h3>
             <p>Envía un mensaje de prueba con la configuración guardada de WhatsApp Cloud API. Si cambiaste credenciales o plantillas, guarda primero la configuración.</p>
+            <p>Template actual: <strong><?= h($settings['whatsapp_template_name'] ?? '') ?></strong> · idioma configurado: <strong><?= h($settings['whatsapp_template_language'] ?? '') ?></strong>. Si Meta informa que no existe la traducción, el sistema intentará detectar otro idioma aprobado del mismo template.</p>
         </div>
     </div>
     <label>Teléfono destinatario
