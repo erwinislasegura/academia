@@ -31,12 +31,16 @@
                     <th>Sexo / edad</th>
                     <th>Curso</th>
                     <th>Estado</th>
-                    <th>Mensaje</th>
+                    <th class="table-action-head">Detalle</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($applications as $application): ?>
-                    <?php $guardian = trim(($application['guardian_first_names'] ?? '') . ' ' . ($application['guardian_last_names'] ?? '')); ?>
+                    <?php
+                        $guardian = trim(($application['guardian_first_names'] ?? '') . ' ' . ($application['guardian_last_names'] ?? ''));
+                        $message = trim((string) ($application['message'] ?? ''));
+                        $messageLabel = $message !== '' ? 'Ver mensaje' : 'Sin mensaje';
+                    ?>
                     <tr>
                         <td><strong><?= h($application['created_at'] ?? '') ?></strong></td>
                         <td>
@@ -65,7 +69,15 @@
                                 <noscript><button class="btn secondary">Guardar</button></noscript>
                             </form>
                         </td>
-                        <td class="message-cell"><?= h($application['message'] ?: 'Sin mensaje adicional') ?></td>
+                        <td class="table-action-cell">
+                            <button
+                                class="btn secondary message-modal-trigger"
+                                type="button"
+                                data-applicant="<?= h($guardian !== '' ? $guardian : ('Postulación #' . ($application['id'] ?? ''))) ?>"
+                                data-student="<?= h($application['student_name'] ?? '') ?>"
+                                data-message="<?= h($message !== '' ? $message : 'Sin mensaje adicional') ?>"
+                            ><?= h($messageLabel) ?></button>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$applications): ?>
@@ -75,3 +87,19 @@
         </table>
     </div>
 </section>
+
+
+<dialog class="admission-message-modal" id="admission-message-modal" aria-labelledby="admission-message-title">
+    <div class="admission-message-modal__header">
+        <div>
+            <span class="eyebrow">Mensaje de postulación</span>
+            <h3 id="admission-message-title">Detalle del mensaje</h3>
+            <p id="admission-message-meta"></p>
+        </div>
+        <button class="modal-close" type="button" data-message-modal-close aria-label="Cerrar modal">×</button>
+    </div>
+    <div class="admission-message-modal__body" id="admission-message-body"></div>
+    <div class="admission-message-modal__footer">
+        <button class="btn primary" type="button" data-message-modal-close>Cerrar</button>
+    </div>
+</dialog>
