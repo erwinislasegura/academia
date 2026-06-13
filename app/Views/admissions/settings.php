@@ -96,6 +96,26 @@
     <div class="span-2 form-actions"><button class="btn primary">Guardar configuración</button></div>
 </form>
 
+<form class="panel-card form-grid" method="post" action="<?= App::url('/whatsapp/test-settings') ?>" style="margin-top:18px;">
+    <div class="span-2 section-head">
+        <div>
+            <h3>Probar API de WhatsApp</h3>
+            <p>Envía un mensaje de prueba con la configuración guardada de WhatsApp Cloud API. Si cambiaste credenciales o plantillas, guarda primero la configuración.</p>
+        </div>
+    </div>
+    <label>Teléfono destinatario
+        <input type="text" name="to" placeholder="+56 9 1234 5678" required>
+        <small>Usa un celular chileno habilitado para WhatsApp.</small>
+    </label>
+    <label>Mensaje de prueba
+        <input type="text" name="message" value="Mensaje de prueba desde el panel de administración de Academia Iquique." required>
+        <small>Este envío usa texto libre de WhatsApp Cloud API; el destinatario debe estar dentro de la ventana permitida para mensajes libres.</small>
+    </label>
+    <div class="span-2 form-actions">
+        <button class="btn secondary" type="submit">Enviar prueba por WhatsApp</button>
+    </div>
+</form>
+
 <?php
 $previewReplacements = [];
 foreach (($previewApplication ?? []) as $key => $value) {
