@@ -7,17 +7,17 @@ final class WhatsAppController extends Controller
         Middleware::permission('configurar_postulaciones');
         $input = $this->input();
         $to = (string) ($input['to'] ?? '');
-        $templateName = (string) ($input['template_name'] ?? 'confirmacion_postulacion');
-        $language = (string) ($input['language'] ?? 'es');
-        $placeholders = $this->csvPlaceholders((string) ($input['placeholders'] ?? 'Familia Academia Iquique,Estudiante de prueba,Curso de prueba,' . date('d-m-Y')));
+        $templateName = (string) ($input['template_name'] ?? 'hello_world');
+        $language = (string) ($input['language'] ?? 'en_US');
+        $placeholders = $templateName === 'hello_world' ? [] : $this->csvPlaceholders((string) ($input['placeholders'] ?? 'Familia Academia Iquique,Estudiante de prueba,Curso de prueba,' . date('d-m-Y')));
 
         $settings = (new ApplicationSetting())->admissionSettings();
         $service = new MetaWhatsAppService($settings);
         $result = $this->sendTemplateWithLanguageRetry(
             $service,
             $to,
-            $templateName !== '' ? $templateName : (string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion'),
-            $language !== '' ? $language : (string) ($settings['whatsapp_template_language'] ?? 'es'),
+            $templateName !== '' ? $templateName : 'hello_world',
+            $language !== '' ? $language : 'en_US',
             $placeholders,
             ['modulo' => 'whatsapp_test', 'tipo' => 'template']
         );
@@ -47,7 +47,7 @@ final class WhatsAppController extends Controller
         $to = (string) ($input['to'] ?? '');
         $mode = (string) ($input['send_mode'] ?? 'template');
         $message = trim((string) ($input['message'] ?? ''));
-        $settings = (new ApplicationSetting())->admissionSettings();
+        $settings = $this->testSettings((new ApplicationSetting())->admissionSettings(), $input);
         $service = new MetaWhatsAppService($settings);
         $metadata = ['modulo' => 'whatsapp_test', 'tipo' => 'panel_configuracion_' . ($mode === 'text' ? 'texto' : 'template')];
 
@@ -57,12 +57,13 @@ final class WhatsAppController extends Controller
             }
             $result = $service->sendTextMessage($to, $message, $metadata);
         } else {
+            $templateName = (string) ($settings['whatsapp_template_name'] ?? 'hello_world');
             $result = $this->sendTemplateWithLanguageRetry(
                 $service,
                 $to,
-                (string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion'),
-                (string) ($settings['whatsapp_template_language'] ?? 'es'),
-                $this->testTemplateParameters($input),
+                $templateName,
+                (string) ($settings['whatsapp_template_language'] ?? 'en_US'),
+                $this->testTemplateParameters($input, $templateName),
                 $metadata
             );
         }
@@ -173,6 +174,15 @@ final class WhatsAppController extends Controller
         return $result;
     }
 
+    private function testSettings(array $settings, array $input): array
+    {
+        $settings['whatsapp_base_url'] = trim((string) ($input['test_base_url'] ?? '')) ?: 'https://graph.facebook.com/v25.0';
+        $settings['whatsapp_template_name'] = trim((string) ($input['test_template_name'] ?? '')) ?: 'hello_world';
+        $settings['whatsapp_template_language'] = trim((string) ($input['test_template_language'] ?? '')) ?: 'en_US';
+
+        return $settings;
+    }
+
     private function sendTemplateWithLanguageRetry(
         MetaWhatsAppService $service,
         string $to,
@@ -216,8 +226,12 @@ final class WhatsAppController extends Controller
             && (str_contains($error, '#132001') || stripos($error, 'translation') !== false);
     }
 
-    private function testTemplateParameters(array $input): array
+    private function testTemplateParameters(array $input, string $templateName): array
     {
+        if (trim($templateName) === 'hello_world') {
+            return [];
+        }
+
         return [
             trim((string) ($input['guardian_name'] ?? 'Familia Academia Iquique')),
             trim((string) ($input['student_name'] ?? 'Estudiante de prueba')),

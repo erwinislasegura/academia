@@ -63,8 +63,8 @@
         </label>
         <div class="form-grid" style="padding:0;">
             <label>URL base de WhatsApp Cloud API
-                <input type="text" name="whatsapp_base_url" value="<?= h($settings['whatsapp_base_url'] ?? '') ?>" placeholder="https://graph.facebook.com/v20.0">
-                <small>Opcional. Por defecto se usa https://graph.facebook.com/v20.0.</small>
+                <input type="text" name="whatsapp_base_url" value="<?= h($settings['whatsapp_base_url'] ?? '') ?>" placeholder="https://graph.facebook.com/v25.0">
+                <small>Opcional. Por defecto se usa https://graph.facebook.com/v25.0.</small>
             </label>
             <label>Phone Number ID
                 <input type="text" name="whatsapp_phone_number_id" value="<?= h($settings['whatsapp_phone_number_id'] ?? '') ?>" placeholder="637971779395576">
@@ -110,10 +110,22 @@
     </label>
     <label>Tipo de envío
         <select name="send_mode">
-            <option value="template">Template configurado (recomendado)</option>
+            <option value="template">Template hello_world (recomendado)</option>
             <option value="text">Texto libre (sólo ventana 24h)</option>
         </select>
-        <small>El template configurado funciona para pruebas fuera de la ventana de 24 horas, siempre que esté aprobado en Meta.</small>
+        <small>La prueba por template replica el envío validado con cURL y no requiere ventana de 24 horas.</small>
+    </label>
+    <label>URL base para esta prueba
+        <input type="text" name="test_base_url" value="https://graph.facebook.com/v25.0">
+        <small>Usa la versión que ya validaste con cURL.</small>
+    </label>
+    <label>Template de prueba
+        <input type="text" name="test_template_name" value="hello_world">
+        <small>Para replicar la prueba oficial de Meta, usa hello_world.</small>
+    </label>
+    <label>Idioma del template de prueba
+        <input type="text" name="test_template_language" value="en_US">
+        <small>Para hello_world, Meta usa en_US.</small>
     </label>
     <label>Mensaje de prueba para texto libre
         <input type="text" name="message" value="Mensaje de prueba desde el panel de administración de Academia Iquique.">
@@ -127,7 +139,7 @@
     </label>
     <label>Curso de prueba
         <input type="text" name="course" value="Curso de prueba">
-        <small>Estos datos completan las variables del template de confirmación.</small>
+        <small>Estos datos se usan sólo si pruebas un template con variables; hello_world no envía parámetros.</small>
     </label>
     <div class="span-2 form-actions">
         <button class="btn secondary" type="submit">Enviar prueba por WhatsApp</button>

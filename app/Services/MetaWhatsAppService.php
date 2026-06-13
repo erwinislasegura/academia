@@ -3,7 +3,7 @@
 final class MetaWhatsAppService
 {
     private const GRAPH_BASE_URL = 'https://graph.facebook.com';
-    private const GRAPH_VERSION = 'v20.0';
+    private const GRAPH_VERSION = 'v25.0';
 
     private string $baseUrl;
     private string $phoneNumberId;
