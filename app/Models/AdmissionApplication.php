@@ -165,6 +165,21 @@ final class AdmissionApplication extends Model
         )->fetchAll();
     }
 
+
+    public function trendLastDays(int $days = 14): array
+    {
+        $days = max(7, min($days, 30));
+        $intervalDays = $days - 1;
+
+        return $this->db->query(
+            'SELECT DATE(created_at) AS label, COUNT(*) AS total
+             FROM admission_applications
+             WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ' . $intervalDays . ' DAY)
+             GROUP BY DATE(created_at)
+             ORDER BY label ASC'
+        )->fetchAll();
+    }
+
     public function latest(int $limit = 6): array
     {
         $stmt = $this->db->prepare(

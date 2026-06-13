@@ -18,6 +18,7 @@ final class DashboardController extends Controller
             'applicationsByStatus' => $admissionModel->countByStatus(),
             'applicationsByGender' => $admissionModel->countByGender(),
             'applicationsByAgeRange' => $admissionModel->countByAgeRange(),
+            'applicationsTrend' => $admissionModel->trendLastDays(),
             'latestApplications' => $admissionModel->latest(),
             'activity' => $userModel->recentActivity(),
         ]);
