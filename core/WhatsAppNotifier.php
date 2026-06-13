@@ -17,13 +17,20 @@ final class WhatsAppNotifier
 
         $templateName = trim((string) ($settings['whatsapp_template_name'] ?? ''));
         $templateLanguage = trim((string) ($settings['whatsapp_template_language'] ?? 'en_US'));
+        $templateParameters = self::admissionTemplateParameters($application);
+        $metadata['template_variables'] = [
+            '{{1}}' => $templateParameters[0],
+            '{{2}}' => $templateParameters[1],
+            '{{3}}' => $templateParameters[2],
+            '{{4}}' => $templateParameters[3],
+        ];
         if ($templateName !== '') {
             $result = self::sendTemplateWithLanguageRetry(
                 $service,
                 (string) ($application['telefono'] ?? ''),
                 $templateName,
                 $templateLanguage,
-                self::admissionTemplateParameters($application),
+                $templateParameters,
                 $metadata
             );
 
@@ -191,14 +198,38 @@ final class WhatsAppNotifier
         return InfobipWhatsAppService::formatPhone($phone);
     }
 
-    private static function admissionTemplateParameters(array $application): array
+    public static function admissionTemplateParameters(array $application): array
     {
         return [
-            trim(($application['nombres_apoderado'] ?? '') . ' ' . ($application['apellidos_apoderado'] ?? '')),
-            (string) ($application['estudiante'] ?? ''),
-            (string) ($application['curso'] ?? ''),
-            date('d-m-Y'),
+            self::guardianFullName($application),
+            self::studentName($application),
+            self::courseName($application),
+            self::applicationDate($application),
         ];
+    }
+
+    public static function guardianFullName(array $application): string
+    {
+        return trim((string) ($application['nombre_apoderado'] ?? '')
+            ?: trim((string) ($application['nombres_apoderado'] ?? $application['guardian_first_names'] ?? '') . ' ' . (string) ($application['apellidos_apoderado'] ?? $application['guardian_last_names'] ?? '')));
+    }
+
+    public static function studentName(array $application): string
+    {
+        return trim((string) ($application['estudiante'] ?? $application['student_name'] ?? ''));
+    }
+
+    public static function courseName(array $application): string
+    {
+        return trim((string) ($application['curso'] ?? $application['course'] ?? ''));
+    }
+
+    public static function applicationDate(array $application): string
+    {
+        $rawDate = trim((string) ($application['fecha_postulacion'] ?? $application['created_at'] ?? ''));
+        $timestamp = $rawDate !== '' ? strtotime($rawDate) : false;
+
+        return date('d-m-Y', $timestamp ?: time());
     }
 
     private static function renderTemplate(string $template, array $application): string
