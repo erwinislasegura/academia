@@ -59,6 +59,23 @@
                 </div>
 
                 <div class="field">
+                  <label for="sexo_estudiante">Postulante <span class="required">*</span></label>
+                  <select id="sexo_estudiante" name="sexo_estudiante" required>
+                    <option value="">Selecciona una opción</option>
+                    <option value="nina" <?= ($old['sexo_estudiante'] ?? '') === 'nina' ? 'selected' : '' ?>>Niña</option>
+                    <option value="nino" <?= ($old['sexo_estudiante'] ?? '') === 'nino' ? 'selected' : '' ?>>Niño</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="fecha_nacimiento">Fecha de nacimiento <span class="required">*</span></label>
+                  <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="<?= h($old['fecha_nacimiento'] ?? '') ?>" required>
+                  <span class="field-help">Nos permite calcular edad y preparar informes de admisión.</span>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="field">
                   <label for="curso">Curso al que postula <span class="required">*</span></label>
                   <select id="curso" name="curso" required>
                     <option value="">Selecciona un curso</option>
