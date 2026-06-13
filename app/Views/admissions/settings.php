@@ -63,8 +63,8 @@
         </label>
         <div class="form-grid" style="padding:0;">
             <label>URL base de WhatsApp Cloud API
-                <input type="text" name="whatsapp_base_url" value="<?= h($settings['whatsapp_base_url'] ?? '') ?>" placeholder="https://graph.facebook.com/v20.0">
-                <small>Opcional. Por defecto se usa https://graph.facebook.com/v20.0.</small>
+                <input type="text" name="whatsapp_base_url" value="<?= h($settings['whatsapp_base_url'] ?? '') ?>" placeholder="https://graph.facebook.com/v25.0">
+                <small>Opcional. Por defecto se usa https://graph.facebook.com/v25.0.</small>
             </label>
             <label>Phone Number ID
                 <input type="text" name="whatsapp_phone_number_id" value="<?= h($settings['whatsapp_phone_number_id'] ?? '') ?>" placeholder="637971779395576">
@@ -79,11 +79,11 @@
                 <small>Déjala en blanco para mantener la clave actual. Debe tener permisos para enviar mensajes por WhatsApp Cloud API.</small>
             </label>
             <label>Template de confirmación
-                <input type="text" name="whatsapp_template_name" value="<?= h($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion') ?>" placeholder="confirmacion_postulacion">
+                <input type="text" name="whatsapp_template_name" value="<?= h($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027') ?>" placeholder="confirmacion_postulacion_2027">
                 <small>Debe existir y estar aprobado en Meta si decides enviar plantillas.</small>
             </label>
             <label>Idioma del template
-                <input type="text" name="whatsapp_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'es') ?>" placeholder="es">
+                <input type="text" name="whatsapp_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'es_CL') ?>" placeholder="es_CL">
                 <small>Debe coincidir exactamente con el idioma aprobado para la plantilla.</small>
             </label>
             <label class="span-2">Mensaje de texto libre (fallback, sólo ventana 24h)
@@ -94,6 +94,56 @@
     </div>
 
     <div class="span-2 form-actions"><button class="btn primary">Guardar configuración</button></div>
+</form>
+
+<form class="panel-card form-grid" method="post" action="<?= App::url('/whatsapp/test-settings') ?>" style="margin-top:18px;">
+    <div class="span-2 section-head">
+        <div>
+            <h3>Probar API de WhatsApp</h3>
+            <p>Envía un mensaje de prueba con la configuración guardada de WhatsApp Cloud API. Si cambiaste credenciales o plantillas, guarda primero la configuración.</p>
+            <p>Template actual: <strong><?= h($settings['whatsapp_template_name'] ?? '') ?></strong> · idioma configurado: <strong><?= h($settings['whatsapp_template_language'] ?? '') ?></strong>. Si Meta informa que no existe la traducción, el sistema intentará detectar otro idioma aprobado del mismo template.</p>
+        </div>
+    </div>
+    <label>Teléfono destinatario
+        <input type="text" name="to" placeholder="+56 9 1234 5678" required>
+        <small>Usa un celular chileno habilitado para WhatsApp.</small>
+    </label>
+    <label>Tipo de envío
+        <select name="send_mode">
+            <option value="template">Template hello_world (recomendado)</option>
+            <option value="text">Texto libre (sólo ventana 24h)</option>
+        </select>
+        <small>La prueba por template replica el envío validado con cURL y no requiere ventana de 24 horas.</small>
+    </label>
+    <label>URL base para esta prueba
+        <input type="text" name="test_base_url" value="https://graph.facebook.com/v25.0">
+        <small>Usa la versión que ya validaste con cURL.</small>
+    </label>
+    <label>Template de prueba
+        <input type="text" name="test_template_name" value="hello_world">
+        <small>Para replicar la prueba oficial de Meta, usa hello_world.</small>
+    </label>
+    <label>Idioma del template de prueba
+        <input type="text" name="test_template_language" value="en_US">
+        <small>Para hello_world, Meta usa en_US.</small>
+    </label>
+    <label>Mensaje de prueba para texto libre
+        <input type="text" name="message" value="Mensaje de prueba desde el panel de administración de Academia Iquique.">
+        <small>Este campo se usa sólo si eliges texto libre; WhatsApp Cloud API puede rechazarlo si no hay una conversación reciente.</small>
+    </label>
+    <label>Nombre apoderado de prueba
+        <input type="text" name="guardian_name" value="Familia Academia Iquique">
+    </label>
+    <label>Estudiante de prueba
+        <input type="text" name="student_name" value="Estudiante de prueba">
+    </label>
+    <label>Curso de prueba
+        <input type="text" name="course" value="Curso de prueba">
+        <small>Estos datos se usan sólo si pruebas un template con variables; hello_world no envía parámetros.</small>
+    </label>
+    <div class="span-2 form-actions">
+        <button class="btn secondary" type="submit">Enviar prueba por WhatsApp</button>
+    </div>
 </form>
 
 <?php

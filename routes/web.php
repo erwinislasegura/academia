@@ -14,6 +14,7 @@ $router->post('/postula-embed.php', [AdmissionController::class, 'submitEmbed'])
 $router->post('/webhook/infobip-whatsapp', [InfobipWebhookController::class, 'handle']);
 $router->post('/whatsapp/test-template', [WhatsAppController::class, 'testTemplate']);
 $router->post('/whatsapp/test-text', [WhatsAppController::class, 'testText']);
+$router->post('/whatsapp/test-settings', [WhatsAppController::class, 'testSettingsMessage']);
 $router->post('/whatsapp/admission-confirmation/{id}', [WhatsAppController::class, 'sendAdmissionConfirmation']);
 $router->get('/admissions', [AdmissionController::class, 'applications']);
 $router->get('/admissions/export', [AdmissionController::class, 'exportApplications']);
