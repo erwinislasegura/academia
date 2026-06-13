@@ -88,7 +88,7 @@
             </label>
             <label class="span-2">Mensaje de texto libre (fallback, sólo ventana 24h)
                 <textarea name="whatsapp_message_template" rows="5"><?= h($settings['whatsapp_message_template'] ?? '') ?></textarea>
-                <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. El envío automático intenta primero el template aprobado; este texto se usa sólo como fallback dentro de la ventana de 24 horas.</small>
+                <small>Template WhatsApp aprobado: {{1}} Nombre completo del apoderado, {{2}} Nombre del estudiante, {{3}} Curso, {{4}} Fecha de postulación o fecha actual. El envío automático usa exactamente esos 4 parámetros en ese orden; este texto se usa sólo como fallback dentro de la ventana de 24 horas.</small>
             </label>
         </div>
     </div>
@@ -132,14 +132,14 @@
         <small>Este campo se usa sólo si eliges texto libre; WhatsApp Cloud API puede rechazarlo si no hay una conversación reciente.</small>
     </label>
     <label>Nombre apoderado de prueba
-        <input type="text" name="guardian_name" value="Familia Academia Iquique">
+        <input type="text" name="guardian_name" value="Nombre completo del apoderado">
     </label>
     <label>Estudiante de prueba
-        <input type="text" name="student_name" value="Estudiante de prueba">
+        <input type="text" name="student_name" value="Nombre del estudiante">
     </label>
     <label>Curso de prueba
-        <input type="text" name="course" value="Curso de prueba">
-        <small>Estos datos completan las variables de la plantilla configurada para simular una postulación real.</small>
+        <input type="text" name="course" value="Curso">
+        <small>Estos datos completan {{1}}, {{2}} y {{3}}; {{4}} se envía automáticamente como fecha de postulación o fecha actual.</small>
     </label>
     <div class="span-2 form-actions">
         <button class="btn secondary" type="submit">Enviar prueba por WhatsApp</button>
