@@ -88,8 +88,15 @@ final class ApplicationSetting extends Model
             ]),
             'whatsapp_sender' => $this->firstFilled([
                 $this->get('admission_whatsapp_sender'),
-                $this->get('admission_whatsapp_phone_number_id'),
                 (string) ($infobip['whatsapp_sender'] ?? ''),
+            ]),
+            'whatsapp_phone_number_id' => $this->firstFilled([
+                $this->get('admission_whatsapp_phone_number_id'),
+                (string) ($infobip['meta_phone_number_id'] ?? ''),
+            ]),
+            'whatsapp_business_account_id' => $this->firstFilled([
+                $this->get('admission_whatsapp_business_account_id'),
+                (string) ($infobip['meta_business_account_id'] ?? ''),
             ]),
             'whatsapp_api_key' => $this->firstFilled([
                 $this->get('admission_whatsapp_api_key'),

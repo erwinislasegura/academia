@@ -56,32 +56,31 @@
     </section>
 
     <div class="panel-card span-2" style="background:#f8faff; box-shadow:none;">
-        <div class="section-head"><h3>WhatsApp automático por Infobip</h3></div>
-        <p class="field-error">La API de WhatsApp aún no está implementada, por lo que el envío automático permanece desactivado.</p>
+        <div class="section-head"><h3>WhatsApp automático por WhatsApp Cloud API</h3></div>
         <label style="display:flex;gap:10px;align-items:center;margin-bottom:14px;">
-            <input type="checkbox" name="whatsapp_enabled" value="1" disabled>
+            <input type="checkbox" name="whatsapp_enabled" value="1" <?= !empty($settings['whatsapp_enabled']) ? 'checked' : '' ?>>
             Enviar un WhatsApp al teléfono informado cuando se registre la postulación.
         </label>
         <div class="form-grid" style="padding:0;">
-            <label>URL base de Infobip
-                <input type="text" name="whatsapp_base_url" value="<?= h($settings['whatsapp_base_url'] ?? '') ?>" placeholder="https://4k99ym.api.infobip.com">
-                <small>Ingresa el dominio entregado por Infobip, sin ruta adicional. Si no incluye https://, el sistema lo agregará automáticamente.</small>
+            <label>URL base de WhatsApp Cloud API
+                <input type="text" name="whatsapp_base_url" value="<?= h($settings['whatsapp_base_url'] ?? '') ?>" placeholder="https://graph.facebook.com/v20.0">
+                <small>Opcional. Por defecto se usa https://graph.facebook.com/v20.0.</small>
             </label>
-            <label>Remitente WhatsApp en Infobip
-                <input type="text" name="whatsapp_sender" value="<?= h($settings['whatsapp_sender'] ?? ($settings['whatsapp_phone_number_id'] ?? '')) ?>" placeholder="Ej: 56985741931">
-                <small>Debe ser el número o sender de WhatsApp habilitado en Infobip, en formato internacional.</small>
+            <label>Phone Number ID
+                <input type="text" name="whatsapp_phone_number_id" value="<?= h($settings['whatsapp_phone_number_id'] ?? '') ?>" placeholder="417893274747575">
+                <small>ID del número telefónico configurado en Meta/WhatsApp Cloud API.</small>
             </label>
-            <label>Notify URL / webhook
-                <input type="url" name="whatsapp_notify_url" value="<?= h($settings['whatsapp_notify_url'] ?? '') ?>" placeholder="https://midominio.cl/webhook/infobip-whatsapp">
-                <small>Infobip enviará aquí los delivery reports y mensajes entrantes.</small>
+            <label>WhatsApp Business Account ID
+                <input type="text" name="whatsapp_business_account_id" value="<?= h($settings['whatsapp_business_account_id'] ?? '') ?>" placeholder="474074592446301">
+                <small>Referencia del WABA asociado al número.</small>
             </label>
-            <label>Clave API de Infobip
-                <input type="password" name="whatsapp_api_key" value="" autocomplete="off" placeholder="<?= !empty($settings['whatsapp_api_key']) ? 'Clave API ya configurada' : '' ?>">
-                <small>Déjala en blanco para mantener la clave actual. Debe tener permiso <code>whatsapp:message:send</code>.</small>
+            <label>Token de acceso de Meta
+                <input type="password" name="whatsapp_api_key" value="" autocomplete="off" placeholder="<?= !empty($settings['whatsapp_api_key']) ? 'Token ya configurado' : '' ?>">
+                <small>Déjala en blanco para mantener la clave actual. Debe tener permisos para enviar mensajes por WhatsApp Cloud API.</small>
             </label>
             <label>Template de confirmación
                 <input type="text" name="whatsapp_template_name" value="<?= h($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion') ?>" placeholder="confirmacion_postulacion">
-                <small>Debe existir y estar aprobado en Infobip/Meta.</small>
+                <small>Debe existir y estar aprobado en Meta si decides enviar plantillas.</small>
             </label>
             <label>Idioma del template
                 <input type="text" name="whatsapp_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'es') ?>" placeholder="es">
@@ -89,7 +88,7 @@
             </label>
             <label class="span-2">Mensaje de texto libre (sólo ventana 24h)
                 <textarea name="whatsapp_message_template" rows="5"><?= h($settings['whatsapp_message_template'] ?? '') ?></textarea>
-                <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. Para iniciar una conversación fuera de la ventana de 24 horas se usa el template aprobado configurado arriba.</small>
+                <small>Variables disponibles: {{nombres_apoderado}}, {{apellidos_apoderado}}, {{nombre_apoderado}}, {{email}}, {{telefono}}, {{estudiante}}, {{curso}}, {{mensaje}}. El envío automático usa este texto al guardar una postulación.</small>
             </label>
         </div>
     </div>
