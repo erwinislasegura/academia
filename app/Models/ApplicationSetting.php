@@ -113,7 +113,7 @@ final class ApplicationSetting extends Model
             ]),
             'whatsapp_template_language' => $this->firstFilled([
                 $this->get('admission_whatsapp_template_language'),
-                (string) ($infobip['admission_template_language'] ?? 'es_CL'),
+                (string) ($infobip['admission_template_language'] ?? 'en_US'),
             ]),
             'whatsapp_message_template' => $this->get('admission_whatsapp_message_template', WhatsAppNotifier::defaultAdmissionMessage()),
         ];

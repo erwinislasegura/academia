@@ -83,7 +83,7 @@
                 <small>Debe existir y estar aprobado en Meta si decides enviar plantillas.</small>
             </label>
             <label>Idioma del template
-                <input type="text" name="whatsapp_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'es_CL') ?>" placeholder="es_CL">
+                <input type="text" name="whatsapp_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'en_US') ?>" placeholder="en_US">
                 <small>Debe coincidir exactamente con el idioma aprobado para la plantilla.</small>
             </label>
             <label class="span-2">Mensaje de texto libre (fallback, sólo ventana 24h)
@@ -124,7 +124,7 @@
         <small>Por defecto usa la misma plantilla que se enviará al llenar el formulario.</small>
     </label>
     <label>Idioma del template de prueba
-        <input type="text" name="test_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'es_CL') ?>">
+        <input type="text" name="test_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'en_US') ?>">
         <small>Debe coincidir con el idioma aprobado en Meta para la plantilla configurada.</small>
     </label>
     <label>Mensaje de prueba para texto libre
