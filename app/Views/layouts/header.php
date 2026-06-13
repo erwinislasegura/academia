@@ -6,4 +6,5 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= App::asset('/assets/css/app.css') ?>?v=<?= filemtime(App::root('public/assets/css/app.css')) ?>">
+    <link rel="stylesheet" href="<?= App::asset('/assets/css/dashboard.css') ?>?v=<?= filemtime(App::root('public/assets/css/dashboard.css')) ?>">
 </head>

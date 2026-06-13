@@ -60,9 +60,9 @@
                             <span class="table-primary-data"><?= h($application['guardian_email'] ?? '') ?></span>
                             <span><?= h($application['guardian_phone'] ?? '') ?></span>
                         </td>
-                        <td><span class="table-primary-data"><?= h($application['student_name'] ?? '') ?></span></td>
+                        <td><strong><?= h($application['student_name'] ?? '') ?></strong></td>
                         <td>
-                            <span class="table-primary-data"><?= h(($application['student_gender'] ?? '') === 'nina' ? 'Niña' : (($application['student_gender'] ?? '') === 'nino' ? 'Niño' : 'Sin dato')) ?></span>
+                            <strong><?= h(($application['student_gender'] ?? '') === 'nina' ? 'Niña' : (($application['student_gender'] ?? '') === 'nino' ? 'Niño' : 'Sin dato')) ?></strong>
                             <span><?= h($application['student_age'] !== null ? $application['student_age'] . ' años' : 'Sin edad') ?></span>
                         </td>
                         <td><span class="badge ok"><?= h($application['course'] ?? '') ?></span></td>
