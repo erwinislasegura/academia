@@ -37,6 +37,34 @@ final class WhatsAppController extends Controller
         $this->json($this->publicResult($result), $result['success'] ? 200 : 422);
     }
 
+
+    public function testSettingsMessage(): void
+    {
+        Middleware::permission('configurar_postulaciones');
+        $input = $this->input();
+        $to = (string) ($input['to'] ?? '');
+        $message = trim((string) ($input['message'] ?? ''));
+
+        if ($message === '') {
+            $message = 'Mensaje de prueba desde el panel de administración de Academia Iquique.';
+        }
+
+        $settings = (new ApplicationSetting())->admissionSettings();
+        $result = (new MetaWhatsAppService($settings))->sendTextMessage(
+            $to,
+            $message,
+            ['modulo' => 'whatsapp_test', 'tipo' => 'panel_configuracion']
+        );
+
+        if ($result['success']) {
+            Session::flash('success', 'WhatsApp de prueba enviado correctamente. ID: ' . (string) $result['message_id']);
+        } else {
+            Session::flash('error', 'No fue posible enviar el WhatsApp de prueba: ' . (string) ($result['error'] ?? $result['status']));
+        }
+
+        $this->redirect('/admission-settings');
+    }
+
     public function sendAdmissionConfirmation(int $postulacionId, bool $respondJson = true): array
     {
         if ($respondJson) {
