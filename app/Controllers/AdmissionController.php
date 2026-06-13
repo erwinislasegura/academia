@@ -55,10 +55,11 @@ final class AdmissionController extends Controller
         }
 
         $application = $this->normalize($input);
-        (new AdmissionApplication())->create($application);
+        $application['id'] = (new AdmissionApplication())->create($application);
         $settings = (new ApplicationSetting())->admissionSettings();
         AdmissionMailer::sendApplicantEmail($application, $settings);
         AdmissionMailer::sendAdminNotification($application, $settings);
+        WhatsAppNotifier::sendAdmissionMessage($application, $settings);
 
         $this->view($view, [
             'old' => [],
@@ -172,14 +173,11 @@ final class AdmissionController extends Controller
             ? (string) $input['whatsapp_api_key']
             : (string) ($currentSettings['whatsapp_api_key'] ?? '');
 
-        if ($whatsAppEnabled && trim($input['whatsapp_base_url'] ?? '') === '') {
-            $errors[] = 'Debes ingresar la URL base de Infobip.';
-        }
-        if ($whatsAppEnabled && trim($input['whatsapp_sender'] ?? '') === '') {
-            $errors[] = 'Debes ingresar el remitente de WhatsApp configurado en Infobip.';
+        if ($whatsAppEnabled && trim($input['whatsapp_phone_number_id'] ?? '') === '') {
+            $errors[] = 'Debes ingresar el Phone Number ID de WhatsApp Cloud API.';
         }
         if ($whatsAppEnabled && trim($whatsAppApiKey) === '') {
-            $errors[] = 'Debes ingresar la clave API de Infobip.';
+            $errors[] = 'Debes ingresar el token de acceso de Meta.';
         }
         if ($whatsAppEnabled && trim($input['whatsapp_template_name'] ?? '') === '') {
             $errors[] = 'Debes ingresar el nombre del template aprobado de WhatsApp.';
@@ -198,6 +196,8 @@ final class AdmissionController extends Controller
             'whatsapp_enabled' => $whatsAppEnabled,
             'whatsapp_base_url' => $input['whatsapp_base_url'] ?? '',
             'whatsapp_sender' => $input['whatsapp_sender'] ?? '',
+            'whatsapp_phone_number_id' => $input['whatsapp_phone_number_id'] ?? '',
+            'whatsapp_business_account_id' => $input['whatsapp_business_account_id'] ?? '',
             'whatsapp_api_key' => $whatsAppApiKey,
             'whatsapp_notify_url' => $input['whatsapp_notify_url'] ?? '',
             'whatsapp_template_name' => $input['whatsapp_template_name'] ?? '',
@@ -223,12 +223,13 @@ final class AdmissionController extends Controller
         $model->set('admission_whatsapp_enabled', $settings['whatsapp_enabled'] ? '1' : '0');
         $model->set('admission_whatsapp_base_url', $settings['whatsapp_base_url']);
         $model->set('admission_whatsapp_sender', $settings['whatsapp_sender']);
+        $model->set('admission_whatsapp_phone_number_id', $settings['whatsapp_phone_number_id']);
+        $model->set('admission_whatsapp_business_account_id', $settings['whatsapp_business_account_id']);
         $model->set('admission_whatsapp_notify_url', $settings['whatsapp_notify_url']);
         if (trim((string) ($input['whatsapp_api_key'] ?? '')) !== '') {
             $model->set('admission_whatsapp_api_key', $settings['whatsapp_api_key']);
             $model->set('admission_whatsapp_access_token', $settings['whatsapp_api_key']);
         }
-        $model->set('admission_whatsapp_phone_number_id', $settings['whatsapp_sender']);
         $model->set('admission_whatsapp_template_name', $settings['whatsapp_template_name']);
         $model->set('admission_whatsapp_template_language', $settings['whatsapp_template_language']);
         $model->set('admission_whatsapp_message_template', $settings['whatsapp_message_template']);

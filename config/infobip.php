@@ -8,4 +8,7 @@ return [
     'timeout' => (int) (getenv('INFOBIP_TIMEOUT') ?: 15),
     'admission_template_name' => (string) (getenv('INFOBIP_ADMISSION_TEMPLATE') ?: 'confirmacion_postulacion'),
     'admission_template_language' => (string) (getenv('INFOBIP_ADMISSION_TEMPLATE_LANGUAGE') ?: 'es'),
+    'meta_phone_number_id' => (string) (getenv('META_WHATSAPP_PHONE_NUMBER_ID') ?: '417893274747575'),
+    'meta_business_account_id' => (string) (getenv('META_WHATSAPP_BUSINESS_ACCOUNT_ID') ?: '474074592446301'),
+    'meta_access_token' => (string) (getenv('META_WHATSAPP_ACCESS_TOKEN') ?: ''),
 ];

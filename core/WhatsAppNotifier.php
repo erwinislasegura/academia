@@ -8,7 +8,7 @@ final class WhatsAppNotifier
             return true;
         }
 
-        $result = (new InfobipWhatsAppService($settings))->sendTextMessage(
+        $result = (new MetaWhatsAppService($settings))->sendTextMessage(
             (string) ($application['telefono'] ?? ''),
             trim(self::renderTemplate((string) ($settings['whatsapp_message_template'] ?? self::defaultAdmissionMessage()), $application)),
             [
