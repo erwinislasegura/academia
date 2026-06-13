@@ -133,8 +133,8 @@ final class WhatsAppController extends Controller
 
         $service = new MetaWhatsAppService($settings);
         $template = [
-            'name' => trim((string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion')),
-            'language' => trim((string) ($settings['whatsapp_template_language'] ?? 'es')),
+            'name' => trim((string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027')),
+            'language' => trim((string) ($settings['whatsapp_template_language'] ?? 'es_CL')),
         ];
         $guardianName = trim(($application['guardian_first_names'] ?? '') . ' ' . ($application['guardian_last_names'] ?? ''));
         $createdAt = $application['created_at'] ? date('d-m-Y', strtotime((string) $application['created_at'])) : date('d-m-Y');
@@ -142,7 +142,7 @@ final class WhatsAppController extends Controller
         $metadata = [
             'modulo' => 'postulaciones',
             'registro_id' => $postulacionId,
-            'tipo' => 'confirmacion_postulacion',
+            'tipo' => 'confirmacion_postulacion_2027',
         ];
         $result = $this->sendTemplateWithLanguageRetry(
             $service,

@@ -79,11 +79,11 @@
                 <small>Déjala en blanco para mantener la clave actual. Debe tener permisos para enviar mensajes por WhatsApp Cloud API.</small>
             </label>
             <label>Template de confirmación
-                <input type="text" name="whatsapp_template_name" value="<?= h($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion') ?>" placeholder="confirmacion_postulacion">
+                <input type="text" name="whatsapp_template_name" value="<?= h($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027') ?>" placeholder="confirmacion_postulacion_2027">
                 <small>Debe existir y estar aprobado en Meta si decides enviar plantillas.</small>
             </label>
             <label>Idioma del template
-                <input type="text" name="whatsapp_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'es') ?>" placeholder="es">
+                <input type="text" name="whatsapp_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'es_CL') ?>" placeholder="es_CL">
                 <small>Debe coincidir exactamente con el idioma aprobado para la plantilla.</small>
             </label>
             <label class="span-2">Mensaje de texto libre (fallback, sólo ventana 24h)
