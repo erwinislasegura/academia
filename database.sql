@@ -212,7 +212,7 @@ INSERT INTO application_settings (`key`, value) VALUES
 ('admission_whatsapp_business_account_id', '646043211679831'),
 ('admission_whatsapp_notify_url', ''),
 ('admission_whatsapp_template_name', 'confirmacion_postulacion_2027'),
-('admission_whatsapp_template_language', 'es_CL'),
+('admission_whatsapp_template_language', 'en_US'),
 ('admission_whatsapp_message_template', 'Hola {{nombres_apoderado}}, confirmamos la recepción de la postulación de {{estudiante}} para {{curso}}. Nuestro equipo de admisión revisará la información enviada y se contactará contigo si requiere antecedentes adicionales o para informar los próximos pasos. Academia Iquique'),
 ('mail_mailer', 'smtp'),
 ('mail_host', 'academia.gocreative.cl'),

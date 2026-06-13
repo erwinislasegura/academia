@@ -16,7 +16,7 @@ final class WhatsAppNotifier
         ];
 
         $templateName = trim((string) ($settings['whatsapp_template_name'] ?? ''));
-        $templateLanguage = trim((string) ($settings['whatsapp_template_language'] ?? 'es_CL'));
+        $templateLanguage = trim((string) ($settings['whatsapp_template_language'] ?? 'en_US'));
         if ($templateName !== '') {
             $result = self::sendTemplateWithLanguageRetry(
                 $service,
@@ -120,10 +120,10 @@ final class WhatsAppNotifier
             str_replace('_', '-', $configuredLanguage),
             str_replace('-', '_', $configuredLanguage),
             preg_replace('/[_-].+$/', '', $configuredLanguage) ?: null,
+            'en_US',
             'es_CL',
             'es',
             'es_ES',
-            'en_US',
         ], static fn($language): bool => is_string($language) && trim($language) !== ''));
 
         return array_values(array_unique(array_merge(
