@@ -193,12 +193,38 @@ final class WhatsAppController extends Controller
     ): array {
         $templateName = trim($templateName);
         $language = trim($language);
+        $availableLanguages = $service->templateLanguages($templateName);
+        if ($availableLanguages !== [] && !in_array($language, $availableLanguages, true)) {
+            foreach ($this->preferredTemplateLanguages($language, $availableLanguages) as $availableLanguage) {
+                $retry = $service->sendTemplateMessage(
+                    $to,
+                    $templateName,
+                    $availableLanguage,
+                    $parameters,
+                    $metadata + ['retry_language' => $availableLanguage, 'configured_language' => $language, 'reason' => 'language_preflight']
+                );
+                if ($retry['success']) {
+                    return $retry;
+                }
+                $result = $retry;
+            }
+
+            return $result ?? [
+                'success' => false,
+                'http_code' => 422,
+                'message_id' => '',
+                'status' => 'TEMPLATE_LANGUAGE_NOT_APPROVED',
+                'response' => null,
+                'error' => 'El idioma configurado "' . $language . '" no está aprobado para el template "' . $templateName . '". Idiomas aprobados detectados: ' . implode(', ', $availableLanguages) . '.',
+            ];
+        }
+
         $result = $service->sendTemplateMessage($to, $templateName, $language, $parameters, $metadata);
         if ($result['success'] || !$this->isTemplateTranslationError($result)) {
             return $result;
         }
 
-        foreach ($service->templateLanguages($templateName) as $availableLanguage) {
+        foreach ($this->preferredTemplateLanguages($language, $availableLanguages ?: $service->templateLanguages($templateName)) as $availableLanguage) {
             if ($availableLanguage === $language) {
                 continue;
             }
@@ -215,7 +241,30 @@ final class WhatsAppController extends Controller
             $result = $retry;
         }
 
+        if ($availableLanguages === []) {
+            $result['error'] = trim((string) ($result['error'] ?? '')) . ' No se encontró el template "' . $templateName . '" como plantilla aprobada en el WhatsApp Business Account configurado; verifica el nombre exacto en Meta o guarda una plantilla aprobada.';
+        }
+
         return $result;
+    }
+
+    private function preferredTemplateLanguages(string $configuredLanguage, array $availableLanguages): array
+    {
+        $preferred = array_values(array_filter([
+            $configuredLanguage,
+            str_replace('_', '-', $configuredLanguage),
+            str_replace('-', '_', $configuredLanguage),
+            preg_replace('/[_-].+$/', '', $configuredLanguage) ?: null,
+            'es_CL',
+            'es',
+            'es_ES',
+            'en_US',
+        ], static fn($language): bool => is_string($language) && trim($language) !== ''));
+
+        return array_values(array_unique(array_merge(
+            array_values(array_intersect($preferred, $availableLanguages)),
+            $availableLanguages
+        )));
     }
 
     private function isTemplateTranslationError(array $result): bool
