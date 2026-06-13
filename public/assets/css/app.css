@@ -2014,3 +2014,129 @@ button, input, select, textarea { font: inherit; }
   .donut-panel { grid-template-columns: 1fr; justify-items: center; }
   .chart-legend { width: 100%; }
 }
+
+/* Admissions applications table: compact and action-focused. */
+.admissions-table {
+  min-width: 980px;
+  table-layout: fixed;
+}
+
+.admissions-table th,
+.admissions-table td {
+  padding: 9px 10px;
+}
+
+.admissions-table th:nth-child(1) { width: 132px; }
+.admissions-table th:nth-child(2) { width: 170px; }
+.admissions-table th:nth-child(3) { width: 210px; }
+.admissions-table th:nth-child(4) { width: 160px; }
+.admissions-table th:nth-child(5) { width: 105px; }
+.admissions-table th:nth-child(6) { width: 116px; }
+.admissions-table th:nth-child(7) { width: 210px; }
+.admissions-table th:nth-child(8) { width: 120px; }
+
+.admissions-table td {
+  line-height: 1.25;
+}
+
+.admissions-table td strong,
+.admissions-table td span:not(.badge) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.table-action-head,
+.table-action-cell {
+  text-align: right;
+}
+
+.message-modal-trigger {
+  min-height: 32px;
+  padding: 7px 10px;
+  white-space: nowrap;
+}
+
+.message-modal-trigger::before {
+  content: "✉";
+  font-size: 12px;
+}
+
+.message-modal-trigger:disabled {
+  opacity: .62;
+  cursor: not-allowed;
+}
+
+.admission-message-modal {
+  width: min(560px, calc(100vw - 32px));
+  padding: 0;
+  border: 0;
+  border-radius: 22px;
+  color: var(--text);
+  background: #fff;
+  box-shadow: 0 30px 90px rgba(15, 23, 42, .28);
+}
+
+.admission-message-modal::backdrop {
+  background: rgba(15, 23, 42, .48);
+  backdrop-filter: blur(3px);
+}
+
+.admission-message-modal__header,
+.admission-message-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px 20px;
+}
+
+.admission-message-modal__header {
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+}
+
+.admission-message-modal__header h3 {
+  margin: 4px 0 0;
+  font-size: 20px;
+  letter-spacing: -.03em;
+}
+
+.admission-message-modal__header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.admission-message-modal__body {
+  max-height: min(48vh, 420px);
+  overflow: auto;
+  padding: 20px;
+  color: #334155;
+  font-size: 14px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.admission-message-modal__footer {
+  justify-content: flex-end;
+  border-top: 1px solid var(--border);
+  background: var(--surface-soft);
+}
+
+.modal-close {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--primary);
+  border-color: rgba(7, 29, 122, .22);
+}
