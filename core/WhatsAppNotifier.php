@@ -90,9 +90,6 @@ final class WhatsAppNotifier
     ): array {
         $templateName = trim($templateName);
         $language = trim($language);
-        if (self::isParameterlessTemplate($templateName)) {
-            return $service->sendTemplateMessage($to, $templateName, $language, [], $metadata);
-        }
         $availableLanguages = $service->templateLanguages($templateName);
         if ($availableLanguages !== [] && !in_array($language, $availableLanguages, true)) {
             foreach (self::preferredTemplateLanguages($language, $availableLanguages) as $availableLanguage) {
@@ -229,27 +226,8 @@ final class WhatsAppNotifier
 
     public static function templateParametersFor(string $templateName, array $application): array
     {
-        if (self::isParameterlessTemplate($templateName)) {
-            return [];
-        }
-
-        return self::admissionTemplateParameters($application);
-    }
-
-    private static function isParameterlessTemplate(string $templateName): bool
-    {
-        return trim($templateName) === 'hello_world';
-    }
-
-    public static function admissionTemplateParameters(array $application): array
-    {
-        // La plantilla de admisión recibe sólo 4 variables. No incluir sexo_estudiante ni fecha_nacimiento.
-        return [
-            self::guardianFullName($application),
-            self::studentName($application),
-            self::courseName($application),
-            self::applicationDate($application),
-        ];
+        // Las plantillas configuradas actualmente no reciben variables de cuerpo.
+        return [];
     }
 
     public static function guardianFullName(array $application): string

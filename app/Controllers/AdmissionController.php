@@ -111,7 +111,7 @@ final class AdmissionController extends Controller
         echo "\xEF\xBB\xBF";
         echo '<table border="1">';
         echo '<thead><tr>';
-        foreach (['ID', 'Fecha', 'Apoderado', 'Email', 'Teléfono', 'Estudiante', 'Sexo', 'Fecha nacimiento', 'Edad', 'Curso', 'Estado', 'Mensaje'] as $heading) {
+        foreach (['ID', 'Fecha', 'Apoderado', 'Email', 'Teléfono', 'Estudiante', 'Curso', 'Estado', 'Mensaje'] as $heading) {
             echo '<th>' . htmlspecialchars($heading, ENT_QUOTES, 'UTF-8') . '</th>';
         }
         echo '</tr></thead><tbody>';
@@ -125,9 +125,6 @@ final class AdmissionController extends Controller
                 $application['guardian_email'] ?? '',
                 $application['guardian_phone'] ?? '',
                 $application['student_name'] ?? '',
-                ($application['student_gender'] ?? '') === 'nina' ? 'Niña' : (($application['student_gender'] ?? '') === 'nino' ? 'Niño' : ''),
-                $application['student_birthdate'] ?? '',
-                $application['student_age'] ?? '',
                 $application['course'] ?? '',
                 $application['status_name'] ?? 'Sin estado',
                 $application['message'] ?? '',
@@ -161,7 +158,6 @@ final class AdmissionController extends Controller
     {
         Middleware::permission('configurar_postulaciones');
         $input = $this->input();
-        $currentSettings = (new ApplicationSetting())->admissionSettings();
         $errors = [];
 
         if (!filter_var($input['notification_email'] ?? '', FILTER_VALIDATE_EMAIL)) {
@@ -174,41 +170,11 @@ final class AdmissionController extends Controller
             $errors[] = 'Debes ingresar el mensaje HTML para el postulante.';
         }
 
-        $whatsAppEnabled = !empty($input['whatsapp_enabled']);
-        $whatsAppApiKey = trim($input['whatsapp_api_key'] ?? '') !== ''
-            ? (string) $input['whatsapp_api_key']
-            : (string) ($currentSettings['whatsapp_api_key'] ?? '');
-
-        if ($whatsAppEnabled && trim($input['whatsapp_phone_number_id'] ?? '') === '') {
-            $errors[] = 'Debes ingresar el Phone Number ID de WhatsApp Cloud API.';
-        }
-        if ($whatsAppEnabled && trim($whatsAppApiKey) === '') {
-            $errors[] = 'Debes ingresar el token de acceso de Meta.';
-        }
-        if ($whatsAppEnabled && trim($input['whatsapp_template_name'] ?? '') === '') {
-            $errors[] = 'Debes ingresar el nombre del template aprobado de WhatsApp.';
-        }
-        if ($whatsAppEnabled && trim($input['whatsapp_template_language'] ?? '') === '') {
-            $errors[] = 'Debes ingresar el idioma del template aprobado de WhatsApp.';
-        }
-        if (trim($input['whatsapp_message_template'] ?? '') === '') {
-            $input['whatsapp_message_template'] = WhatsAppNotifier::defaultAdmissionMessage();
-        }
 
         $settings = [
             'notification_email' => $input['notification_email'] ?? '',
             'applicant_subject' => $input['applicant_subject'] ?? '',
             'applicant_html' => $input['applicant_html'] ?? '',
-            'whatsapp_enabled' => $whatsAppEnabled,
-            'whatsapp_base_url' => $input['whatsapp_base_url'] ?? '',
-            'whatsapp_sender' => $input['whatsapp_sender'] ?? '',
-            'whatsapp_phone_number_id' => $input['whatsapp_phone_number_id'] ?? '',
-            'whatsapp_business_account_id' => $input['whatsapp_business_account_id'] ?? '',
-            'whatsapp_api_key' => $whatsAppApiKey,
-            'whatsapp_notify_url' => $input['whatsapp_notify_url'] ?? '',
-            'whatsapp_template_name' => $input['whatsapp_template_name'] ?? '',
-            'whatsapp_template_language' => $input['whatsapp_template_language'] ?? '',
-            'whatsapp_message_template' => $input['whatsapp_message_template'] ?? '',
         ];
 
         if ($errors) {
@@ -226,20 +192,6 @@ final class AdmissionController extends Controller
         $model->set('admission_notification_email', $settings['notification_email']);
         $model->set('admission_applicant_success_subject', $settings['applicant_subject']);
         $model->set('admission_applicant_success_html', $settings['applicant_html']);
-        $model->set('admission_whatsapp_enabled', $settings['whatsapp_enabled'] ? '1' : '0');
-        $model->set('admission_whatsapp_base_url', $settings['whatsapp_base_url']);
-        $model->set('admission_whatsapp_sender', $settings['whatsapp_sender']);
-        $model->set('admission_whatsapp_phone_number_id', $settings['whatsapp_phone_number_id']);
-        $model->set('admission_whatsapp_business_account_id', $settings['whatsapp_business_account_id']);
-        $model->set('admission_whatsapp_notify_url', $settings['whatsapp_notify_url']);
-        if (trim((string) ($input['whatsapp_api_key'] ?? '')) !== '') {
-            $model->set('admission_whatsapp_api_key', $settings['whatsapp_api_key']);
-            $model->set('admission_whatsapp_access_token', $settings['whatsapp_api_key']);
-        }
-        $model->set('admission_whatsapp_template_name', $settings['whatsapp_template_name']);
-        $model->set('admission_whatsapp_template_language', $settings['whatsapp_template_language']);
-        $model->set('admission_whatsapp_message_template', $settings['whatsapp_message_template']);
-
         Session::flash('success', 'Configuración de postulaciones actualizada correctamente.');
         $this->redirect('/admission-settings');
     }
@@ -258,8 +210,6 @@ final class AdmissionController extends Controller
             'email' => 'familia@ejemplo.cl',
             'telefono' => '+56 9 8574 1931',
             'estudiante' => 'Sofía González',
-            'sexo_estudiante' => 'nina',
-            'fecha_nacimiento' => '2020-05-14',
             'curso' => '1º Básico',
             'mensaje' => 'Solicito información sobre el proceso de postulación 2027.',
             'autorizacion' => '1',
@@ -269,7 +219,7 @@ final class AdmissionController extends Controller
     private function validate(array $input): array
     {
         $errors = [];
-        foreach (['nombres_apoderado', 'apellidos_apoderado', 'email', 'telefono', 'estudiante', 'sexo_estudiante', 'fecha_nacimiento', 'curso'] as $field) {
+        foreach (['nombres_apoderado', 'apellidos_apoderado', 'email', 'telefono', 'estudiante', 'curso'] as $field) {
             if (trim((string) ($input[$field] ?? '')) === '') {
                 $errors[] = 'El campo ' . str_replace('_', ' ', $field) . ' es obligatorio.';
             }
@@ -280,12 +230,6 @@ final class AdmissionController extends Controller
         if (trim((string) ($input['telefono'] ?? '')) !== '' && !WhatsAppNotifier::isValidRecipientPhone((string) $input['telefono'])) {
             $errors[] = 'Ingresa un teléfono móvil chileno válido para WhatsApp. Usa el formato +56 9 1234 5678.';
         }
-        if (!in_array(($input['sexo_estudiante'] ?? ''), ['nino', 'nina'], true)) {
-            $errors[] = 'Selecciona si el postulante es niño o niña.';
-        }
-        if (!$this->validBirthdate((string) ($input['fecha_nacimiento'] ?? ''))) {
-            $errors[] = 'Ingresa una fecha de nacimiento válida.';
-        }
         if (!$this->selectedCourse($input)) {
             $errors[] = 'Selecciona un curso válido y disponible.';
         }
@@ -294,17 +238,6 @@ final class AdmissionController extends Controller
         }
 
         return $errors;
-    }
-
-    private function validBirthdate(string $date): bool
-    {
-        $birthdate = DateTime::createFromFormat('Y-m-d', $date);
-        if (!$birthdate || $birthdate->format('Y-m-d') !== $date) {
-            return false;
-        }
-
-        $today = new DateTime('today');
-        return $birthdate <= $today && $birthdate >= $today->modify('-25 years');
     }
 
     private function selectedCourse(array $input): ?array
@@ -320,8 +253,6 @@ final class AdmissionController extends Controller
             'email' => strtolower($input['email']),
             'telefono' => WhatsAppNotifier::formatRecipientPhone((string) $input['telefono']),
             'estudiante' => $input['estudiante'],
-            'sexo_estudiante' => $input['sexo_estudiante'],
-            'fecha_nacimiento' => $input['fecha_nacimiento'],
             'curso' => $this->selectedCourse($input)['name'],
             'mensaje' => $input['mensaje'] ?? '',
             'autorizacion' => '1',

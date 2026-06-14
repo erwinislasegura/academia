@@ -16,12 +16,9 @@ $metrics = $admissionMetrics ?? ['total' => 0, 'new_this_week' => 0, 'contact_ra
 $totalApplicants = max(1, (int) ($metrics['total'] ?? 0));
 $courseMax = dashboardMax($applicationsByCourse ?? []);
 $statusTotal = max(1, dashboardTotal($applicationsByStatus ?? []));
-$genderTotal = max(1, dashboardTotal($applicationsByGender ?? []));
-$ageMax = dashboardMax($applicationsByAgeRange ?? []);
 $trendMax = dashboardMax($applicationsTrend ?? []);
 $acceptedAngle = min(100, (float) ($metrics['acceptance_rate'] ?? 0)) * 3.6;
 $contactAngle = min(100, (float) ($metrics['contact_rate'] ?? 0)) * 3.6;
-$genderOffset = 0;
 ?>
 <section class="admission-dashboard">
     <div class="admission-dashboard__hero">
@@ -91,26 +88,6 @@ $genderOffset = 0;
             </div>
         </article>
 
-        <article class="report-card report-card--chart">
-            <div class="report-card__head"><div><h3>Niño / Niña</h3><p>Distribución declarada.</p></div></div>
-            <div class="gender-donut-wrap">
-                <div class="gender-donut">
-                    <?php foreach (($applicationsByGender ?? []) as $row): ?>
-                        <?php $slice = ((int) $row['total'] / $genderTotal) * 100; ?>
-                        <i style="--start: <?= h((string) $genderOffset) ?>%; --end: <?= h((string) ($genderOffset + $slice)) ?>%;"></i>
-                        <?php $genderOffset += $slice; ?>
-                    <?php endforeach; ?>
-                    <strong><?= h(empty($applicationsByGender) ? 0 : $genderTotal) ?></strong>
-                </div>
-                <div class="dashboard-legend">
-                    <?php foreach (($applicationsByGender ?? []) as $index => $row): ?>
-                        <div><span class="tone-<?= h((string) (($index % 3) + 1)) ?>"></span><b><?= h($row['label']) ?></b><em><?= h($row['total']) ?></em></div>
-                    <?php endforeach; ?>
-                    <?php if (empty($applicationsByGender)): ?><p class="muted-text">Sin datos de sexo todavía.</p><?php endif; ?>
-                </div>
-            </div>
-        </article>
-
         <article class="report-card">
             <div class="report-card__head"><div><h3>Embudo por estado</h3><p>Avance del seguimiento.</p></div></div>
             <div class="status-funnel">
@@ -122,17 +99,6 @@ $genderOffset = 0;
                     </div>
                 <?php endforeach; ?>
                 <?php if (empty($applicationsByStatus)): ?><p class="muted-text">Sin estados registrados.</p><?php endif; ?>
-            </div>
-        </article>
-
-        <article class="report-card">
-            <div class="report-card__head"><div><h3>Edades</h3><p>Rangos calculados por nacimiento.</p></div></div>
-            <div class="age-distribution">
-                <?php foreach (($applicationsByAgeRange ?? []) as $row): ?>
-                    <?php $percent = ((int) $row['total'] / $ageMax) * 100; ?>
-                    <div><label><b><?= h($row['label']) ?></b><small><?= h($row['total']) ?></small></label><span><i style="width: <?= h((string) $percent) ?>%"></i></span></div>
-                <?php endforeach; ?>
-                <?php if (empty($applicationsByAgeRange)): ?><p class="muted-text">Sin fechas de nacimiento registradas.</p><?php endif; ?>
             </div>
         </article>
 
