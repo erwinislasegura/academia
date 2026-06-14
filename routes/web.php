@@ -47,6 +47,8 @@ $router->post('/admission-courses/update/{id}', [AdmissionCourseController::clas
 $router->post('/admission-courses/delete/{id}', [AdmissionCourseController::class, 'delete']);
 $router->get('/admission-settings', [AdmissionController::class, 'settings']);
 $router->post('/admission-settings', [AdmissionController::class, 'updateSettings']);
+$router->get('/whatsapp-settings', [WhatsAppSettingsController::class, 'edit']);
+$router->post('/whatsapp-settings', [WhatsAppSettingsController::class, 'update']);
 $router->get('/mail-settings', [MailSettingsController::class, 'edit']);
 $router->post('/mail-settings', [MailSettingsController::class, 'update']);
 
