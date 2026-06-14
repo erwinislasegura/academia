@@ -13,7 +13,7 @@
     <div class="span-2 section-head">
         <div>
             <h3>Configuración de plantilla</h3>
-            <p>Plantilla esperada: <strong>admision2027_final</strong> · idioma: <strong>en_US</strong>. La solicitud a Meta no incluye variables de cuerpo y usa la misma estructura que hello_world: sólo nombre de plantilla e idioma.</p>
+            <p>Plantilla esperada: <strong>admision2027_final</strong> · idioma: <strong>en_US</strong>. La plantilla debe tener 4 variables de cuerpo: {{1}} apoderado, {{2}} estudiante, {{3}} curso y {{4}} fecha de postulación.</p>
         </div>
     </div>
 
@@ -34,6 +34,18 @@
         <small>Este token se guarda como admission_whatsapp_api_key y admission_whatsapp_access_token para la API de WhatsApp Cloud.</small>
     </label>
 
+
+
+    <div class="span-2" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;">
+        <strong>Variables para configurar en Meta</strong>
+        <ol style="margin:8px 0 0 20px;">
+            <li><code>{{1}}</code> Nombre completo del apoderado</li>
+            <li><code>{{2}}</code> Nombre del estudiante</li>
+            <li><code>{{3}}</code> Curso</li>
+            <li><code>{{4}}</code> Fecha de postulación</li>
+        </ol>
+    </div>
+
     <div class="span-2 form-actions"><button class="btn primary">Guardar configuración</button></div>
 </form>
 
@@ -41,7 +53,7 @@
     <div class="span-2 section-head">
         <div>
             <h3>Probar plantilla de WhatsApp</h3>
-            <p>Prueba la solicitud a Meta usando exclusivamente la configuración guardada en esta página. Si cambias la plantilla, idioma o token, guarda primero.</p>
+            <p>Prueba la solicitud a Meta usando la configuración guardada y 4 variables de muestra. Si cambias la plantilla, idioma o token, guarda primero.</p>
         </div>
     </div>
     <input type="hidden" name="send_mode" value="template">
@@ -49,6 +61,17 @@
     <label>Teléfono destinatario
         <input type="text" name="to" value="56944627287" placeholder="+56 9 1234 5678" required>
         <small>Usa un celular chileno habilitado para WhatsApp.</small>
+    </label>
+
+    <label>Nombre apoderado de prueba
+        <input type="text" name="guardian_name" value="Nombre completo del apoderado">
+    </label>
+    <label>Estudiante de prueba
+        <input type="text" name="student_name" value="Nombre del estudiante">
+    </label>
+    <label>Curso de prueba
+        <input type="text" name="course" value="Curso">
+        <small>La fecha de postulación de prueba se genera automáticamente.</small>
     </label>
     <div class="span-2 form-actions">
         <button class="btn secondary" type="submit">Probar solicitud WhatsApp</button>

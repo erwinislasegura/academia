@@ -240,6 +240,18 @@ final class AdmissionController extends Controller
         return $errors;
     }
 
+
+    private function validBirthdate(string $date): bool
+    {
+        $birthdate = DateTime::createFromFormat('Y-m-d', $date);
+        if (!$birthdate || $birthdate->format('Y-m-d') !== $date) {
+            return false;
+        }
+
+        $today = new DateTime('today');
+        return $birthdate <= $today && $birthdate >= $today->modify('-25 years');
+    }
+
     private function selectedCourse(array $input): ?array
     {
         return (new AdmissionCourse())->findActiveBySlug((string) ($input['curso'] ?? ''));

@@ -60,6 +60,10 @@
                             <span><?= h($application['guardian_phone'] ?? '') ?></span>
                         </td>
                         <td><strong><?= h($application['student_name'] ?? '') ?></strong></td>
+                        <td>
+                            <strong><?= h(($application['student_gender'] ?? '') === 'nina' ? 'Niña' : (($application['student_gender'] ?? '') === 'nino' ? 'Niño' : 'Sin dato')) ?></strong>
+                            <span><?= h(($application['student_age'] ?? null) !== null ? $application['student_age'] . ' años' : 'Sin edad') ?></span>
+                        </td>
                         <td><span class="badge ok"><?= h($application['course'] ?? '') ?></span></td>
                         <td>
                             <form class="status-form" method="post" action="<?= App::url('/admissions/status/' . h($application['id'])) ?>">

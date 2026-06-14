@@ -88,7 +88,7 @@ final class WhatsAppNotifier
         array $parameters,
         array $metadata
     ): array {
-        return $service->sendTemplateMessage($to, trim($templateName), trim($language), [], $metadata);
+        return $service->sendTemplateMessage($to, trim($templateName), trim($language), $parameters, $metadata);
     }
 
     public static function defaultAdmissionMessage(): string
@@ -113,8 +113,12 @@ final class WhatsAppNotifier
 
     public static function templateParametersFor(string $templateName, array $application): array
     {
-        // Las plantillas configuradas actualmente no reciben variables de cuerpo.
-        return [];
+        return [
+            self::guardianFullName($application),
+            self::studentName($application),
+            self::courseName($application),
+            self::applicationDate($application),
+        ];
     }
 
     public static function guardianFullName(array $application): string
