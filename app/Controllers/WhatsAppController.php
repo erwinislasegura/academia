@@ -10,7 +10,7 @@ final class WhatsAppController extends Controller
         $settings = (new ApplicationSetting())->admissionSettings();
         $templateName = (string) ($input['template_name'] ?? ($settings['whatsapp_template_name'] ?? 'admision2027_final'));
         $language = (string) ($input['language'] ?? ($settings['whatsapp_template_language'] ?? 'en_US'));
-        $placeholders = $this->csvPlaceholders((string) ($input['placeholders'] ?? 'Nombre completo del apoderado,Nombre del estudiante,Curso,' . date('d-m-Y')));
+        $placeholders = [];
 
         $service = new MetaWhatsAppService($settings);
         $result = $this->sendTemplateWithLanguageRetry(
@@ -192,44 +192,9 @@ final class WhatsAppController extends Controller
         array $parameters,
         array $metadata
     ): array {
-        $result = $service->sendTemplateMessage($to, trim($templateName), trim($language), $parameters, $metadata);
-        if ($parameters !== [] && $this->isTemplateParameterMismatchError($result)) {
-            foreach ($service->templateLanguages(trim($templateName)) as $availableLanguage) {
-                if ($availableLanguage === trim($language)) {
-                    continue;
-                }
-
-                $retry = $service->sendTemplateMessage(
-                    $to,
-                    trim($templateName),
-                    $availableLanguage,
-                    $parameters,
-                    $metadata + ['retry_language' => $availableLanguage, 'configured_language' => trim($language), 'reason' => 'parameter_count_mismatch']
-                );
-                if ($retry['success'] || !$this->isTemplateParameterMismatchError($retry)) {
-                    return $retry;
-                }
-            }
-
-            return $service->sendTemplateMessage(
-                $to,
-                trim($templateName),
-                trim($language),
-                [],
-                $metadata + ['retry_without_parameters' => true, 'reason' => 'parameter_count_mismatch']
-            );
-        }
-
-        return $result;
+        return $service->sendTemplateMessage($to, trim($templateName), trim($language), [], $metadata);
     }
 
-    private function isTemplateParameterMismatchError(array $result): bool
-    {
-        $error = (string) ($result['error'] ?? '');
-
-        return (int) ($result['http_code'] ?? 0) === 400
-            && (str_contains($error, '#132000') || stripos($error, 'Number of parameters') !== false);
-    }
 
     private function isTemplateTranslationError(array $result): bool
     {
@@ -241,18 +206,9 @@ final class WhatsAppController extends Controller
 
     private function testTemplateParameters(array $input, string $templateName): array
     {
-        return WhatsAppNotifier::templateParametersFor($templateName, [
-            'nombre_apoderado' => trim((string) ($input['guardian_name'] ?? 'Nombre completo del apoderado')),
-            'estudiante' => trim((string) ($input['student_name'] ?? 'Nombre del estudiante')),
-            'curso' => trim((string) ($input['course'] ?? 'Curso')),
-            'fecha_postulacion' => date('Y-m-d'),
-        ]);
+        return [];
     }
 
-    private function csvPlaceholders(string $csv): array
-    {
-        return array_values(array_filter(array_map('trim', explode(',', $csv)), static fn(string $value): bool => $value !== ''));
-    }
 
     private function failureFlashMessage(array $result): string
     {

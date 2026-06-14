@@ -13,7 +13,7 @@
     <div class="span-2 section-head">
         <div>
             <h3>Configuración de plantilla</h3>
-            <p>Plantilla esperada: <strong>admision2027_final</strong> · idioma: <strong>en_US</strong>. La plantilla debe tener 4 variables de cuerpo: {{1}} apoderado, {{2}} estudiante, {{3}} curso y {{4}} fecha de postulación.</p>
+            <p>Plantilla esperada: <strong>admision2027_final</strong> · idioma: <strong>en_US</strong>. La solicitud a Meta no incluye variables de cuerpo y usa la configuración guardada en esta página.</p>
         </div>
     </div>
 
@@ -36,16 +36,6 @@
 
 
 
-    <div class="span-2" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;">
-        <strong>Variables para configurar en Meta</strong>
-        <ol style="margin:8px 0 0 20px;">
-            <li><code>{{1}}</code> Nombre completo del apoderado</li>
-            <li><code>{{2}}</code> Nombre del estudiante</li>
-            <li><code>{{3}}</code> Curso</li>
-            <li><code>{{4}}</code> Fecha de postulación</li>
-        </ol>
-    </div>
-
     <div class="span-2 form-actions"><button class="btn primary">Guardar configuración</button></div>
 </form>
 
@@ -53,7 +43,7 @@
     <div class="span-2 section-head">
         <div>
             <h3>Probar plantilla de WhatsApp</h3>
-            <p>Prueba la solicitud a Meta usando la configuración guardada y 4 variables de muestra. Si Meta responde #132000, el sistema prueba otros idiomas aprobados del mismo template con las 4 variables y, sólo si persiste el error, reintenta sin variables.</p>
+            <p>Prueba la solicitud a Meta usando la configuración guardada, sin variables de cuerpo.</p>
         </div>
     </div>
     <input type="hidden" name="send_mode" value="template">
@@ -63,16 +53,6 @@
         <small>Usa un celular chileno habilitado para WhatsApp.</small>
     </label>
 
-    <label>Nombre apoderado de prueba
-        <input type="text" name="guardian_name" value="Nombre completo del apoderado">
-    </label>
-    <label>Estudiante de prueba
-        <input type="text" name="student_name" value="Nombre del estudiante">
-    </label>
-    <label>Curso de prueba
-        <input type="text" name="course" value="Curso">
-        <small>La fecha de postulación de prueba se genera automáticamente.</small>
-    </label>
     <div class="span-2 form-actions">
         <button class="btn secondary" type="submit">Probar solicitud WhatsApp</button>
     </div>

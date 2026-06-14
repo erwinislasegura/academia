@@ -88,43 +88,7 @@ final class WhatsAppNotifier
         array $parameters,
         array $metadata
     ): array {
-        $result = $service->sendTemplateMessage($to, trim($templateName), trim($language), $parameters, $metadata);
-        if ($parameters !== [] && self::isTemplateParameterMismatchError($result)) {
-            foreach ($service->templateLanguages(trim($templateName)) as $availableLanguage) {
-                if ($availableLanguage === trim($language)) {
-                    continue;
-                }
-
-                $retry = $service->sendTemplateMessage(
-                    $to,
-                    trim($templateName),
-                    $availableLanguage,
-                    $parameters,
-                    $metadata + ['retry_language' => $availableLanguage, 'configured_language' => trim($language), 'reason' => 'parameter_count_mismatch']
-                );
-                if ($retry['success'] || !self::isTemplateParameterMismatchError($retry)) {
-                    return $retry;
-                }
-            }
-
-            return $service->sendTemplateMessage(
-                $to,
-                trim($templateName),
-                trim($language),
-                [],
-                $metadata + ['retry_without_parameters' => true, 'reason' => 'parameter_count_mismatch']
-            );
-        }
-
-        return $result;
-    }
-
-    private static function isTemplateParameterMismatchError(array $result): bool
-    {
-        $error = (string) ($result['error'] ?? '');
-
-        return (int) ($result['http_code'] ?? 0) === 400
-            && (str_contains($error, '#132000') || stripos($error, 'Number of parameters') !== false);
+        return $service->sendTemplateMessage($to, trim($templateName), trim($language), [], $metadata);
     }
 
     public static function defaultAdmissionMessage(): string
@@ -149,12 +113,7 @@ final class WhatsAppNotifier
 
     public static function templateParametersFor(string $templateName, array $application): array
     {
-        return [
-            self::guardianFullName($application),
-            self::studentName($application),
-            self::courseName($application),
-            self::applicationDate($application),
-        ];
+        return [];
     }
 
     public static function guardianFullName(array $application): string
