@@ -28,9 +28,12 @@
                     <th>Apoderado</th>
                     <th>Contacto</th>
                     <th>Estudiante</th>
+                    <th>Postulante</th>
+                    <th>Nacimiento</th>
+                    <th>Edad</th>
                     <th>Curso</th>
                     <th>Estado</th>
-                    <th class="table-action-head">Detalle</th>
+                    <th class="table-action-head">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -60,10 +63,9 @@
                             <span><?= h($application['guardian_phone'] ?? '') ?></span>
                         </td>
                         <td><strong><?= h($application['student_name'] ?? '') ?></strong></td>
-                        <td>
-                            <strong><?= h(($application['student_gender'] ?? '') === 'nina' ? 'Niña' : (($application['student_gender'] ?? '') === 'nino' ? 'Niño' : 'Sin dato')) ?></strong>
-                            <span><?= h(($application['student_age'] ?? null) !== null ? $application['student_age'] . ' años' : 'Sin edad') ?></span>
-                        </td>
+                        <td><span class="gender-pill"><?= h(($application['student_gender'] ?? '') === 'nina' ? 'Niña' : (($application['student_gender'] ?? '') === 'nino' ? 'Niño' : 'Sin dato')) ?></span></td>
+                        <td><?= h(!empty($application['student_birthdate']) ? date('d/m/Y', strtotime((string) $application['student_birthdate'])) : 'Sin dato') ?></td>
+                        <td><strong><?= h(($application['student_age'] ?? null) !== null ? $application['student_age'] . ' años' : 'Sin edad') ?></strong></td>
                         <td><span class="badge ok"><?= h($application['course'] ?? '') ?></span></td>
                         <td>
                             <form class="status-form" method="post" action="<?= App::url('/admissions/status/' . h($application['id'])) ?>">
@@ -78,18 +80,27 @@
                             </form>
                         </td>
                         <td class="table-action-cell">
-                            <button
-                                class="btn secondary message-modal-trigger"
-                                type="button"
-                                data-applicant="<?= h($guardian !== '' ? $guardian : ('Postulación #' . ($application['id'] ?? ''))) ?>"
-                                data-student="<?= h($application['student_name'] ?? '') ?>"
-                                data-message="<?= h($message !== '' ? $message : 'Sin mensaje adicional') ?>"
-                            ><?= h($messageLabel) ?></button>
+                            <details class="action-dropdown">
+                                <summary>Acciones</summary>
+                                <div class="action-dropdown__menu">
+                                    <button
+                                        class="action-dropdown__item message-modal-trigger"
+                                        type="button"
+                                        data-applicant="<?= h($guardian !== '' ? $guardian : ('Postulación #' . ($application['id'] ?? ''))) ?>"
+                                        data-student="<?= h($application['student_name'] ?? '') ?>"
+                                        data-message="<?= h($message !== '' ? $message : 'Sin mensaje adicional') ?>"
+                                    ><?= h($messageLabel) ?></button>
+                                    <a class="action-dropdown__item" href="<?= App::url('/admissions/edit/' . h($application['id'])) ?>">Editar</a>
+                                    <form method="post" action="<?= App::url('/admissions/delete/' . h($application['id'])) ?>" data-confirm="¿Eliminar esta postulación? Esta acción no se puede deshacer.">
+                                        <button class="action-dropdown__item danger" type="submit">Eliminar</button>
+                                    </form>
+                                </div>
+                            </details>
                         </td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$applications): ?>
-                    <tr><td colspan="8" class="empty">Aún no hay postulaciones registradas.</td></tr>
+                    <tr><td colspan="10" class="empty">Aún no hay postulaciones registradas.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

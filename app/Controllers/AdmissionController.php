@@ -97,6 +97,62 @@ final class AdmissionController extends Controller
         $this->redirect('/admissions');
     }
 
+
+    public function editApplication(int $id): void
+    {
+        Middleware::permission('configurar_postulaciones');
+        $application = (new AdmissionApplication())->find($id);
+        if (!$application) {
+            http_response_code(404);
+            exit('Postulación no encontrada');
+        }
+
+        $this->view('admissions/edit_application', [
+            'title' => 'Editar postulación',
+            'application' => $this->applicationToForm($application),
+            'errors' => [],
+            'courses' => (new AdmissionCourse())->activeOptions(),
+        ]);
+    }
+
+    public function updateApplication(int $id): void
+    {
+        Middleware::permission('configurar_postulaciones');
+        $model = new AdmissionApplication();
+        $application = $model->find($id);
+        if (!$application) {
+            http_response_code(404);
+            exit('Postulación no encontrada');
+        }
+
+        $input = $this->input();
+        $errors = $this->validate($input);
+
+        if ($errors) {
+            $this->view('admissions/edit_application', [
+                'title' => 'Editar postulación',
+                'application' => array_merge($this->applicationToForm($application), $input),
+                'errors' => $errors,
+                'courses' => (new AdmissionCourse())->activeOptions(),
+            ]);
+            return;
+        }
+
+        $model->update($id, $this->normalize($input));
+        (new User())->log((int) Session::get('user_id'), 'admission_application_updated', 'Actualizó la postulación #' . $id . '.');
+        Session::flash('success', 'Postulación actualizada correctamente.');
+        $this->redirect('/admissions');
+    }
+
+    public function deleteApplication(int $id): void
+    {
+        Middleware::permission('configurar_postulaciones');
+        $ok = (new AdmissionApplication())->delete($id);
+        (new User())->log((int) Session::get('user_id'), 'admission_application_deleted', 'Intentó eliminar la postulación #' . $id . '.');
+        Session::flash($ok ? 'success' : 'error', $ok ? 'Postulación eliminada.' : 'No fue posible eliminar la postulación.');
+        $this->redirect('/admissions');
+    }
+
     public function exportApplications(): void
     {
         Middleware::permission('configurar_postulaciones');
@@ -111,7 +167,7 @@ final class AdmissionController extends Controller
         echo "\xEF\xBB\xBF";
         echo '<table border="1">';
         echo '<thead><tr>';
-        foreach (['ID', 'Fecha', 'Apoderado', 'Email', 'Teléfono', 'Estudiante', 'Curso', 'Estado', 'Mensaje'] as $heading) {
+        foreach (['ID', 'Fecha', 'Apoderado', 'Email', 'Teléfono', 'Estudiante', 'Postulante', 'Fecha nacimiento', 'Edad', 'Curso', 'Estado', 'Mensaje'] as $heading) {
             echo '<th>' . htmlspecialchars($heading, ENT_QUOTES, 'UTF-8') . '</th>';
         }
         echo '</tr></thead><tbody>';
@@ -125,6 +181,9 @@ final class AdmissionController extends Controller
                 $application['guardian_email'] ?? '',
                 $application['guardian_phone'] ?? '',
                 $application['student_name'] ?? '',
+                self::genderLabel($application['student_gender'] ?? ''),
+                $this->formatDate((string) ($application['student_birthdate'] ?? '')),
+                ($application['student_age'] ?? '') !== '' ? (($application['student_age'] ?? '') . ' años') : '',
                 $application['course'] ?? '',
                 $application['status_name'] ?? 'Sin estado',
                 $application['message'] ?? '',
@@ -197,6 +256,46 @@ final class AdmissionController extends Controller
     }
 
 
+
+    private function applicationToForm(array $application): array
+    {
+        return [
+            'id' => $application['id'] ?? '',
+            'nombres_apoderado' => $application['guardian_first_names'] ?? '',
+            'apellidos_apoderado' => $application['guardian_last_names'] ?? '',
+            'email' => $application['guardian_email'] ?? '',
+            'telefono' => $application['guardian_phone'] ?? '',
+            'estudiante' => $application['student_name'] ?? '',
+            'sexo_estudiante' => $application['student_gender'] ?? '',
+            'fecha_nacimiento' => $application['student_birthdate'] ?? '',
+            'curso' => $this->courseSlugByName((string) ($application['course'] ?? '')),
+            'mensaje' => $application['message'] ?? '',
+            'autorizacion' => '1',
+        ];
+    }
+
+    private function courseSlugByName(string $name): string
+    {
+        foreach ((new AdmissionCourse())->activeOptions() as $course) {
+            if (($course['name'] ?? '') === $name) {
+                return (string) $course['slug'];
+            }
+        }
+
+        return $name;
+    }
+
+    private static function genderLabel(?string $gender): string
+    {
+        return $gender === 'nina' ? 'Niña' : ($gender === 'nino' ? 'Niño' : 'Sin dato');
+    }
+
+    private function formatDate(string $date): string
+    {
+        $timestamp = $date !== '' ? strtotime($date) : false;
+        return $timestamp !== false ? date('d/m/Y', $timestamp) : '';
+    }
+
     private static function applicantPreviewHtml(array $settings): string
     {
         return AdmissionMailer::renderTemplate((string) ($settings['applicant_html'] ?? ''), self::previewApplication());
@@ -219,7 +318,7 @@ final class AdmissionController extends Controller
     private function validate(array $input): array
     {
         $errors = [];
-        foreach (['nombres_apoderado', 'apellidos_apoderado', 'email', 'telefono', 'estudiante', 'curso'] as $field) {
+        foreach (['nombres_apoderado', 'apellidos_apoderado', 'email', 'telefono', 'estudiante', 'sexo_estudiante', 'fecha_nacimiento', 'curso'] as $field) {
             if (trim((string) ($input[$field] ?? '')) === '') {
                 $errors[] = 'El campo ' . str_replace('_', ' ', $field) . ' es obligatorio.';
             }
@@ -229,6 +328,12 @@ final class AdmissionController extends Controller
         }
         if (trim((string) ($input['telefono'] ?? '')) !== '' && !WhatsAppNotifier::isValidRecipientPhone((string) $input['telefono'])) {
             $errors[] = 'Ingresa un teléfono móvil chileno válido para WhatsApp. Usa el formato +56 9 1234 5678.';
+        }
+        if (!in_array(($input['sexo_estudiante'] ?? ''), ['nino', 'nina'], true)) {
+            $errors[] = 'Selecciona si el postulante es niño o niña.';
+        }
+        if (!$this->validBirthdate((string) ($input['fecha_nacimiento'] ?? ''))) {
+            $errors[] = 'Ingresa una fecha de nacimiento válida.';
         }
         if (!$this->selectedCourse($input)) {
             $errors[] = 'Selecciona un curso válido y disponible.';
@@ -265,6 +370,8 @@ final class AdmissionController extends Controller
             'email' => strtolower($input['email']),
             'telefono' => WhatsAppNotifier::formatRecipientPhone((string) $input['telefono']),
             'estudiante' => $input['estudiante'],
+            'sexo_estudiante' => $input['sexo_estudiante'],
+            'fecha_nacimiento' => $input['fecha_nacimiento'],
             'curso' => $this->selectedCourse($input)['name'],
             'mensaje' => $input['mensaje'] ?? '',
             'autorizacion' => '1',

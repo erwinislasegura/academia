@@ -53,3 +53,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (event.target === modal) modal.close();
   });
 });
+
+// Keep admissions action dropdowns tidy and intentional.
+document.addEventListener('DOMContentLoaded', () => {
+  const dropdowns = Array.from(document.querySelectorAll('.action-dropdown'));
+  if (!dropdowns.length) return;
+
+  dropdowns.forEach((dropdown) => {
+    dropdown.addEventListener('toggle', () => {
+      if (!dropdown.open) return;
+      dropdowns.forEach((other) => {
+        if (other !== dropdown) other.removeAttribute('open');
+      });
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    dropdowns.forEach((dropdown) => {
+      if (!dropdown.contains(event.target)) dropdown.removeAttribute('open');
+    });
+  });
+});
