@@ -88,123 +88,7 @@ final class WhatsAppNotifier
         array $parameters,
         array $metadata
     ): array {
-        $templateName = trim($templateName);
-        $language = trim($language);
-        if (self::isParameterlessTemplate($templateName)) {
-            return $service->sendTemplateMessage($to, $templateName, $language, [], $metadata);
-        }
-        $availableLanguages = $service->templateLanguages($templateName);
-        if ($availableLanguages !== [] && !in_array($language, $availableLanguages, true)) {
-            foreach (self::preferredTemplateLanguages($language, $availableLanguages) as $availableLanguage) {
-                $retry = $service->sendTemplateMessage(
-                    $to,
-                    $templateName,
-                    $availableLanguage,
-                    $parameters,
-                    $metadata + ['retry_language' => $availableLanguage, 'configured_language' => $language, 'reason' => 'language_preflight']
-                );
-                if ($retry['success']) {
-                    return $retry;
-                }
-                $result = $retry;
-            }
-
-            return $result ?? [
-                'success' => false,
-                'http_code' => 422,
-                'message_id' => '',
-                'status' => 'TEMPLATE_LANGUAGE_NOT_APPROVED',
-                'response' => null,
-                'error' => 'El idioma configurado "' . $language . '" no está aprobado para el template "' . $templateName . '". Idiomas aprobados detectados: ' . implode(', ', $availableLanguages) . '.',
-            ];
-        }
-
-        $result = $service->sendTemplateMessage($to, $templateName, $language, $parameters, $metadata);
-        if ($result['success'] || !self::isTemplateTranslationError($result)) {
-            return $result;
-        }
-
-        foreach (self::preferredTemplateLanguages($language, $availableLanguages ?: $service->templateLanguages($templateName)) as $availableLanguage) {
-            if ($availableLanguage === $language) {
-                continue;
-            }
-
-            $retry = $service->sendTemplateMessage(
-                $to,
-                $templateName,
-                $availableLanguage,
-                $parameters,
-                $metadata + ['retry_language' => $availableLanguage, 'configured_language' => $language]
-            );
-            if ($retry['success']) {
-                return $retry;
-            }
-            $result = $retry;
-        }
-
-        if ($availableLanguages === []) {
-            $result['error'] = trim((string) ($result['error'] ?? '')) . ' ' . self::templateDiagnosticMessage($service, $templateName);
-        }
-
-        return $result;
-    }
-
-    private static function templateDiagnosticMessage(MetaWhatsAppService $service, string $templateName): string
-    {
-        $diagnostics = $service->templateDiagnostics($templateName);
-        $exact = array_map(
-            static fn(array $item): string => $item['name'] . ' / ' . $item['language'] . ' / ' . ($item['status'] ?: 'sin estado') . ' / WABA ' . $item['business_account_id'],
-            array_slice($diagnostics['exact'] ?? [], 0, 5)
-        );
-        if ($exact !== []) {
-            return 'Se encontró el template "' . $templateName . '", pero ninguna traducción aparece como aprobada para envío. Traducciones detectadas: ' . implode('; ', $exact) . '.';
-        }
-
-        $similar = array_map(
-            static fn(array $item): string => $item['name'] . ' / ' . $item['language'] . ' / ' . ($item['status'] ?: 'sin estado') . ' / WABA ' . $item['business_account_id'],
-            array_slice($diagnostics['similar'] ?? [], 0, 5)
-        );
-        $message = 'No se encontró el template "' . $templateName . '" como plantilla aprobada en el WhatsApp Business Account asociado al número configurado.';
-        $phoneWaba = (string) ($diagnostics['phone_business_account_id'] ?? '');
-        $configuredWaba = (string) ($diagnostics['configured_business_account_id'] ?? '');
-        if ($phoneWaba !== '' && $configuredWaba !== '' && $phoneWaba !== $configuredWaba) {
-            $message .= ' El número pertenece al WABA ' . $phoneWaba . ', pero la configuración usa WABA ' . $configuredWaba . '.';
-        }
-        if ($similar !== []) {
-            $message .= ' Plantillas similares detectadas: ' . implode('; ', $similar) . '.';
-        }
-        if (!empty($diagnostics['errors'])) {
-            $message .= ' Diagnóstico Meta: ' . implode('; ', array_slice($diagnostics['errors'], 0, 3)) . '.';
-        }
-
-        return $message;
-    }
-
-    private static function preferredTemplateLanguages(string $configuredLanguage, array $availableLanguages): array
-    {
-        $preferred = array_values(array_filter([
-            $configuredLanguage,
-            str_replace('_', '-', $configuredLanguage),
-            str_replace('-', '_', $configuredLanguage),
-            preg_replace('/[_-].+$/', '', $configuredLanguage) ?: null,
-            'en_US',
-            'es_CL',
-            'es',
-            'es_ES',
-        ], static fn($language): bool => is_string($language) && trim($language) !== ''));
-
-        return array_values(array_unique(array_merge(
-            array_values(array_intersect($preferred, $availableLanguages)),
-            $availableLanguages
-        )));
-    }
-
-    private static function isTemplateTranslationError(array $result): bool
-    {
-        $error = (string) ($result['error'] ?? '');
-
-        return (int) ($result['http_code'] ?? 0) === 404
-            && (str_contains($error, '#132001') || stripos($error, 'translation') !== false);
+        return $service->sendTemplateMessage($to, trim($templateName), trim($language), $parameters, $metadata);
     }
 
     public static function defaultAdmissionMessage(): string
@@ -229,21 +113,6 @@ final class WhatsAppNotifier
 
     public static function templateParametersFor(string $templateName, array $application): array
     {
-        if (self::isParameterlessTemplate($templateName)) {
-            return [];
-        }
-
-        return self::admissionTemplateParameters($application);
-    }
-
-    private static function isParameterlessTemplate(string $templateName): bool
-    {
-        return trim($templateName) === 'hello_world';
-    }
-
-    public static function admissionTemplateParameters(array $application): array
-    {
-        // La plantilla de admisión recibe sólo 4 variables. No incluir sexo_estudiante ni fecha_nacimiento.
         return [
             self::guardianFullName($application),
             self::studentName($application),
