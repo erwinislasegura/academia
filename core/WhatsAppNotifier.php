@@ -4,8 +4,20 @@ final class WhatsAppNotifier
 {
     public static function sendAdmissionMessage(array $application, array $settings): bool
     {
+        return self::sendAdmissionMessageResult($application, $settings)['success'];
+    }
+
+    public static function sendAdmissionMessageResult(array $application, array $settings): array
+    {
         if (empty($settings['whatsapp_enabled'])) {
-            return true;
+            return [
+                'success' => true,
+                'http_code' => 0,
+                'message_id' => '',
+                'status' => 'DISABLED',
+                'response' => null,
+                'error' => null,
+            ];
         }
 
         $service = new MetaWhatsAppService($settings);
@@ -17,13 +29,15 @@ final class WhatsAppNotifier
 
         $templateName = trim((string) ($settings['whatsapp_template_name'] ?? ''));
         $templateLanguage = trim((string) ($settings['whatsapp_template_language'] ?? 'en_US'));
-        $templateParameters = self::admissionTemplateParameters($application);
-        $metadata['template_variables'] = [
-            '{{1}}' => $templateParameters[0],
-            '{{2}}' => $templateParameters[1],
-            '{{3}}' => $templateParameters[2],
-            '{{4}}' => $templateParameters[3],
-        ];
+        $templateParameters = self::templateParametersFor($templateName, $application);
+        if ($templateParameters !== []) {
+            $metadata['template_variables'] = [
+                '{{1}}' => $templateParameters[0],
+                '{{2}}' => $templateParameters[1],
+                '{{3}}' => $templateParameters[2],
+                '{{4}}' => $templateParameters[3],
+            ];
+        }
         if ($templateName !== '') {
             $result = self::sendTemplateWithLanguageRetry(
                 $service,
@@ -35,10 +49,13 @@ final class WhatsAppNotifier
             );
 
             if ($result['success']) {
-                return true;
+                return $result;
             }
 
             error_log('[WhatsAppNotifier] Falló envío de template WhatsApp Cloud API: ' . (string) ($result['error'] ?? $result['status'] ?? 'error desconocido'));
+            if (!self::shouldFallbackToText($result)) {
+                return $result;
+            }
         }
 
         $result = $service->sendTextMessage(
@@ -51,7 +68,16 @@ final class WhatsAppNotifier
             error_log('[WhatsAppNotifier] Falló envío de texto WhatsApp Cloud API: ' . (string) ($result['error'] ?? $result['status'] ?? 'error desconocido'));
         }
 
-        return (bool) $result['success'];
+        return $result;
+    }
+
+    private static function shouldFallbackToText(array $result): bool
+    {
+        return in_array((string) ($result['status'] ?? ''), [
+            'TEMPLATE_ERROR',
+            'PARAMETER_ERROR',
+            'META_ERROR',
+        ], true) || in_array((int) ($result['http_code'] ?? 0), [400, 404, 422], true);
     }
 
     private static function sendTemplateWithLanguageRetry(
@@ -64,6 +90,9 @@ final class WhatsAppNotifier
     ): array {
         $templateName = trim($templateName);
         $language = trim($language);
+        if (self::isParameterlessTemplate($templateName)) {
+            return $service->sendTemplateMessage($to, $templateName, $language, [], $metadata);
+        }
         $availableLanguages = $service->templateLanguages($templateName);
         if ($availableLanguages !== [] && !in_array($language, $availableLanguages, true)) {
             foreach (self::preferredTemplateLanguages($language, $availableLanguages) as $availableLanguage) {
@@ -196,6 +225,20 @@ final class WhatsAppNotifier
     public static function formatRecipientPhone(string $phone): string
     {
         return InfobipWhatsAppService::formatPhone($phone);
+    }
+
+    public static function templateParametersFor(string $templateName, array $application): array
+    {
+        if (self::isParameterlessTemplate($templateName)) {
+            return [];
+        }
+
+        return self::admissionTemplateParameters($application);
+    }
+
+    private static function isParameterlessTemplate(string $templateName): bool
+    {
+        return trim($templateName) === 'hello_world';
     }
 
     public static function admissionTemplateParameters(array $application): array
