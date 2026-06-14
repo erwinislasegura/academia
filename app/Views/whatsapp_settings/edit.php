@@ -2,7 +2,7 @@
     <div>
         <p class="eyebrow">Administración</p>
         <h2>Plantilla de WhatsApp</h2>
-        <p>Configura sólo la plantilla aprobada en Meta y su idioma. Las credenciales de WhatsApp Cloud API quedan fijas en el sistema.</p>
+        <p>Configura la plantilla aprobada en Meta, su idioma y el token de acceso de WhatsApp Cloud API.</p>
     </div>
     <img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique">
 </section>
@@ -25,7 +25,16 @@
         <input type="text" name="whatsapp_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'en_US') ?>" placeholder="en_US" required>
     </label>
 
-    <div class="span-2 form-actions"><button class="btn primary">Guardar plantilla</button></div>
+
+    <label class="span-2">Token de acceso de Meta
+        <div style="display:flex; gap:10px; align-items:center;">
+            <input id="whatsapp-api-key" type="password" name="whatsapp_api_key" value="<?= h($settings['whatsapp_api_key'] ?? '') ?>" autocomplete="off" required style="flex:1;">
+            <button class="btn secondary" type="button" id="toggle-whatsapp-token">Mostrar</button>
+        </div>
+        <small>Este token se guarda como admission_whatsapp_api_key y admission_whatsapp_access_token para la API de WhatsApp Cloud.</small>
+    </label>
+
+    <div class="span-2 form-actions"><button class="btn primary">Guardar configuración</button></div>
 </form>
 
 <form class="panel-card form-grid" method="post" action="<?= App::url('/whatsapp/test-settings') ?>" style="margin-top:18px;">
@@ -47,3 +56,18 @@
         <button class="btn secondary" type="submit">Probar solicitud WhatsApp</button>
     </div>
 </form>
+
+<script>
+(() => {
+    const tokenInput = document.getElementById('whatsapp-api-key');
+    const toggleButton = document.getElementById('toggle-whatsapp-token');
+    if (!tokenInput || !toggleButton) {
+        return;
+    }
+    toggleButton.addEventListener('click', () => {
+        const showing = tokenInput.type === 'text';
+        tokenInput.type = showing ? 'password' : 'text';
+        toggleButton.textContent = showing ? 'Mostrar' : 'Ocultar';
+    });
+})();
+</script>

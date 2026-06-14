@@ -21,6 +21,7 @@ final class WhatsAppSettingsController extends Controller
         $settings = (new ApplicationSetting())->admissionSettings();
         $settings['whatsapp_template_name'] = trim((string) ($input['whatsapp_template_name'] ?? ''));
         $settings['whatsapp_template_language'] = trim((string) ($input['whatsapp_template_language'] ?? ''));
+        $settings['whatsapp_api_key'] = trim((string) ($input['whatsapp_api_key'] ?? ''));
 
         $errors = [];
         if ($settings['whatsapp_template_name'] === '') {
@@ -28,6 +29,9 @@ final class WhatsAppSettingsController extends Controller
         }
         if ($settings['whatsapp_template_language'] === '') {
             $errors[] = 'Debes ingresar el idioma de la plantilla aprobada en Meta.';
+        }
+        if ($settings['whatsapp_api_key'] === '') {
+            $errors[] = 'Debes ingresar el token de acceso de Meta WhatsApp Cloud API.';
         }
 
         if ($errors) {
@@ -46,8 +50,10 @@ final class WhatsAppSettingsController extends Controller
         $model->set('admission_whatsapp_business_account_id', '646043211679831');
         $model->set('admission_whatsapp_template_name', $settings['whatsapp_template_name']);
         $model->set('admission_whatsapp_template_language', $settings['whatsapp_template_language']);
+        $model->set('admission_whatsapp_api_key', $settings['whatsapp_api_key']);
+        $model->set('admission_whatsapp_access_token', $settings['whatsapp_api_key']);
 
-        Session::flash('success', 'Plantilla de WhatsApp actualizada correctamente.');
+        Session::flash('success', 'Configuración de WhatsApp actualizada correctamente.');
         $this->redirect('/whatsapp-settings');
     }
 }
