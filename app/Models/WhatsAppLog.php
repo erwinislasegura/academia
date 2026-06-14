@@ -60,6 +60,23 @@ final class WhatsAppLog extends Model
         return $row === false ? null : $row;
     }
 
+
+    public function latestByModule(string $module, int $limit = 10): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT message_id, to_number, template_name, status_group, status_name, status_description, error_message, created_at, updated_at
+             FROM whatsapp_logs
+             WHERE related_module = ?
+             ORDER BY created_at DESC, id DESC
+             LIMIT ?'
+        );
+        $stmt->bindValue(1, $module);
+        $stmt->bindValue(2, max(1, min($limit, 50)), PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll();
+    }
+
     public function createInboundMessage(array $data): int
     {
         $stmt = $this->db->prepare(

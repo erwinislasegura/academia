@@ -11,6 +11,7 @@ final class WhatsAppSettingsController extends Controller
             'title' => 'Plantilla de WhatsApp',
             'settings' => $settings,
             'errors' => [],
+            'recentWhatsAppTests' => (new WhatsAppLog())->latestByModule('whatsapp_test'),
         ]);
     }
 
@@ -39,6 +40,7 @@ final class WhatsAppSettingsController extends Controller
                 'title' => 'Plantilla de WhatsApp',
                 'settings' => $settings,
                 'errors' => $errors,
+                'recentWhatsAppTests' => (new WhatsAppLog())->latestByModule('whatsapp_test'),
             ]);
             return;
         }

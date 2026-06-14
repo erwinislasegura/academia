@@ -49,7 +49,7 @@ final class WhatsAppController extends Controller
             $to = (string) ($input['to'] ?? '');
             $mode = (string) ($input['send_mode'] ?? 'template');
             $message = trim((string) ($input['message'] ?? ''));
-            $settings = $this->testSettings((new ApplicationSetting())->admissionSettings(), $input);
+            $settings = (new ApplicationSetting())->admissionSettings();
             $service = new MetaWhatsAppService($settings);
             $metadata = ['modulo' => 'whatsapp_test', 'tipo' => 'panel_configuracion_' . ($mode === 'text' ? 'texto' : 'template')];
 
@@ -183,15 +183,6 @@ final class WhatsAppController extends Controller
         return $result;
     }
 
-
-    private function testSettings(array $settings, array $input): array
-    {
-        $settings['whatsapp_base_url'] = trim((string) ($input['test_base_url'] ?? '')) ?: (string) ($settings['whatsapp_base_url'] ?? 'https://graph.facebook.com/v25.0');
-        $settings['whatsapp_template_name'] = trim((string) ($input['test_template_name'] ?? '')) ?: (string) ($settings['whatsapp_template_name'] ?? 'admision2027_final');
-        $settings['whatsapp_template_language'] = trim((string) ($input['test_template_language'] ?? '')) ?: (string) ($settings['whatsapp_template_language'] ?? 'en_US');
-
-        return $settings;
-    }
 
     private function sendTemplateWithLanguageRetry(
         MetaWhatsAppService $service,

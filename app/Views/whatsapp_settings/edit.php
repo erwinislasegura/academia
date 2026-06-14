@@ -41,12 +41,10 @@
     <div class="span-2 section-head">
         <div>
             <h3>Probar plantilla de WhatsApp</h3>
-            <p>Prueba la solicitud a Meta con la plantilla configurada. Si cambias la plantilla o el idioma, guarda primero.</p>
+            <p>Prueba la solicitud a Meta usando exclusivamente la configuración guardada en esta página. Si cambias la plantilla, idioma o token, guarda primero.</p>
         </div>
     </div>
     <input type="hidden" name="send_mode" value="template">
-    <input type="hidden" name="test_template_name" value="<?= h($settings['whatsapp_template_name'] ?? 'admision2027_final') ?>">
-    <input type="hidden" name="test_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'en_US') ?>">
 
     <label>Teléfono destinatario
         <input type="text" name="to" value="56944627287" placeholder="+56 9 1234 5678" required>
@@ -56,6 +54,45 @@
         <button class="btn secondary" type="submit">Probar solicitud WhatsApp</button>
     </div>
 </form>
+
+
+<section class="panel-card" style="margin-top:18px;">
+    <div class="section-head">
+        <div>
+            <h3>Últimas pruebas de WhatsApp</h3>
+            <p>Si Meta acepta la solicitud pero el mensaje no llega, revisa aquí el estado actualizado por webhook. Un estado FAILED mostrará el error informado por Meta.</p>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="modern-table compact-table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Destino</th>
+                    <th>Plantilla</th>
+                    <th>Estado</th>
+                    <th>Detalle</th>
+                    <th>ID Meta</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach (($recentWhatsAppTests ?? []) as $test): ?>
+                    <tr>
+                        <td><?= h($test['updated_at'] ?? $test['created_at'] ?? '') ?></td>
+                        <td><?= h($test['to_number'] ?? '') ?></td>
+                        <td><?= h($test['template_name'] ?? '') ?></td>
+                        <td><strong><?= h($test['status_name'] ?? $test['status_group'] ?? '') ?></strong></td>
+                        <td><?= h(($test['error_message'] ?? '') !== '' ? $test['error_message'] : ($test['status_description'] ?? '')) ?></td>
+                        <td><small><?= h($test['message_id'] ?? '') ?></small></td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (empty($recentWhatsAppTests ?? [])): ?>
+                    <tr><td colspan="6" class="empty">Aún no hay pruebas registradas.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
 
 <script>
 (() => {
