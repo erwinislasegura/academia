@@ -29,13 +29,15 @@ final class WhatsAppNotifier
 
         $templateName = trim((string) ($settings['whatsapp_template_name'] ?? ''));
         $templateLanguage = trim((string) ($settings['whatsapp_template_language'] ?? 'en_US'));
-        $templateParameters = self::admissionTemplateParameters($application);
-        $metadata['template_variables'] = [
-            '{{1}}' => $templateParameters[0],
-            '{{2}}' => $templateParameters[1],
-            '{{3}}' => $templateParameters[2],
-            '{{4}}' => $templateParameters[3],
-        ];
+        $templateParameters = self::templateParametersFor($templateName, $application);
+        if ($templateParameters !== []) {
+            $metadata['template_variables'] = [
+                '{{1}}' => $templateParameters[0],
+                '{{2}}' => $templateParameters[1],
+                '{{3}}' => $templateParameters[2],
+                '{{4}}' => $templateParameters[3],
+            ];
+        }
         if ($templateName !== '') {
             $result = self::sendTemplateWithLanguageRetry(
                 $service,
@@ -220,6 +222,15 @@ final class WhatsAppNotifier
     public static function formatRecipientPhone(string $phone): string
     {
         return InfobipWhatsAppService::formatPhone($phone);
+    }
+
+    public static function templateParametersFor(string $templateName, array $application): array
+    {
+        if (trim($templateName) === 'hello_world') {
+            return [];
+        }
+
+        return self::admissionTemplateParameters($application);
     }
 
     public static function admissionTemplateParameters(array $application): array

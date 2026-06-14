@@ -8,7 +8,7 @@ final class WhatsAppController extends Controller
         $input = $this->input();
         $to = (string) ($input['to'] ?? '');
         $settings = (new ApplicationSetting())->admissionSettings();
-        $templateName = (string) ($input['template_name'] ?? ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027'));
+        $templateName = (string) ($input['template_name'] ?? ($settings['whatsapp_template_name'] ?? 'hello_world'));
         $language = (string) ($input['language'] ?? ($settings['whatsapp_template_language'] ?? 'en_US'));
         $placeholders = $templateName === 'hello_world' ? [] : $this->csvPlaceholders((string) ($input['placeholders'] ?? 'Nombre completo del apoderado,Nombre del estudiante,Curso,' . date('d-m-Y')));
 
@@ -16,7 +16,7 @@ final class WhatsAppController extends Controller
         $result = $this->sendTemplateWithLanguageRetry(
             $service,
             $to,
-            $templateName !== '' ? $templateName : (string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027'),
+            $templateName !== '' ? $templateName : (string) ($settings['whatsapp_template_name'] ?? 'hello_world'),
             $language !== '' ? $language : (string) ($settings['whatsapp_template_language'] ?? 'en_US'),
             $placeholders,
             ['modulo' => 'whatsapp_test', 'tipo' => 'template']
@@ -57,7 +57,7 @@ final class WhatsAppController extends Controller
             }
             $result = $service->sendTextMessage($to, $message, $metadata);
         } else {
-            $templateName = (string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027');
+            $templateName = (string) ($settings['whatsapp_template_name'] ?? 'hello_world');
             $result = $this->sendTemplateWithLanguageRetry(
                 $service,
                 $to,
@@ -133,23 +133,25 @@ final class WhatsAppController extends Controller
 
         $service = new MetaWhatsAppService($settings);
         $template = [
-            'name' => trim((string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027')),
+            'name' => trim((string) ($settings['whatsapp_template_name'] ?? 'hello_world')),
             'language' => trim((string) ($settings['whatsapp_template_language'] ?? 'en_US')),
         ];
         $guardianName = WhatsAppNotifier::guardianFullName($application);
 
-        $templateParameters = WhatsAppNotifier::admissionTemplateParameters($application);
+        $templateParameters = WhatsAppNotifier::templateParametersFor($template['name'], $application);
         $metadata = [
             'modulo' => 'postulaciones',
             'registro_id' => $postulacionId,
-            'tipo' => 'confirmacion_postulacion_2027',
-            'template_variables' => [
+            'tipo' => $template['name'],
+        ];
+        if ($templateParameters !== []) {
+            $metadata['template_variables'] = [
                 '{{1}}' => $templateParameters[0],
                 '{{2}}' => $templateParameters[1],
                 '{{3}}' => $templateParameters[2],
                 '{{4}}' => $templateParameters[3],
-            ],
-        ];
+            ];
+        }
         $result = $this->sendTemplateWithLanguageRetry(
             $service,
             $to,
@@ -178,7 +180,7 @@ final class WhatsAppController extends Controller
     private function testSettings(array $settings, array $input): array
     {
         $settings['whatsapp_base_url'] = trim((string) ($input['test_base_url'] ?? '')) ?: (string) ($settings['whatsapp_base_url'] ?? 'https://graph.facebook.com/v25.0');
-        $settings['whatsapp_template_name'] = trim((string) ($input['test_template_name'] ?? '')) ?: (string) ($settings['whatsapp_template_name'] ?? 'confirmacion_postulacion_2027');
+        $settings['whatsapp_template_name'] = trim((string) ($input['test_template_name'] ?? '')) ?: (string) ($settings['whatsapp_template_name'] ?? 'hello_world');
         $settings['whatsapp_template_language'] = trim((string) ($input['test_template_language'] ?? '')) ?: (string) ($settings['whatsapp_template_language'] ?? 'en_US');
 
         return $settings;
@@ -313,7 +315,7 @@ final class WhatsAppController extends Controller
             return [];
         }
 
-        return WhatsAppNotifier::admissionTemplateParameters([
+        return WhatsAppNotifier::templateParametersFor($templateName, [
             'nombre_apoderado' => trim((string) ($input['guardian_name'] ?? 'Nombre completo del apoderado')),
             'estudiante' => trim((string) ($input['student_name'] ?? 'Nombre del estudiante')),
             'curso' => trim((string) ($input['course'] ?? 'Curso')),
