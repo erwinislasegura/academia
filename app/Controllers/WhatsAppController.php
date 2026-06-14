@@ -192,7 +192,26 @@ final class WhatsAppController extends Controller
         array $parameters,
         array $metadata
     ): array {
-        return $service->sendTemplateMessage($to, trim($templateName), trim($language), $parameters, $metadata);
+        $result = $service->sendTemplateMessage($to, trim($templateName), trim($language), $parameters, $metadata);
+        if ($parameters !== [] && $this->isTemplateParameterMismatchError($result)) {
+            return $service->sendTemplateMessage(
+                $to,
+                trim($templateName),
+                trim($language),
+                [],
+                $metadata + ['retry_without_parameters' => true, 'reason' => 'parameter_count_mismatch']
+            );
+        }
+
+        return $result;
+    }
+
+    private function isTemplateParameterMismatchError(array $result): bool
+    {
+        $error = (string) ($result['error'] ?? '');
+
+        return (int) ($result['http_code'] ?? 0) === 400
+            && (str_contains($error, '#132000') || stripos($error, 'Number of parameters') !== false);
     }
 
     private function isTemplateTranslationError(array $result): bool
