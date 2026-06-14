@@ -62,15 +62,8 @@ final class MetaWhatsAppService
             ],
         ];
 
-        if ($bodyParameters !== []) {
-            $payload['template']['components'] = [[
-                'type' => 'body',
-                'parameters' => array_map(
-                    static fn($value): array => ['type' => 'text', 'text' => (string) $value],
-                    array_values($bodyParameters)
-                ),
-            ]];
-        }
+        // Las plantillas se envían con la misma estructura simple de hello_world:
+        // sólo nombre de plantilla e idioma, sin components ni variables de cuerpo.
 
         $validationError = $this->validate($recipient);
         if ($validationError === null && trim($templateName) === '') {
