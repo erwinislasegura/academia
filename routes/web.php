@@ -21,6 +21,9 @@ $router->post('/whatsapp/admission-confirmation/{id}', [WhatsAppController::clas
 $router->get('/admissions', [AdmissionController::class, 'applications']);
 $router->get('/admissions/export', [AdmissionController::class, 'exportApplications']);
 $router->post('/admissions/status/{id}', [AdmissionController::class, 'updateApplicationStatus']);
+$router->get('/admissions/edit/{id}', [AdmissionController::class, 'editApplication']);
+$router->post('/admissions/update/{id}', [AdmissionController::class, 'updateApplication']);
+$router->post('/admissions/delete/{id}', [AdmissionController::class, 'deleteApplication']);
 $router->get('/login', [AuthController::class, 'login']);
 $router->post('/login', [AuthController::class, 'authenticate']);
 $router->get('/logout', [AuthController::class, 'logout']);
