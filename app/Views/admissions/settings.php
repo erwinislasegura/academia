@@ -79,7 +79,7 @@
                 <small>Déjala en blanco para mantener la clave actual. Debe tener permisos para enviar mensajes por WhatsApp Cloud API.</small>
             </label>
             <label>Template de confirmación
-                <input type="text" name="whatsapp_template_name" value="<?= h($settings['whatsapp_template_name'] ?? 'hello_world') ?>" placeholder="hello_world">
+                <input type="text" name="whatsapp_template_name" value="<?= h($settings['whatsapp_template_name'] ?? 'admision2027_final') ?>" placeholder="admision2027_final">
                 <small>Debe existir y estar aprobado en Meta si decides enviar plantillas.</small>
             </label>
             <label>Idioma del template
@@ -88,7 +88,7 @@
             </label>
             <label class="span-2">Mensaje de texto libre (fallback, sólo ventana 24h)
                 <textarea name="whatsapp_message_template" rows="5"><?= h($settings['whatsapp_message_template'] ?? '') ?></textarea>
-                <small>Para hello_world no se envían parámetros, replicando el cURL oficial de Meta. Si configuras una plantilla propia de admisión, se enviarán {{1}} Nombre completo del apoderado, {{2}} Nombre del estudiante, {{3}} Curso y {{4}} Fecha de postulación. Este texto se usa sólo como fallback dentro de la ventana de 24 horas.</small>
+                <small>Para admision2027_final no se envían parámetros, replicando el cURL oficial de Meta. Si configuras una plantilla propia de admisión, se enviarán {{1}} Nombre completo del apoderado, {{2}} Nombre del estudiante, {{3}} Curso y {{4}} Fecha de postulación. Este texto se usa sólo como fallback dentro de la ventana de 24 horas.</small>
             </label>
         </div>
     </div>
@@ -120,7 +120,7 @@
         <small>Por defecto usa la misma URL base guardada para el envío automático.</small>
     </label>
     <label>Template de prueba
-        <input type="text" name="test_template_name" value="<?= h($settings['whatsapp_template_name'] ?? 'hello_world') ?>">
+        <input type="text" name="test_template_name" value="<?= h($settings['whatsapp_template_name'] ?? 'admision2027_final') ?>">
         <small>Por defecto usa la misma plantilla que se enviará al llenar el formulario.</small>
     </label>
     <label>Idioma del template de prueba
@@ -139,7 +139,7 @@
     </label>
     <label>Curso de prueba
         <input type="text" name="course" value="Curso">
-        <small>Estos datos completan {{1}}, {{2}} y {{3}} en plantillas propias; hello_world se envía sin parámetros.</small>
+        <small>Estos datos completan {{1}}, {{2}} y {{3}} en plantillas propias; admision2027_final se envía sin parámetros.</small>
     </label>
     <div class="span-2 form-actions">
         <button class="btn secondary" type="submit">Enviar prueba por WhatsApp</button>

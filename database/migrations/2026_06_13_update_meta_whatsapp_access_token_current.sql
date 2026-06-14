@@ -1,4 +1,2 @@
-INSERT INTO application_settings (`key`, `value`) VALUES
-('admission_whatsapp_api_key', 'EAAbmIPjo8O0BRukxKtiGQjveZBAyAZAy2WDPjx0QblORmITTkVxPE90UGdSPGnV6ZBWMZB2MtAqYU5amkTZAYavJZATe6AJJczF0CnBfYr109SlfntZCMMz1WgyjX1XPkaduCS7BpNxMZAnu2XPJG35VL88q2dig7MdwisGZBCFRvlzZCcQn8DrMGsjfUGV9865jmI2veMlFIogofSowOLH7Rpv40PGCpZA5xmroQkH0939DobzlPCTZAZCIvZApIIXimdqvZCU7rBmLZBPQBdHVp11VWHc8mxtYYAZDZD'),
-('admission_whatsapp_access_token', 'EAAbmIPjo8O0BRukxKtiGQjveZBAyAZAy2WDPjx0QblORmITTkVxPE90UGdSPGnV6ZBWMZB2MtAqYU5amkTZAYavJZATe6AJJczF0CnBfYr109SlfntZCMMz1WgyjX1XPkaduCS7BpNxMZAnu2XPJG35VL88q2dig7MdwisGZBCFRvlzZCcQn8DrMGsjfUGV9865jmI2veMlFIogofSowOLH7Rpv40PGCpZA5xmroQkH0939DobzlPCTZAZCIvZApIIXimdqvZCU7rBmLZBPQBdHVp11VWHc8mxtYYAZDZD')
-ON DUPLICATE KEY UPDATE `value` = VALUES(`value`), updated_at = CURRENT_TIMESTAMP;
+-- El token de Meta WhatsApp se configura desde el panel o con META_WHATSAPP_ACCESS_TOKEN.
+-- No se persiste un token fijo en migraciones para no sobrescribir credenciales configuradas.

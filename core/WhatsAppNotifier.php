@@ -90,6 +90,9 @@ final class WhatsAppNotifier
     ): array {
         $templateName = trim($templateName);
         $language = trim($language);
+        if (self::isParameterlessTemplate($templateName)) {
+            return $service->sendTemplateMessage($to, $templateName, $language, [], $metadata);
+        }
         $availableLanguages = $service->templateLanguages($templateName);
         if ($availableLanguages !== [] && !in_array($language, $availableLanguages, true)) {
             foreach (self::preferredTemplateLanguages($language, $availableLanguages) as $availableLanguage) {
@@ -226,11 +229,16 @@ final class WhatsAppNotifier
 
     public static function templateParametersFor(string $templateName, array $application): array
     {
-        if (trim($templateName) === 'hello_world') {
+        if (self::isParameterlessTemplate($templateName)) {
             return [];
         }
 
         return self::admissionTemplateParameters($application);
+    }
+
+    private static function isParameterlessTemplate(string $templateName): bool
+    {
+        return in_array(trim($templateName), ['hello_world', 'admision2027_final'], true);
     }
 
     public static function admissionTemplateParameters(array $application): array
