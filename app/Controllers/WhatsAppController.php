@@ -183,57 +183,6 @@ final class WhatsAppController extends Controller
     }
 
 
-    private function waitForDeliveryConfirmation(string $messageId): array
-    {
-        $messageId = trim($messageId);
-        if ($messageId === '') {
-            return [
-                'confirmed' => false,
-                'status' => 'UNKNOWN',
-                'description' => 'No se recibió un ID de mensaje válido para consultar el estado.',
-            ];
-        }
-
-        $logs = new WhatsAppLog();
-        $deadline = microtime(true) + 10;
-        $lastLog = null;
-
-        do {
-            $lastLog = $logs->findByMessageId($messageId);
-            $status = strtoupper(trim((string) ($lastLog['status_name'] ?? '')));
-            $group = strtoupper(trim((string) ($lastLog['status_group'] ?? '')));
-            $description = trim((string) ($lastLog['status_description'] ?? ''));
-            $error = trim((string) ($lastLog['error_message'] ?? ''));
-
-            if ($group === 'ERROR' || $status === 'FAILED') {
-                return [
-                    'confirmed' => false,
-                    'status' => $status !== '' ? $status : 'FAILED',
-                    'description' => $error !== '' ? $error : ($description !== '' ? $description : 'WhatsApp informó que el mensaje falló.'),
-                ];
-            }
-
-            if (in_array($status, ['SENT', 'DELIVERED', 'READ'], true) && $description !== 'WhatsApp Cloud API aceptó el mensaje.') {
-                return [
-                    'confirmed' => true,
-                    'status' => $status,
-                    'description' => $description !== '' ? $description : 'WhatsApp confirmó el estado del mensaje por webhook.',
-                ];
-            }
-
-            usleep(500000);
-        } while (microtime(true) < $deadline);
-
-        $status = strtoupper(trim((string) ($lastLog['status_name'] ?? 'PENDING')));
-        $description = trim((string) ($lastLog['status_description'] ?? ''));
-
-        return [
-            'confirmed' => false,
-            'status' => $status !== '' ? $status : 'PENDING',
-            'description' => 'No llegó un webhook SENT/DELIVERED/READ/FAILED dentro de 10 segundos. Revisa que el webhook de Meta esté configurado y vuelve a intentar; si luego llega FAILED, quedará registrado en el historial.',
-        ];
-    }
-
     private function testSettings(array $settings, array $input): array
     {
         $settings['whatsapp_base_url'] = trim((string) ($input['test_base_url'] ?? '')) ?: (string) ($settings['whatsapp_base_url'] ?? 'https://graph.facebook.com/v25.0');
