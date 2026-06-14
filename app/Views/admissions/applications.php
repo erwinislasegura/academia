@@ -28,7 +28,6 @@
                     <th>Apoderado</th>
                     <th>Contacto</th>
                     <th>Estudiante</th>
-                    <th>Sexo / edad</th>
                     <th>Curso</th>
                     <th>Estado</th>
                     <th class="table-action-head">Detalle</th>
