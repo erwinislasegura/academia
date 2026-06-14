@@ -139,7 +139,7 @@
     </label>
     <label>Curso de prueba
         <input type="text" name="course" value="Curso">
-        <small>Estos datos completan {{1}}, {{2}} y {{3}}; {{4}} se envía automáticamente como fecha de postulación o fecha actual.</small>
+        <small>Estos datos completan {{1}}, {{2}} y {{3}} en plantillas propias; admision2027_final se envía sin parámetros.</small>
     </label>
     <div class="span-2 form-actions">
         <button class="btn secondary" type="submit">Enviar prueba por WhatsApp</button>
