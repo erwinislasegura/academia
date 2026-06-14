@@ -74,6 +74,21 @@ $withGenderPercent = round(((int) ($metrics['with_gender'] ?? 0) / $totalApplica
             <strong><?= h($metrics['without_gender'] ?? 0) ?></strong>
             <small><?= h((string) $withoutGenderPercent) ?>% por completar</small>
         </article>
+        <article class="summary-card summary-card--gender summary-card--girls">
+            <span>Niñas</span>
+            <strong><?= h($metrics['girls'] ?? 0) ?></strong>
+            <small><?= h((string) $girlsPercent) ?>% del total</small>
+        </article>
+        <article class="summary-card summary-card--gender summary-card--boys">
+            <span>Niños</span>
+            <strong><?= h($metrics['boys'] ?? 0) ?></strong>
+            <small><?= h((string) $boysPercent) ?>% del total</small>
+        </article>
+        <article class="summary-card summary-card--alert">
+            <span>Sin sexo informado</span>
+            <strong><?= h($metrics['without_gender'] ?? 0) ?></strong>
+            <small><?= h((string) $withoutGenderPercent) ?>% por completar</small>
+        </article>
         <article class="summary-card summary-card--ring" style="--ring-angle: <?= h((string) $contactAngle) ?>deg">
             <span>Contactabilidad</span>
             <strong><?= h($metrics['contact_rate']) ?>%</strong>
