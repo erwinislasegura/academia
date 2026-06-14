@@ -69,7 +69,7 @@ final class WhatsAppController extends Controller
         }
 
         if ($result['success']) {
-            Session::flash('success', 'WhatsApp de prueba enviado correctamente. ID: ' . (string) $result['message_id']);
+            Session::flash('success', 'Meta aceptó el WhatsApp de prueba. ID: ' . (string) $result['message_id'] . '. La entrega real se confirma después por webhook (SENT/DELIVERED/FAILED).');
         } else {
             Session::flash('error', $this->failureFlashMessage($result));
         }
