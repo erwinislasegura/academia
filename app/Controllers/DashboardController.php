@@ -15,6 +15,7 @@ final class DashboardController extends Controller
             'admissionsCount' => $admissionModel->count(),
             'admissionMetrics' => $admissionModel->dashboardMetrics(),
             'applicationsByCourse' => $admissionModel->countByCourse(),
+            'applicationsByCourseAndGender' => $admissionModel->countByCourseAndGender(),
             'applicationsByStatus' => $admissionModel->countByStatus(),
             'applicationsTrend' => $admissionModel->trendLastDays(),
             'latestApplications' => $admissionModel->latest(),

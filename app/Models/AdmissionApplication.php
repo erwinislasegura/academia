@@ -156,11 +156,18 @@ final class AdmissionApplication extends Model
              WHERE s.slug = 'aceptada'"
         )->fetchColumn();
 
+        $girls = (int) $this->db->query("SELECT COUNT(*) FROM admission_applications WHERE student_gender = 'nina'")->fetchColumn();
+        $boys = (int) $this->db->query("SELECT COUNT(*) FROM admission_applications WHERE student_gender = 'nino'")->fetchColumn();
+        $withoutGender = max(0, $total - $girls - $boys);
+
         return [
             'total' => $total,
             'new_this_week' => $newThisWeek,
             'contact_rate' => $total > 0 ? round(($contacted / $total) * 100, 1) : 0,
             'acceptance_rate' => $total > 0 ? round(($accepted / $total) * 100, 1) : 0,
+            'girls' => $girls,
+            'boys' => $boys,
+            'without_gender' => $withoutGender,
         ];
     }
 
@@ -171,6 +178,20 @@ final class AdmissionApplication extends Model
              FROM admission_applications
              GROUP BY course
              ORDER BY total DESC, course ASC'
+        )->fetchAll();
+    }
+
+    public function countByCourseAndGender(): array
+    {
+        return $this->db->query(
+            "SELECT course AS label,
+                    COUNT(*) AS total,
+                    SUM(CASE WHEN student_gender = 'nina' THEN 1 ELSE 0 END) AS girls,
+                    SUM(CASE WHEN student_gender = 'nino' THEN 1 ELSE 0 END) AS boys,
+                    SUM(CASE WHEN student_gender IS NULL THEN 1 ELSE 0 END) AS without_gender
+             FROM admission_applications
+             GROUP BY course
+             ORDER BY total DESC, course ASC"
         )->fetchAll();
     }
 
