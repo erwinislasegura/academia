@@ -2449,3 +2449,102 @@ button, input, select, textarea { font: inherit; }
   .dashboard-report-grid { grid-template-columns: 1fr; }
   .report-card--large { grid-column: span 1; }
 }
+
+/* Professional admissions table actions and demographic columns. */
+.table-responsive {
+  max-width: 100%;
+  scrollbar-color: rgba(7, 29, 122, .35) rgba(226, 232, 240, .75);
+  scrollbar-width: thin;
+}
+
+.table-responsive::-webkit-scrollbar { height: 10px; }
+.table-responsive::-webkit-scrollbar-track { background: rgba(226, 232, 240, .75); border-radius: 999px; }
+.table-responsive::-webkit-scrollbar-thumb { background: rgba(7, 29, 122, .35); border-radius: 999px; }
+
+.admissions-table {
+  min-width: 1320px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admissions-table th,
+.admissions-table td { white-space: nowrap; }
+
+.gender-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 6px 11px;
+  background: #eef2ff;
+  color: #071d7a;
+  font-weight: 800;
+}
+
+.action-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.action-dropdown summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid rgba(7, 29, 122, .14);
+  border-radius: 999px;
+  padding: 9px 34px 9px 14px;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  color: var(--primary);
+  font-weight: 800;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, .08);
+  position: relative;
+}
+
+.action-dropdown summary::-webkit-details-marker { display: none; }
+.action-dropdown summary::after {
+  content: '⌄';
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-55%);
+  font-size: 16px;
+}
+
+.action-dropdown[open] summary {
+  border-color: rgba(7, 29, 122, .35);
+  box-shadow: 0 0 0 4px rgba(7, 29, 122, .08);
+}
+
+.action-dropdown__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 20;
+  min-width: 190px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 24px 55px rgba(15, 23, 42, .18);
+}
+
+.action-dropdown__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 11px;
+  padding: 10px 12px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  text-decoration: none;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.action-dropdown__item:hover { background: var(--surface-soft); color: var(--primary); }
+.action-dropdown__item.danger { color: #b4232f; }
+.action-dropdown__item.danger:hover { background: #fff1f2; color: #9f1239; }
+.action-dropdown__menu form { margin: 0; }
