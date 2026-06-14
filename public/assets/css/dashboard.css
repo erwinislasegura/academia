@@ -432,3 +432,502 @@
   .dashboard-report-grid { grid-template-columns: 1fr; }
   .report-card--large { grid-column: span 1; }
 }
+
+/* Professional flat dashboard refresh */
+.admission-dashboard {
+  gap: 12px;
+}
+
+.admission-dashboard__hero {
+  min-height: auto;
+  padding: 16px 18px;
+  border: 1px solid #dbe3ef;
+  border-radius: 16px;
+  background: #071a33;
+  box-shadow: none;
+}
+
+.admission-dashboard__hero::after,
+.summary-card::before {
+  display: none;
+}
+
+.admission-dashboard__hero h2 {
+  font-size: clamp(22px, 2.2vw, 30px);
+  letter-spacing: -.035em;
+}
+
+.admission-dashboard__hero p:not(.eyebrow) {
+  margin-top: 6px;
+  color: #c6d3e1;
+  line-height: 1.35;
+}
+
+.admission-dashboard__actions .btn.secondary {
+  background: #fff;
+  color: #071a33;
+  border-color: #fff;
+}
+
+.dashboard-summary-grid {
+  grid-template-columns: 1.1fr repeat(4, 1fr);
+  gap: 10px;
+}
+
+.summary-card,
+.report-card {
+  border-color: #dbe3ef;
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+.summary-card {
+  min-height: 76px;
+  padding: 12px 13px;
+}
+
+.summary-card--total {
+  background: #fff;
+  border-left: 4px solid #071a33;
+}
+
+.summary-card--gender {
+  border-left: 4px solid #0f766e;
+}
+
+.summary-card--alert {
+  border-left: 4px solid #b45309;
+}
+
+.summary-card strong {
+  color: #071a33;
+  font-size: 27px;
+}
+
+.dashboard-report-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(280px, .8fr);
+  gap: 10px;
+}
+
+.report-card {
+  padding: 12px;
+}
+
+.report-card--large {
+  grid-column: span 2;
+}
+
+.report-card--chart {
+  min-height: 198px;
+}
+
+.course-ranking__row,
+.status-funnel__row,
+.dashboard-legend div {
+  border-radius: 10px;
+  background: #fbfcfe;
+}
+
+.course-ranking__row i,
+.age-distribution i {
+  background: #0b3b75;
+}
+
+.spark-columns {
+  min-height: 132px;
+}
+
+.spark-columns > div {
+  height: 128px;
+}
+
+.spark-columns span {
+  background: #0b3b75;
+  box-shadow: none;
+}
+
+.gender-stack {
+  display: flex;
+  width: min(180px, 100%);
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+.gender-stack i {
+  display: block;
+  min-width: 0;
+  height: 100%;
+}
+
+.gender-stack .girls { background: #0f766e; }
+.gender-stack .boys { background: #1d4ed8; }
+.gender-stack .unknown { background: #b45309; }
+
+.dashboard-table--compact {
+  min-width: 560px;
+}
+
+.dashboard-table--compact th,
+.dashboard-table--compact td {
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.dashboard-table--compact td:not(:first-child),
+.dashboard-table--compact th:not(:first-child) {
+  text-align: right;
+}
+
+.dashboard-table--compact td:last-child,
+.dashboard-table--compact th:last-child {
+  text-align: left;
+}
+
+@media (max-width: 1280px) {
+  .dashboard-summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dashboard-report-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 980px) {
+  .dashboard-summary-grid,
+  .dashboard-report-grid { grid-template-columns: 1fr; }
+  .report-card--large { grid-column: span 1; }
+}
+
+/* Brand-aligned admissions analytics dashboard */
+.admission-dashboard {
+  --dash-primary: var(--primary, #071D7A);
+  --dash-primary-dark: var(--primary-dark, #04124D);
+  --dash-accent: var(--accent, #E51B2B);
+  --dash-gold: #F2B632;
+  --dash-surface: var(--white, #FFFFFF);
+  --dash-soft: var(--surface-soft, #F8FAFC);
+  --dash-muted-surface: var(--surface-muted, #F1F5F9);
+  --dash-border: var(--border, #E5E7EB);
+  --dash-text: var(--text, #1F2937);
+  --dash-muted: var(--muted, #6B7280);
+  gap: 12px;
+  color: var(--dash-text);
+}
+
+.admission-dashboard__hero {
+  min-height: auto;
+  padding: 15px 18px;
+  border: 1px solid rgba(7, 29, 122, .18);
+  border-left: 5px solid var(--dash-accent);
+  border-radius: 16px;
+  background: var(--dash-primary);
+  box-shadow: none;
+}
+
+.admission-dashboard__hero::after,
+.summary-card::before {
+  display: none;
+}
+
+.admission-dashboard__hero h2 {
+  font-size: clamp(22px, 2vw, 29px);
+  letter-spacing: -.035em;
+}
+
+.admission-dashboard__hero p:not(.eyebrow) {
+  max-width: 860px;
+  margin-top: 5px;
+  color: rgba(255, 255, 255, .78);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.admission-dashboard .eyebrow.light {
+  background: rgba(255, 255, 255, .10);
+  color: var(--dash-gold);
+}
+
+.admission-dashboard__actions .btn.primary {
+  background: var(--dash-accent);
+  border-color: var(--dash-accent);
+}
+
+.admission-dashboard__actions .btn.secondary {
+  background: #fff;
+  color: var(--dash-primary);
+  border-color: #fff;
+}
+
+.dashboard-summary-grid--complete {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.summary-card,
+.report-card {
+  border: 1px solid var(--dash-border);
+  border-radius: 14px;
+  background: var(--dash-surface);
+  box-shadow: none;
+}
+
+.summary-card {
+  min-height: 74px;
+  padding: 11px 12px;
+  border-top: 3px solid var(--dash-primary);
+}
+
+.summary-card--total { border-top-color: var(--dash-primary-dark); }
+.summary-card--girls { border-top-color: var(--dash-accent); }
+.summary-card--boys { border-top-color: var(--dash-primary); }
+.summary-card--alert { border-top-color: var(--dash-gold); }
+
+.summary-card span {
+  color: var(--dash-muted);
+  font-size: 9.5px;
+}
+
+.summary-card strong {
+  margin: 6px 0 2px;
+  color: var(--dash-primary);
+  font-size: 26px;
+}
+
+.summary-card small {
+  color: var(--dash-muted);
+  font-size: 10.5px;
+}
+
+.summary-card--ring::after {
+  width: 36px;
+  height: 36px;
+  right: 12px;
+  top: 14px;
+  background: conic-gradient(var(--dash-accent) 0 var(--ring-angle), #eef2f7 var(--ring-angle) 360deg);
+}
+
+.dashboard-report-grid {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.15fr) minmax(260px, .85fr);
+  gap: 10px;
+}
+
+.report-card {
+  padding: 12px;
+}
+
+.report-card--large {
+  grid-column: span 2;
+}
+
+.report-card--chart,
+.report-card--gender-overview {
+  min-height: 190px;
+}
+
+.report-card__head {
+  margin-bottom: 9px;
+}
+
+.report-card__head h3 {
+  color: var(--dash-primary-dark);
+  font-size: 14px;
+}
+
+.report-card__head p {
+  color: var(--dash-muted);
+  font-size: 11px;
+}
+
+.report-card__head > span {
+  background: #edf2fb;
+  color: var(--dash-primary);
+}
+
+.course-ranking__row,
+.status-funnel__row,
+.dashboard-legend div {
+  border: 1px solid var(--dash-border);
+  border-radius: 10px;
+  background: var(--dash-soft);
+}
+
+.course-ranking__row i,
+.age-distribution i {
+  background: var(--dash-primary);
+}
+
+.status-funnel__row > span,
+.course-ranking__row > span,
+.age-distribution span {
+  background: var(--dash-muted-surface);
+}
+
+.spark-columns {
+  min-height: 130px;
+  border-bottom-color: var(--dash-border);
+}
+
+.spark-columns > div {
+  height: 126px;
+}
+
+.spark-columns span {
+  background: var(--dash-primary);
+  box-shadow: none;
+}
+
+.gender-overview {
+  display: grid;
+  grid-template-columns: 118px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.gender-meter {
+  width: 112px;
+  height: 112px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  border: 10px solid #edf2fb;
+  border-top-color: var(--dash-accent);
+  border-right-color: var(--dash-primary);
+  border-radius: 50%;
+  background: #fff;
+}
+
+.gender-meter strong {
+  color: var(--dash-primary);
+  font-size: 25px;
+  line-height: 1;
+}
+
+.gender-meter small {
+  margin-top: 4px;
+  color: var(--dash-muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.dashboard-legend--compact div {
+  grid-template-columns: 10px 1fr auto;
+  padding: 6px 8px;
+}
+
+.gender-stack {
+  display: flex;
+  width: min(200px, 100%);
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--dash-muted-surface);
+}
+
+.gender-stack i {
+  display: block;
+  min-width: 0;
+  height: 100%;
+}
+
+.gender-stack .girls { background: var(--dash-accent); }
+.gender-stack .boys { background: var(--dash-primary); }
+.gender-stack .unknown { background: var(--dash-gold); }
+
+.dashboard-table {
+  min-width: 650px;
+}
+
+.dashboard-table th {
+  padding: 0 8px 7px;
+  color: var(--dash-muted);
+  font-size: 10px;
+}
+
+.dashboard-table td {
+  padding: 8px;
+  color: #334155;
+  font-size: 12px;
+}
+
+.dashboard-table--compact {
+  min-width: 620px;
+}
+
+.dashboard-table--compact td:not(:first-child),
+.dashboard-table--compact th:not(:first-child) {
+  text-align: right;
+}
+
+.dashboard-table--compact td:last-child,
+.dashboard-table--compact th:last-child {
+  text-align: left;
+}
+
+.dashboard-table--status-gender {
+  min-width: 680px;
+}
+
+.student-avatar {
+  background: #edf2fb;
+  color: var(--dash-primary);
+}
+
+.dashboard-status {
+  background: #fff;
+  border-color: var(--dash-border);
+  color: var(--dash-primary-dark);
+}
+
+@media (max-width: 1280px) {
+  .dashboard-summary-grid--complete { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dashboard-report-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 980px) {
+  .dashboard-summary-grid--complete,
+  .dashboard-report-grid,
+  .gender-overview { grid-template-columns: 1fr; }
+  .report-card--large { grid-column: span 1; }
+  .gender-meter { margin: 0 auto; }
+}
+
+/* Dashboard organization: avoid empty grid slots without changing content */
+.dashboard-report-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  align-items: stretch;
+}
+
+.report-card--large {
+  grid-column: span 2;
+}
+
+.report-card--chart,
+.report-card--gender-overview,
+.dashboard-report-grid > .report-card:not(.report-card--large) {
+  grid-column: span 1;
+}
+
+.dashboard-report-grid > .report-card {
+  min-width: 0;
+}
+
+.dashboard-table-wrap {
+  height: 100%;
+}
+
+@media (max-width: 1280px) {
+  .dashboard-report-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .dashboard-report-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-card--large,
+  .report-card--chart,
+  .report-card--gender-overview,
+  .dashboard-report-grid > .report-card:not(.report-card--large) {
+    grid-column: span 1;
+  }
+}
