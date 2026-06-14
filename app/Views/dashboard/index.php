@@ -12,20 +12,22 @@ if (!function_exists('dashboardTotal')) {
         return array_sum(array_map(static fn ($row) => (int) ($row['total'] ?? 0), $rows));
     }
 }
-$metrics = $admissionMetrics ?? ['total' => 0, 'new_this_week' => 0, 'contact_rate' => 0, 'acceptance_rate' => 0];
+$metrics = $admissionMetrics ?? ['total' => 0, 'new_this_week' => 0, 'contact_rate' => 0, 'acceptance_rate' => 0, 'girls' => 0, 'boys' => 0, 'without_gender' => 0];
 $totalApplicants = max(1, (int) ($metrics['total'] ?? 0));
 $courseMax = dashboardMax($applicationsByCourse ?? []);
 $statusTotal = max(1, dashboardTotal($applicationsByStatus ?? []));
 $trendMax = dashboardMax($applicationsTrend ?? []);
-$acceptedAngle = min(100, (float) ($metrics['acceptance_rate'] ?? 0)) * 3.6;
 $contactAngle = min(100, (float) ($metrics['contact_rate'] ?? 0)) * 3.6;
+$girlsPercent = round(((int) ($metrics['girls'] ?? 0) / $totalApplicants) * 100);
+$boysPercent = round(((int) ($metrics['boys'] ?? 0) / $totalApplicants) * 100);
+$withoutGenderPercent = round(((int) ($metrics['without_gender'] ?? 0) / $totalApplicants) * 100);
 ?>
 <section class="admission-dashboard">
     <div class="admission-dashboard__hero">
         <div>
-            <p class="eyebrow light">Admisión 2027 · KPI</p>
-            <h2>Panel profesional de postulantes</h2>
-            <p>Indicadores ejecutivos, gráficos y tablas para controlar captación, seguimiento por estado, demanda por curso y composición de los postulantes.</p>
+            <p class="eyebrow light">Admisión 2027 · Reporte ejecutivo</p>
+            <h2>Dashboard de postulaciones</h2>
+            <p>Vista compacta para cruzar cursos con sexo de postulantes, seguimiento por estado, demanda por nivel y calidad de datos.</p>
         </div>
         <div class="admission-dashboard__actions">
             <?php if (Auth::can('configurar_postulaciones')): ?>
@@ -41,20 +43,25 @@ $contactAngle = min(100, (float) ($metrics['contact_rate'] ?? 0)) * 3.6;
             <strong><?= h($metrics['total']) ?></strong>
             <small>Proceso escolar 2027</small>
         </article>
-        <article class="summary-card">
-            <span>Nuevos 7 días</span>
-            <strong><?= h($metrics['new_this_week']) ?></strong>
-            <small>Ingresos recientes</small>
+        <article class="summary-card summary-card--gender">
+            <span>Niñas</span>
+            <strong><?= h($metrics['girls'] ?? 0) ?></strong>
+            <small><?= h((string) $girlsPercent) ?>% del total</small>
+        </article>
+        <article class="summary-card summary-card--gender">
+            <span>Niños</span>
+            <strong><?= h($metrics['boys'] ?? 0) ?></strong>
+            <small><?= h((string) $boysPercent) ?>% del total</small>
+        </article>
+        <article class="summary-card summary-card--alert">
+            <span>Sin sexo informado</span>
+            <strong><?= h($metrics['without_gender'] ?? 0) ?></strong>
+            <small><?= h((string) $withoutGenderPercent) ?>% por completar</small>
         </article>
         <article class="summary-card summary-card--ring" style="--ring-angle: <?= h((string) $contactAngle) ?>deg">
             <span>Contactabilidad</span>
             <strong><?= h($metrics['contact_rate']) ?>%</strong>
             <small>Contactada + aceptada</small>
-        </article>
-        <article class="summary-card summary-card--ring accent-ring" style="--ring-angle: <?= h((string) $acceptedAngle) ?>deg">
-            <span>Aceptación</span>
-            <strong><?= h($metrics['acceptance_rate']) ?>%</strong>
-            <small>Postulantes aceptados</small>
         </article>
     </div>
 
@@ -85,6 +92,38 @@ $contactAngle = min(100, (float) ($metrics['contact_rate'] ?? 0)) * 3.6;
                     <div title="<?= h($row['label']) ?> · <?= h($row['total']) ?> postulaciones"><span style="height: <?= h((string) $height) ?>%"></span><small><?= h(date('d/m', strtotime($row['label']))) ?></small></div>
                 <?php endforeach; ?>
                 <?php if (empty($applicationsTrend)): ?><p class="muted-text">Sin datos recientes.</p><?php endif; ?>
+            </div>
+        </article>
+
+
+        <article class="report-card report-card--large">
+            <div class="report-card__head">
+                <div><h3>Cruce curso / sexo</h3><p>Distribución de niñas, niños y registros sin dato por cada curso.</p></div>
+                <span><?= h((string) ($metrics['girls'] ?? 0)) ?> niñas · <?= h((string) ($metrics['boys'] ?? 0)) ?> niños</span>
+            </div>
+            <div class="dashboard-table-wrap">
+                <table class="dashboard-table dashboard-table--compact">
+                    <thead><tr><th>Curso</th><th>Total</th><th>Niñas</th><th>Niños</th><th>Sin dato</th><th>Composición</th></tr></thead>
+                    <tbody>
+                        <?php foreach (($applicationsByCourseAndGender ?? []) as $row): ?>
+                            <?php
+                                $rowTotal = max(1, (int) ($row['total'] ?? 0));
+                                $girlsWidth = ((int) ($row['girls'] ?? 0) / $rowTotal) * 100;
+                                $boysWidth = ((int) ($row['boys'] ?? 0) / $rowTotal) * 100;
+                                $unknownWidth = max(0, 100 - $girlsWidth - $boysWidth);
+                            ?>
+                            <tr>
+                                <td><strong><?= h($row['label']) ?></strong></td>
+                                <td><?= h($row['total']) ?></td>
+                                <td><?= h($row['girls'] ?? 0) ?></td>
+                                <td><?= h($row['boys'] ?? 0) ?></td>
+                                <td><?= h($row['without_gender'] ?? 0) ?></td>
+                                <td><span class="gender-stack" title="Niñas <?= h((string) round($girlsWidth)) ?>% · Niños <?= h((string) round($boysWidth)) ?>% · Sin dato <?= h((string) round($unknownWidth)) ?>%"><i class="girls" style="width: <?= h((string) $girlsWidth) ?>%"></i><i class="boys" style="width: <?= h((string) $boysWidth) ?>%"></i><i class="unknown" style="width: <?= h((string) $unknownWidth) ?>%"></i></span></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <?php if (empty($applicationsByCourseAndGender)): ?><tr><td colspan="6" class="empty">Aún no hay datos por curso y sexo.</td></tr><?php endif; ?>
+                    </tbody>
+                </table>
             </div>
         </article>
 
