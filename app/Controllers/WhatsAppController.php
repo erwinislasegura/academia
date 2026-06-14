@@ -74,7 +74,7 @@ final class WhatsAppController extends Controller
             Session::flash('error', $this->failureFlashMessage($result));
         }
 
-        $this->redirect('/admission-settings');
+        $this->redirect('/whatsapp-settings');
     }
 
     public function sendAdmissionConfirmation(int $postulacionId, bool $respondJson = true): array
@@ -176,6 +176,7 @@ final class WhatsAppController extends Controller
 
         return $result;
     }
+
 
     private function testSettings(array $settings, array $input): array
     {
