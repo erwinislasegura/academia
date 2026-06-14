@@ -181,8 +181,6 @@ CREATE TABLE admission_applications (
   guardian_email VARCHAR(180) NOT NULL,
   guardian_phone VARCHAR(60) NOT NULL,
   student_name VARCHAR(180) NOT NULL,
-  student_gender ENUM('nino','nina') NULL,
-  student_birthdate DATE NULL,
   course VARCHAR(80) NOT NULL,
   message TEXT NULL,
   status_id BIGINT UNSIGNED NULL DEFAULT 1,
@@ -190,8 +188,6 @@ CREATE TABLE admission_applications (
   user_agent VARCHAR(255) NULL,
   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_admission_applications_email (guardian_email),
-  INDEX idx_admission_applications_gender (student_gender),
-  INDEX idx_admission_applications_birthdate (student_birthdate),
   INDEX idx_admission_applications_created_at (created_at),
   INDEX idx_admission_applications_status (status_id),
   CONSTRAINT fk_admission_applications_status FOREIGN KEY (status_id) REFERENCES admission_statuses(id) ON DELETE SET NULL
