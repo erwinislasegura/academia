@@ -137,33 +137,6 @@ final class AdmissionApplication extends Model
         )->fetchAll();
     }
 
-    public function countByGender(): array
-    {
-        return $this->db->query(
-            "SELECT CASE student_gender WHEN 'nina' THEN 'Niña' WHEN 'nino' THEN 'Niño' ELSE 'Sin dato' END AS label,
-                    COUNT(*) AS total
-             FROM admission_applications
-             GROUP BY label
-             ORDER BY total DESC"
-        )->fetchAll();
-    }
-
-    public function countByAgeRange(): array
-    {
-        return $this->db->query(
-            "SELECT CASE
-                    WHEN student_birthdate IS NULL THEN 'Sin dato'
-                    WHEN TIMESTAMPDIFF(YEAR, student_birthdate, CURDATE()) <= 5 THEN 'Hasta 5 años'
-                    WHEN TIMESTAMPDIFF(YEAR, student_birthdate, CURDATE()) BETWEEN 6 AND 8 THEN '6 a 8 años'
-                    WHEN TIMESTAMPDIFF(YEAR, student_birthdate, CURDATE()) BETWEEN 9 AND 11 THEN '9 a 11 años'
-                    ELSE '12 años o más'
-                END AS label,
-                COUNT(*) AS total
-             FROM admission_applications
-             GROUP BY label
-             ORDER BY MIN(COALESCE(TIMESTAMPDIFF(YEAR, student_birthdate, CURDATE()), 999)) ASC"
-        )->fetchAll();
-    }
 
 
     public function trendLastDays(int $days = 14): array
