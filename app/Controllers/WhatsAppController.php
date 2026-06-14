@@ -43,40 +43,41 @@ final class WhatsAppController extends Controller
     public function testSettingsMessage(): void
     {
         Middleware::permission('configurar_postulaciones');
-        $input = $this->input();
-        $to = (string) ($input['to'] ?? '');
-        $mode = (string) ($input['send_mode'] ?? 'template');
-        $message = trim((string) ($input['message'] ?? ''));
-        $settings = $this->testSettings((new ApplicationSetting())->admissionSettings(), $input);
-        $service = new MetaWhatsAppService($settings);
-        $metadata = ['modulo' => 'whatsapp_test', 'tipo' => 'panel_configuracion_' . ($mode === 'text' ? 'texto' : 'template')];
 
-        if ($mode === 'text') {
-            if ($message === '') {
-                $message = 'Mensaje de prueba desde el panel de administración de Academia Iquique.';
-            }
-            $result = $service->sendTextMessage($to, $message, $metadata);
-        } else {
-            $templateName = (string) ($settings['whatsapp_template_name'] ?? 'admision2027_final');
-            $result = $this->sendTemplateWithLanguageRetry(
-                $service,
-                $to,
-                $templateName,
-                (string) ($settings['whatsapp_template_language'] ?? 'en_US'),
-                $this->testTemplateParameters($input, $templateName),
-                $metadata
-            );
-        }
+        try {
+            $input = $this->input();
+            $to = (string) ($input['to'] ?? '');
+            $mode = (string) ($input['send_mode'] ?? 'template');
+            $message = trim((string) ($input['message'] ?? ''));
+            $settings = $this->testSettings((new ApplicationSetting())->admissionSettings(), $input);
+            $service = new MetaWhatsAppService($settings);
+            $metadata = ['modulo' => 'whatsapp_test', 'tipo' => 'panel_configuracion_' . ($mode === 'text' ? 'texto' : 'template')];
 
-        if ($result['success']) {
-            $delivery = $this->waitForDeliveryConfirmation((string) $result['message_id']);
-            if ($delivery['confirmed']) {
-                Session::flash('success', 'WhatsApp confirmó el envío de prueba. ID: ' . (string) $result['message_id'] . '. Estado: ' . $delivery['status'] . '. ' . $delivery['description']);
+            if ($mode === 'text') {
+                if ($message === '') {
+                    $message = 'Mensaje de prueba desde el panel de administración de Academia Iquique.';
+                }
+                $result = $service->sendTextMessage($to, $message, $metadata);
             } else {
-                Session::flash('error', 'Meta aceptó la solicitud, pero todavía no confirmó que el WhatsApp haya salido o se haya entregado. ID: ' . (string) $result['message_id'] . '. ' . $delivery['description']);
+                $templateName = (string) ($settings['whatsapp_template_name'] ?? 'admision2027_final');
+                $result = $this->sendTemplateWithLanguageRetry(
+                    $service,
+                    $to,
+                    $templateName,
+                    (string) ($settings['whatsapp_template_language'] ?? 'en_US'),
+                    $this->testTemplateParameters($input, $templateName),
+                    $metadata
+                );
             }
-        } else {
-            Session::flash('error', $this->failureFlashMessage($result));
+
+            if ($result['success']) {
+                Session::flash('success', 'Meta aceptó el WhatsApp de prueba. ID: ' . (string) $result['message_id'] . '. La entrega real se confirma después por webhook (SENT/DELIVERED/FAILED).');
+            } else {
+                Session::flash('error', $this->failureFlashMessage($result));
+            }
+        } catch (Throwable $e) {
+            error_log('[WhatsAppController] Error al enviar prueba desde configuración: ' . $e->getMessage());
+            Session::flash('error', 'No fue posible ejecutar la prueba de WhatsApp: ' . $e->getMessage());
         }
 
         $this->redirect('/whatsapp-settings');
