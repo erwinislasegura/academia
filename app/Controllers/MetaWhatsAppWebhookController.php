@@ -113,7 +113,7 @@ final class MetaWhatsAppWebhookController extends Controller
     private function statusDescription(string $statusName): string
     {
         return match ($statusName) {
-            'SENT' => 'Meta aceptó y marcó el mensaje como enviado.',
+            'SENT' => 'Meta aceptó la solicitud y reportó estado SENT.',
             'DELIVERED' => 'WhatsApp confirmó la entrega al destinatario.',
             'READ' => 'El destinatario leyó el mensaje.',
             'FAILED' => 'WhatsApp informó que el mensaje falló.',
