@@ -13,7 +13,7 @@
     <div class="span-2 section-head">
         <div>
             <h3>Configuración de plantilla</h3>
-            <p>Plantilla esperada: <strong>admision2027_final</strong> · idioma: <strong>en_US</strong>. El envío no incluye variables de cuerpo y se manda igual que hello_world: sólo nombre de plantilla e idioma.</p>
+            <p>Plantilla esperada: <strong>admision2027_final</strong> · idioma: <strong>en_US</strong>. La solicitud a Meta no incluye variables de cuerpo y usa la misma estructura que hello_world: sólo nombre de plantilla e idioma.</p>
         </div>
     </div>
 
@@ -32,7 +32,7 @@
     <div class="span-2 section-head">
         <div>
             <h3>Probar plantilla de WhatsApp</h3>
-            <p>Envía un mensaje de prueba con la plantilla configurada. Si cambias la plantilla o el idioma, guarda primero.</p>
+            <p>Prueba la solicitud a Meta con la plantilla configurada. Si cambias la plantilla o el idioma, guarda primero.</p>
         </div>
     </div>
     <input type="hidden" name="send_mode" value="template">
@@ -44,6 +44,6 @@
         <small>Usa un celular chileno habilitado para WhatsApp.</small>
     </label>
     <div class="span-2 form-actions">
-        <button class="btn secondary" type="submit">Enviar prueba por WhatsApp</button>
+        <button class="btn secondary" type="submit">Probar solicitud WhatsApp</button>
     </div>
 </form>

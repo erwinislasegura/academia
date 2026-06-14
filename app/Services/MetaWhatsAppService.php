@@ -62,7 +62,7 @@ final class MetaWhatsAppService
             ],
         ];
 
-        // Las plantillas se envían con la misma estructura simple de hello_world:
+        // Las solicitudes de plantilla usan la misma estructura simple de hello_world:
         // sólo nombre de plantilla e idioma, sin components ni variables de cuerpo.
 
         $validationError = $this->validate($recipient);

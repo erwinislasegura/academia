@@ -71,7 +71,7 @@ final class WhatsAppController extends Controller
             }
 
             if ($result['success']) {
-                Session::flash('success', 'Meta aceptó el WhatsApp de prueba. ID: ' . (string) $result['message_id'] . '.');
+                Session::flash('success', 'Meta recibió correctamente la solicitud de plantilla. ID: ' . (string) $result['message_id'] . '. Esto confirma la aceptación de la API, no la recepción en el teléfono.');
             } else {
                 Session::flash('error', $this->failureFlashMessage($result));
             }
@@ -228,7 +228,7 @@ final class WhatsAppController extends Controller
             $detail .= ' Revisa que el nombre del template y su idioma coincidan exactamente con una plantilla aprobada en Meta.';
         }
 
-        return 'No fue posible enviar el WhatsApp de prueba' . ($httpCode > 0 ? ' (HTTP ' . $httpCode . ')' : '') . ': ' . $detail;
+        return 'No fue posible completar la solicitud de WhatsApp de prueba' . ($httpCode > 0 ? ' (HTTP ' . $httpCode . ')' : '') . ': ' . $detail;
     }
 
     private function shouldFallbackToText(array $result): bool
