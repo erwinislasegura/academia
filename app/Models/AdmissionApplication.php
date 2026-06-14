@@ -6,8 +6,8 @@ final class AdmissionApplication extends Model
     {
         $stmt = $this->db->prepare(
             'INSERT INTO admission_applications
-            (guardian_first_names, guardian_last_names, guardian_email, guardian_phone, student_name, student_gender, student_birthdate, course, message, status_id, ip_address, user_agent)
-            VALUES (:guardian_first_names, :guardian_last_names, :guardian_email, :guardian_phone, :student_name, :student_gender, :student_birthdate, :course, :message, :status_id, :ip_address, :user_agent)'
+            (guardian_first_names, guardian_last_names, guardian_email, guardian_phone, student_name, course, message, status_id, ip_address, user_agent)
+            VALUES (:guardian_first_names, :guardian_last_names, :guardian_email, :guardian_phone, :student_name, :course, :message, :status_id, :ip_address, :user_agent)'
         );
         $stmt->execute([
             'guardian_first_names' => $data['nombres_apoderado'],
@@ -15,8 +15,6 @@ final class AdmissionApplication extends Model
             'guardian_email' => $data['email'],
             'guardian_phone' => $data['telefono'],
             'student_name' => $data['estudiante'],
-            'student_gender' => $data['sexo_estudiante'],
-            'student_birthdate' => $data['fecha_nacimiento'],
             'course' => $data['curso'],
             'message' => $data['mensaje'] ?: null,
             'status_id' => $this->defaultStatusId(),
@@ -32,7 +30,7 @@ final class AdmissionApplication extends Model
     {
         $stmt = $this->db->prepare(
             'SELECT id, guardian_first_names, guardian_last_names, guardian_email, guardian_phone,
-                    student_name, student_gender, student_birthdate, course, message, status_id, created_at
+                    student_name, course, message, status_id, created_at
              FROM admission_applications
              WHERE id = ?
              LIMIT 1'
@@ -47,7 +45,7 @@ final class AdmissionApplication extends Model
     {
         return $this->db->query(
             'SELECT a.id, a.guardian_first_names, a.guardian_last_names, a.guardian_email, a.guardian_phone,
-                    a.student_name, a.student_gender, a.student_birthdate, TIMESTAMPDIFF(YEAR, a.student_birthdate, CURDATE()) AS student_age, a.course, a.message, a.status_id, a.created_at,
+                    a.student_name, a.course, a.message, a.status_id, a.created_at,
                     s.name AS status_name, s.color AS status_color
              FROM admission_applications a
              LEFT JOIN admission_statuses s ON s.id = a.status_id
@@ -137,33 +135,6 @@ final class AdmissionApplication extends Model
         )->fetchAll();
     }
 
-    public function countByGender(): array
-    {
-        return $this->db->query(
-            "SELECT CASE student_gender WHEN 'nina' THEN 'Niña' WHEN 'nino' THEN 'Niño' ELSE 'Sin dato' END AS label,
-                    COUNT(*) AS total
-             FROM admission_applications
-             GROUP BY label
-             ORDER BY total DESC"
-        )->fetchAll();
-    }
-
-    public function countByAgeRange(): array
-    {
-        return $this->db->query(
-            "SELECT CASE
-                    WHEN student_birthdate IS NULL THEN 'Sin dato'
-                    WHEN TIMESTAMPDIFF(YEAR, student_birthdate, CURDATE()) <= 5 THEN 'Hasta 5 años'
-                    WHEN TIMESTAMPDIFF(YEAR, student_birthdate, CURDATE()) BETWEEN 6 AND 8 THEN '6 a 8 años'
-                    WHEN TIMESTAMPDIFF(YEAR, student_birthdate, CURDATE()) BETWEEN 9 AND 11 THEN '9 a 11 años'
-                    ELSE '12 años o más'
-                END AS label,
-                COUNT(*) AS total
-             FROM admission_applications
-             GROUP BY label
-             ORDER BY MIN(COALESCE(TIMESTAMPDIFF(YEAR, student_birthdate, CURDATE()), 999)) ASC"
-        )->fetchAll();
-    }
 
 
     public function trendLastDays(int $days = 14): array
@@ -183,7 +154,7 @@ final class AdmissionApplication extends Model
     public function latest(int $limit = 6): array
     {
         $stmt = $this->db->prepare(
-            'SELECT a.id, a.student_name, a.student_gender, a.course, a.created_at, s.name AS status_name, s.color AS status_color
+            'SELECT a.id, a.student_name, a.course, a.created_at, s.name AS status_name, s.color AS status_color
              FROM admission_applications a
              LEFT JOIN admission_statuses s ON s.id = a.status_id
              ORDER BY a.created_at DESC, a.id DESC
