@@ -109,7 +109,7 @@ final class ApplicationSetting extends Model
             ]),
             'whatsapp_template_name' => $this->firstFilled([
                 $this->get('admission_whatsapp_template_name'),
-                (string) ($infobip['admission_template_name'] ?? 'confirmacion_postulacion_2027'),
+                (string) ($infobip['admission_template_name'] ?? 'hello_world'),
             ]),
             'whatsapp_template_language' => $this->firstFilled([
                 $this->get('admission_whatsapp_template_language'),
