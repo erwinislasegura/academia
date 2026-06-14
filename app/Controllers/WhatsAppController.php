@@ -329,7 +329,7 @@ final class WhatsAppController extends Controller
 
     private function isParameterlessTemplate(string $templateName): bool
     {
-        return in_array(trim($templateName), ['hello_world', 'admision2027_final'], true);
+        return trim($templateName) === 'hello_world';
     }
 
     private function failureFlashMessage(array $result): string

@@ -238,7 +238,7 @@ final class WhatsAppNotifier
 
     private static function isParameterlessTemplate(string $templateName): bool
     {
-        return in_array(trim($templateName), ['hello_world', 'admision2027_final'], true);
+        return trim($templateName) === 'hello_world';
     }
 
     public static function admissionTemplateParameters(array $application): array

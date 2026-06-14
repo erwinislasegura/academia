@@ -88,7 +88,7 @@
             </label>
             <label class="span-2">Mensaje de texto libre (fallback, sólo ventana 24h)
                 <textarea name="whatsapp_message_template" rows="5"><?= h($settings['whatsapp_message_template'] ?? '') ?></textarea>
-                <small>Para admision2027_final no se envían parámetros, replicando el cURL oficial de Meta. Si configuras una plantilla propia de admisión, se enviarán {{1}} Nombre completo del apoderado, {{2}} Nombre del estudiante, {{3}} Curso y {{4}} Fecha de postulación. Este texto se usa sólo como fallback dentro de la ventana de 24 horas.</small>
+                <small>La plantilla admision2027_final envía exactamente 4 variables: {{1}} Nombre completo del apoderado, {{2}} Nombre del estudiante, {{3}} Curso y {{4}} Fecha de postulación. Este texto se usa sólo como fallback dentro de la ventana de 24 horas.</small>
             </label>
         </div>
     </div>
