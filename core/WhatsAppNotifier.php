@@ -243,6 +243,7 @@ final class WhatsAppNotifier
 
     public static function admissionTemplateParameters(array $application): array
     {
+        // La plantilla de admisión recibe sólo 4 variables. No incluir sexo_estudiante ni fecha_nacimiento.
         return [
             self::guardianFullName($application),
             self::studentName($application),
