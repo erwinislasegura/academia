@@ -44,10 +44,20 @@ $withGenderPercent = round(((int) ($metrics['with_gender'] ?? 0) / $totalApplica
             <strong><?= h($metrics['total']) ?></strong>
             <small>Proceso escolar 2027</small>
         </article>
-        <article class="summary-card">
-            <span>Nuevos 7 días</span>
-            <strong><?= h($metrics['new_this_week']) ?></strong>
-            <small>Ingresos recientes</small>
+        <article class="summary-card summary-card--gender">
+            <span>Niñas</span>
+            <strong><?= h($metrics['girls'] ?? 0) ?></strong>
+            <small><?= h((string) $girlsPercent) ?>% del total</small>
+        </article>
+        <article class="summary-card summary-card--gender">
+            <span>Niños</span>
+            <strong><?= h($metrics['boys'] ?? 0) ?></strong>
+            <small><?= h((string) $boysPercent) ?>% del total</small>
+        </article>
+        <article class="summary-card summary-card--alert">
+            <span>Sin sexo informado</span>
+            <strong><?= h($metrics['without_gender'] ?? 0) ?></strong>
+            <small><?= h((string) $withoutGenderPercent) ?>% por completar</small>
         </article>
         <article class="summary-card summary-card--gender summary-card--girls">
             <span>Niñas</span>
