@@ -159,6 +159,7 @@ final class AdmissionApplication extends Model
         $girls = (int) $this->db->query("SELECT COUNT(*) FROM admission_applications WHERE student_gender = 'nina'")->fetchColumn();
         $boys = (int) $this->db->query("SELECT COUNT(*) FROM admission_applications WHERE student_gender = 'nino'")->fetchColumn();
         $withoutGender = max(0, $total - $girls - $boys);
+        $withoutBirthdate = (int) $this->db->query('SELECT COUNT(*) FROM admission_applications WHERE student_birthdate IS NULL')->fetchColumn();
 
         return [
             'total' => $total,
@@ -168,6 +169,8 @@ final class AdmissionApplication extends Model
             'girls' => $girls,
             'boys' => $boys,
             'without_gender' => $withoutGender,
+            'with_gender' => $girls + $boys,
+            'without_birthdate' => $withoutBirthdate,
         ];
     }
 
@@ -192,6 +195,60 @@ final class AdmissionApplication extends Model
              FROM admission_applications
              GROUP BY course
              ORDER BY total DESC, course ASC"
+        )->fetchAll();
+    }
+
+    public function countByGender(): array
+    {
+        return $this->db->query(
+            "SELECT CASE
+                        WHEN student_gender = 'nina' THEN 'Niñas'
+                        WHEN student_gender = 'nino' THEN 'Niños'
+                        ELSE 'Sin dato'
+                    END AS label,
+                    CASE
+                        WHEN student_gender = 'nina' THEN '#E51B2B'
+                        WHEN student_gender = 'nino' THEN '#071D7A'
+                        ELSE '#F2B632'
+                    END AS color,
+                    COUNT(*) AS total
+             FROM admission_applications
+             GROUP BY label, color
+             ORDER BY FIELD(label, 'Niñas', 'Niños', 'Sin dato')"
+        )->fetchAll();
+    }
+
+    public function countByAgeRange(): array
+    {
+        return $this->db->query(
+            "SELECT CASE
+                        WHEN student_birthdate IS NULL THEN 'Sin fecha'
+                        WHEN TIMESTAMPDIFF(YEAR, student_birthdate, CURDATE()) <= 5 THEN '≤ 5 años'
+                        WHEN TIMESTAMPDIFF(YEAR, student_birthdate, CURDATE()) BETWEEN 6 AND 8 THEN '6-8 años'
+                        WHEN TIMESTAMPDIFF(YEAR, student_birthdate, CURDATE()) BETWEEN 9 AND 11 THEN '9-11 años'
+                        WHEN TIMESTAMPDIFF(YEAR, student_birthdate, CURDATE()) BETWEEN 12 AND 14 THEN '12-14 años'
+                        ELSE '15+ años'
+                    END AS label,
+                    COUNT(*) AS total
+             FROM admission_applications
+             GROUP BY label
+             ORDER BY FIELD(label, '≤ 5 años', '6-8 años', '9-11 años', '12-14 años', '15+ años', 'Sin fecha')"
+        )->fetchAll();
+    }
+
+    public function countByStatusAndGender(): array
+    {
+        return $this->db->query(
+            "SELECT COALESCE(s.name, 'Sin estado') AS label,
+                    COALESCE(s.color, '#94A3B8') AS color,
+                    COUNT(a.id) AS total,
+                    SUM(CASE WHEN a.student_gender = 'nina' THEN 1 ELSE 0 END) AS girls,
+                    SUM(CASE WHEN a.student_gender = 'nino' THEN 1 ELSE 0 END) AS boys,
+                    SUM(CASE WHEN a.student_gender IS NULL THEN 1 ELSE 0 END) AS without_gender
+             FROM admission_applications a
+             LEFT JOIN admission_statuses s ON s.id = a.status_id
+             GROUP BY label, color
+             ORDER BY total DESC, label ASC"
         )->fetchAll();
     }
 
