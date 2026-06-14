@@ -194,6 +194,23 @@ final class WhatsAppController extends Controller
     ): array {
         $result = $service->sendTemplateMessage($to, trim($templateName), trim($language), $parameters, $metadata);
         if ($parameters !== [] && $this->isTemplateParameterMismatchError($result)) {
+            foreach ($service->templateLanguages(trim($templateName)) as $availableLanguage) {
+                if ($availableLanguage === trim($language)) {
+                    continue;
+                }
+
+                $retry = $service->sendTemplateMessage(
+                    $to,
+                    trim($templateName),
+                    $availableLanguage,
+                    $parameters,
+                    $metadata + ['retry_language' => $availableLanguage, 'configured_language' => trim($language), 'reason' => 'parameter_count_mismatch']
+                );
+                if ($retry['success'] || !$this->isTemplateParameterMismatchError($retry)) {
+                    return $retry;
+                }
+            }
+
             return $service->sendTemplateMessage(
                 $to,
                 trim($templateName),

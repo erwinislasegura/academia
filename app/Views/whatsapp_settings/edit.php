@@ -53,7 +53,7 @@
     <div class="span-2 section-head">
         <div>
             <h3>Probar plantilla de WhatsApp</h3>
-            <p>Prueba la solicitud a Meta usando la configuración guardada y 4 variables de muestra. Si Meta responde #132000 porque la plantilla aún no tiene variables, el sistema reintenta automáticamente sin variables.</p>
+            <p>Prueba la solicitud a Meta usando la configuración guardada y 4 variables de muestra. Si Meta responde #132000, el sistema prueba otros idiomas aprobados del mismo template con las 4 variables y, sólo si persiste el error, reintenta sin variables.</p>
         </div>
     </div>
     <input type="hidden" name="send_mode" value="template">

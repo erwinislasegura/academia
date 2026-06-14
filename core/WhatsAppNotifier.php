@@ -90,6 +90,23 @@ final class WhatsAppNotifier
     ): array {
         $result = $service->sendTemplateMessage($to, trim($templateName), trim($language), $parameters, $metadata);
         if ($parameters !== [] && self::isTemplateParameterMismatchError($result)) {
+            foreach ($service->templateLanguages(trim($templateName)) as $availableLanguage) {
+                if ($availableLanguage === trim($language)) {
+                    continue;
+                }
+
+                $retry = $service->sendTemplateMessage(
+                    $to,
+                    trim($templateName),
+                    $availableLanguage,
+                    $parameters,
+                    $metadata + ['retry_language' => $availableLanguage, 'configured_language' => trim($language), 'reason' => 'parameter_count_mismatch']
+                );
+                if ($retry['success'] || !self::isTemplateParameterMismatchError($retry)) {
+                    return $retry;
+                }
+            }
+
             return $service->sendTemplateMessage(
                 $to,
                 trim($templateName),
