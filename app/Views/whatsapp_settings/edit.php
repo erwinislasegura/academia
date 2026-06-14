@@ -13,7 +13,7 @@
     <div class="span-2 section-head">
         <div>
             <h3>Configuración de plantilla</h3>
-            <p>Plantilla esperada: <strong>admision2027_final</strong> · idioma: <strong>en_US</strong>. El envío no incluye variables de cuerpo.</p>
+            <p>Plantilla esperada: <strong>admision2027_final</strong> · idioma: <strong>en_US</strong>. El envío no incluye variables de cuerpo y se manda igual que hello_world: sólo nombre de plantilla e idioma.</p>
         </div>
     </div>
 
