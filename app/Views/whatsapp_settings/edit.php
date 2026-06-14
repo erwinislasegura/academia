@@ -13,7 +13,7 @@
     <div class="span-2 section-head">
         <div>
             <h3>Configuración de plantilla</h3>
-            <p>Plantilla esperada: <strong>admision2027_final</strong> · idioma: <strong>en_US</strong>. El envío usa 4 variables: nombre completo del apoderado, nombre del estudiante, curso y fecha de postulación.</p>
+            <p>Plantilla esperada: <strong>admision2027_final</strong> · idioma: <strong>en_US</strong>. El envío no incluye variables de cuerpo.</p>
         </div>
     </div>
 
@@ -42,15 +42,6 @@
     <label>Teléfono destinatario
         <input type="text" name="to" value="56944627287" placeholder="+56 9 1234 5678" required>
         <small>Usa un celular chileno habilitado para WhatsApp.</small>
-    </label>
-    <label>Nombre apoderado de prueba
-        <input type="text" name="guardian_name" value="Nombre completo del apoderado">
-    </label>
-    <label>Estudiante de prueba
-        <input type="text" name="student_name" value="Nombre del estudiante">
-    </label>
-    <label>Curso de prueba
-        <input type="text" name="course" value="Curso">
     </label>
     <div class="span-2 form-actions">
         <button class="btn secondary" type="submit">Enviar prueba por WhatsApp</button>
