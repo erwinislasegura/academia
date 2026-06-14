@@ -2,7 +2,7 @@
     <div>
         <p class="eyebrow">Administración</p>
         <h2>Plantilla de WhatsApp</h2>
-        <p>Configura la plantilla aprobada en Meta, su idioma y el token de acceso de WhatsApp Cloud API.</p>
+        <p>Configura la plantilla aprobada en Meta, el número emisor, el WABA ID y el token de acceso de WhatsApp Cloud API.</p>
     </div>
     <img src="<?= App::asset('/images/logo.png') ?>" alt="Academia Iquique">
 </section>
@@ -13,7 +13,7 @@
     <div class="span-2 section-head">
         <div>
             <h3>Configuración de plantilla</h3>
-            <p>Plantilla esperada: <strong>admision2027_final</strong> · idioma: <strong>en_US</strong>. La solicitud a Meta no incluye variables de cuerpo y usa la configuración guardada en esta página.</p>
+            <p>Plantilla esperada: <strong>admision2027_final</strong> · idioma: <strong>en_US</strong>. La solicitud a Meta usa el PHONE_NUMBER_ID, WABA_ID y número emisor guardados en esta página.</p>
         </div>
     </div>
 
@@ -25,6 +25,20 @@
         <input type="text" name="whatsapp_template_language" value="<?= h($settings['whatsapp_template_language'] ?? 'en_US') ?>" placeholder="en_US" required>
     </label>
 
+    <label>PHONE_NUMBER_ID
+        <input type="text" name="whatsapp_phone_number_id" value="<?= h($settings['whatsapp_phone_number_id'] ?? '1120859884450392') ?>" placeholder="1120859884450392" inputmode="numeric" required>
+        <small>ID del número telefónico configurado en Meta WhatsApp Cloud API.</small>
+    </label>
+
+    <label>WABA_ID
+        <input type="text" name="whatsapp_business_account_id" value="<?= h($settings['whatsapp_business_account_id'] ?? '956149663693846') ?>" placeholder="956149663693846" inputmode="numeric" required>
+        <small>ID de la cuenta de WhatsApp Business en Meta.</small>
+    </label>
+
+    <label class="span-2">Número emisor
+        <input type="text" name="whatsapp_sender" value="<?= h($settings['whatsapp_sender'] ?? '+56 9 5670 1090') ?>" placeholder="+56 9 5670 1090" required>
+        <small>Número asociado al PHONE_NUMBER_ID. Se guarda normalizado para los servicios internos.</small>
+    </label>
 
     <label class="span-2">Token de acceso de Meta
         <div style="display:flex; gap:10px; align-items:center;">
