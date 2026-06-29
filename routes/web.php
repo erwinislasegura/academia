@@ -1,7 +1,7 @@
 <?php
 
 $router->get('/', function () {
-    header('Location: ' . App::url(Auth::check() ? '/dashboard' : '/login'));
+    header('Location: ' . App::url(Auth::user() ? '/dashboard' : '/login'));
     exit;
 });
 $router->get('/postula', [AdmissionController::class, 'show']);
