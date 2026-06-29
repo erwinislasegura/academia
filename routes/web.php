@@ -1,7 +1,7 @@
 <?php
 
 $router->get('/', function () {
-    header('Location: ' . App::url(Auth::check() ? '/dashboard' : '/login'));
+    header('Location: ' . App::url(Auth::user() ? '/dashboard' : '/login'));
     exit;
 });
 $router->get('/postula', [AdmissionController::class, 'show']);
@@ -28,6 +28,10 @@ $router->get('/login', [AuthController::class, 'login']);
 $router->post('/login', [AuthController::class, 'authenticate']);
 $router->get('/logout', [AuthController::class, 'logout']);
 $router->get('/dashboard', [DashboardController::class, 'index']);
+$router->get('/dashboard/filtrar', [DashboardController::class, 'filtrar']);
+$router->get('/dashboard/graficos', [DashboardController::class, 'obtenerDatosGraficosAjax']);
+$router->get('/dashboard/alertas', [DashboardController::class, 'alertasAjax']);
+$router->get('/dashboard/kpis', [DashboardController::class, 'kpisAjax']);
 $router->get('/users', [UserController::class, 'index']);
 $router->get('/users/create', [UserController::class, 'create']);
 $router->post('/users/store', [UserController::class, 'store']);

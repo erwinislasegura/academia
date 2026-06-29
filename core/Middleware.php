@@ -4,7 +4,8 @@ final class Middleware
 {
     public static function auth(): void
     {
-        if (!Auth::check()) {
+        if (!Auth::user()) {
+            Session::forget('user_id');
             Session::flash('error', 'Debes iniciar sesión para continuar.');
             header('Location: ' . App::url('/login'));
             exit;
@@ -13,7 +14,7 @@ final class Middleware
 
     public static function guest(): void
     {
-        if (Auth::check()) { header('Location: ' . App::url('/dashboard')); exit; }
+        if (Auth::user()) { header('Location: ' . App::url('/dashboard')); exit; }
     }
 
     public static function permission(string $permission): void

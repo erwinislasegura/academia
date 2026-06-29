@@ -1,147 +1,69 @@
 <?php
-if (!function_exists('dashboardMax')) {
-    function dashboardMax(array $rows): int
-    {
-        $values = array_map(static fn ($row) => (int) ($row['total'] ?? 0), $rows);
-        return max([1, ...$values]);
-    }
-}
-if (!function_exists('dashboardTotal')) {
-    function dashboardTotal(array $rows): int
-    {
-        return array_sum(array_map(static fn ($row) => (int) ($row['total'] ?? 0), $rows));
-    }
-}
-$metrics = $admissionMetrics ?? ['total' => 0, 'new_this_week' => 0, 'contact_rate' => 0, 'acceptance_rate' => 0, 'girls' => 0, 'boys' => 0, 'without_gender' => 0, 'with_gender' => 0];
-$totalApplicants = max(1, (int) ($metrics['total'] ?? 0));
-$courseMax = dashboardMax($applicationsByCourse ?? []);
-$statusTotal = max(1, dashboardTotal($applicationsByStatus ?? []));
-$trendMax = dashboardMax($applicationsTrend ?? []);
-$contactRate = min(100, (float) ($metrics['contact_rate'] ?? 0));
-$acceptanceRate = min(100, (float) ($metrics['acceptance_rate'] ?? 0));
-$girlsPercent = round(((int) ($metrics['girls'] ?? 0) / $totalApplicants) * 100);
-$boysPercent = round(((int) ($metrics['boys'] ?? 0) / $totalApplicants) * 100);
-$withoutGenderPercent = round(((int) ($metrics['without_gender'] ?? 0) / $totalApplicants) * 100);
+$labels = [
+    'total_cables' => ['Total de cables registrados', 'Activos en sistema'], 'cables_disponibles' => ['Cables disponibles', 'Estado disponible'], 'cables_reparacion' => ['Cables en reparación', 'Proceso vigente'], 'cables_entregados' => ['Cables entregados', 'Informe finalizado'],
+    'cables_baja' => ['Cables dados de baja', 'Fuera de servicio'], 'informes_hoy' => ['Informes creados hoy', date('d/m/Y')], 'informes_pendientes' => ['Informes pendientes', 'Borrador / sin finalizar'], 'informes_finalizados' => ['Informes finalizados', 'Rango filtrado'],
+    'stock_bajo' => ['Materiales con stock bajo', '≤ mínimo'], 'materiales_mes' => ['Materiales utilizados este mes', 'Unidades'], 'entregas_activas' => ['Entregas activas', 'Pendientes de rendición'], 'reparaciones_realizadas' => ['Reparaciones realizadas', 'Mufas y chaquetas'],
+];
+$role = Auth::role() ?? 'visualizador';
+$chartPayload = [
+    'cables' => $cablesPorEstado ?? [], 'informes' => $informesPorEstado ?? [],
+    'fallas' => $fallasMasFrecuentes ?? [], 'causas' => $causasMasFrecuentes ?? [],
+    'materiales' => array_map(static fn($m) => ['label' => $m['nombre'] ?? 'Material', 'total' => (int)($m['cantidad_utilizada'] ?? 0)], $materialesMasUsados ?? []),
+];
+function dashEstadoStock(array $m): string { $s=(float)($m['stock_actual']??0); $min=(float)($m['stock_minimo']??0); return $s<=0?'Crítico':($s<=$min?'Bajo':'Normal'); }
 ?>
-<section class="admission-dashboard admission-dashboard--executive">
-    <div class="admission-dashboard__hero">
-        <div>
-            <p class="eyebrow light">Admisión 2027 · Panel ejecutivo</p>
-            <h2>Resumen de postulaciones</h2>
-            <p>Indicadores depurados para revisar volumen, seguimiento y distribución. Se eliminaron tarjetas repetidas y cruces secundarios para facilitar la lectura.</p>
-        </div>
-        <div class="admission-dashboard__actions">
-            <?php if (Auth::can('configurar_postulaciones')): ?>
-                <a class="btn primary" href="<?= App::url('/admissions/export') ?>">Exportar informe</a>
-                <a class="btn secondary" href="<?= App::url('/admissions') ?>">Gestionar postulantes</a>
-            <?php endif; ?>
-        </div>
+<section class="mining-dashboard" data-dashboard>
+    <div class="mining-hero">
+        <div><p class="eyebrow light">Mantención de cables mineros · Panel operativo</p><h2>Dashboard principal avanzado</h2><p>Control compacto para supervisores, bodega, administración y gerencia. Los indicadores se calculan desde la base de datos real y muestran estados vacíos cuando no hay registros.</p></div>
+        <div class="quick-actions"><a class="mini-btn primary" href="<?= App::url('/informes/create') ?>">Nuevo informe cable</a><a class="mini-btn" href="<?= App::url('/cables/create') ?>">Crear cable</a><a class="mini-btn" href="<?= App::url('/entregas-materiales/create') ?>">Entregar materiales</a><a class="mini-btn" href="<?= App::url('/recepciones-materiales/create') ?>">Recepcionar materiales</a><a class="mini-btn" href="<?= App::url('/materiales/create') ?>">Crear material</a><a class="mini-btn" href="<?= App::url('/reportes') ?>">Ver reportes</a></div>
     </div>
 
-    <div class="dashboard-summary-grid dashboard-summary-grid--executive">
-        <article class="summary-card summary-card--total">
-            <span>Total postulantes</span>
-            <strong><?= h($metrics['total']) ?></strong>
-            <small>Proceso escolar 2027</small>
-        </article>
-        <article class="summary-card">
-            <span>Nuevos esta semana</span>
-            <strong><?= h($metrics['new_this_week'] ?? 0) ?></strong>
-            <small>Ingresos recientes</small>
-        </article>
-        <article class="summary-card summary-card--ring" style="--ring-angle: <?= h((string) ($contactRate * 3.6)) ?>deg">
-            <span>Contactabilidad</span>
-            <strong><?= h((string) round($contactRate)) ?>%</strong>
-            <small>Contactada + aceptada</small>
-        </article>
-        <article class="summary-card summary-card--success" style="--ring-angle: <?= h((string) ($acceptanceRate * 3.6)) ?>deg">
-            <span>Aceptación</span>
-            <strong><?= h((string) round($acceptanceRate)) ?>%</strong>
-            <small>Postulaciones aceptadas</small>
-        </article>
-        <article class="summary-card summary-card--alert">
-            <span>Datos por completar</span>
-            <strong><?= h($metrics['without_gender'] ?? 0) ?></strong>
-            <small><?= h((string) $withoutGenderPercent) ?>% sin sexo informado</small>
-        </article>
+    <form class="dashboard-filters" method="get" action="<?= App::url('/dashboard') ?>">
+        <label>Fecha desde<input type="date" name="fecha_desde" value="<?= h($filters['fecha_desde'] ?? '') ?>"></label>
+        <label>Fecha hasta<input type="date" name="fecha_hasta" value="<?= h($filters['fecha_hasta'] ?? '') ?>"></label>
+        <label>Supervisor<select name="supervisor"><option value="">Todos</option><?php foreach(($filterOptions['supervisores']??[]) as $o): ?><option <?= ($filters['supervisor']??'')===$o?'selected':'' ?>><?= h($o) ?></option><?php endforeach; ?></select></label>
+        <label>Estado cable<select name="estado"><option value="">Todos</option><?php foreach(($filterOptions['estados']??[]) as $o): ?><option <?= ($filters['estado']??'')===$o?'selected':'' ?>><?= h($o) ?></option><?php endforeach; ?></select></label>
+        <label>Origen cable<select name="origen"><option value="">Todos</option><?php foreach(($filterOptions['origenes']??[]) as $o): ?><option <?= ($filters['origen']??'')===$o?'selected':'' ?>><?= h($o) ?></option><?php endforeach; ?></select></label>
+        <button class="mini-btn primary" type="submit">Filtrar</button><a class="mini-btn" href="<?= App::url('/dashboard') ?>">Limpiar</a>
+    </form>
+
+    <div class="kpi-grid">
+        <?php foreach($labels as $key => [$titleKpi, $hint]): ?><article class="kpi-card"><span><?= h($titleKpi) ?></span><strong data-kpi="<?= h($key) ?>"><?= h((string)($kpis[$key] ?? 0)) ?></strong><small><?= h($hint) ?></small></article><?php endforeach; ?>
     </div>
 
-    <div class="dashboard-report-grid dashboard-report-grid--executive">
-        <article class="report-card report-card--large report-card--priority">
-            <div class="report-card__head">
-                <div><h3>Demanda por curso</h3><p>Cursos ordenados por número de postulantes y peso sobre el total.</p></div>
-                <span><?= h((string) ($metrics['total'] ?? 0)) ?> postulantes</span>
-            </div>
-            <div class="course-ranking course-ranking--executive">
-                <?php foreach (($applicationsByCourse ?? []) as $row): ?>
-                    <?php $percent = ((int) $row['total'] / $totalApplicants) * 100; $width = ((int) $row['total'] / $courseMax) * 100; ?>
-                    <div class="course-ranking__row">
-                        <div><strong><?= h($row['label']) ?></strong><small><?= h((string) round($percent)) ?>% del total</small></div>
-                        <span aria-label="<?= h((string) round($percent)) ?>%"><i style="width: <?= h((string) $width) ?>%"></i></span>
-                        <b><?= h($row['total']) ?></b>
-                    </div>
-                <?php endforeach; ?>
-                <?php if (empty($applicationsByCourse)): ?><p class="muted-text">Aún no hay postulaciones para graficar.</p><?php endif; ?>
-            </div>
-        </article>
+    <div class="ops-grid">
+        <article class="ops-card"><h3>Estado de cables</h3><canvas id="chartCables"></canvas></article>
+        <article class="ops-card"><h3>Informes por estado</h3><canvas id="chartInformes"></canvas></article>
+        <article class="ops-card ops-card--wide"><h3>Fallas más frecuentes</h3><canvas id="chartFallas"></canvas></article>
+        <article class="ops-card ops-card--wide"><h3>Causas probables más comunes</h3><canvas id="chartCausas"></canvas></article>
+    </div>
 
-        <article class="report-card report-card--chart">
-            <div class="report-card__head"><div><h3>Tendencia diaria</h3><p>Ingresos por día. Barras más altas indican mayor actividad.</p></div></div>
-            <div class="spark-columns spark-columns--readable">
-                <?php foreach (($applicationsTrend ?? []) as $row): ?>
-                    <?php $height = max(12, ((int) $row['total'] / $trendMax) * 100); ?>
-                    <div title="<?= h($row['label']) ?> · <?= h($row['total']) ?> postulaciones"><span style="height: <?= h((string) $height) ?>%"><b><?= h($row['total']) ?></b></span><small><?= h(date('d/m', strtotime($row['label']))) ?></small></div>
-                <?php endforeach; ?>
-                <?php if (empty($applicationsTrend)): ?><p class="muted-text">Sin datos recientes.</p><?php endif; ?>
-            </div>
-        </article>
+    <div class="ops-grid">
+        <article class="ops-card ops-card--wide"><h3>Cables con mayor cantidad de reparaciones</h3><div class="dashboard-table-wrap"><table class="dashboard-table compact"><thead><tr><th>Número cable</th><th>Marca</th><th>Calibre</th><th>Informes</th><th>Reparaciones</th><th>Última reparación</th><th>Estado</th><th></th></tr></thead><tbody><?php foreach(($cablesMasReparados??[]) as $r): ?><tr><td><?= h($r['numero']??'S/N') ?></td><td><?= h($r['marca']??'') ?></td><td><?= h($r['calibre']??'') ?></td><td><?= h($r['total_informes']??0) ?></td><td><?= h($r['total_reparaciones']??0) ?></td><td><?= h($r['ultima_reparacion']??'') ?></td><td><span class="badge"><?= h($r['estado']??'') ?></span></td><td><a class="table-action" href="<?= App::url('/cables/historial') ?>">Ver historial</a></td></tr><?php endforeach; ?><?php if(empty($cablesMasReparados)): ?><tr><td colspan="8" class="empty">Sin reparaciones registradas.</td></tr><?php endif; ?></tbody></table></div></article>
+        <article class="ops-card ops-card--wide"><h3>Últimos informes de cable</h3><div class="dashboard-table-wrap"><table class="dashboard-table compact"><thead><tr><th>Recepción</th><th>Entrega</th><th>Cable</th><th>Supervisor</th><th>Origen</th><th>Estado operativo</th><th>Informe</th><th></th></tr></thead><tbody><?php foreach(($ultimosInformes??[]) as $i): ?><tr><td><?= h($i['fecha_recepcion']??'') ?></td><td><?= h($i['fecha_entrega']??'') ?></td><td><?= h($i['cable']??'') ?></td><td><?= h($i['supervisor']??'') ?></td><td><?= h($i['origen']??'') ?></td><td><span class="badge"><?= h($i['estado_operativo']??'') ?></span></td><td><?= h($i['estado_informe']??'') ?></td><td><a class="table-action" href="<?= App::url('/informes/show/'.($i['id']??0)) ?>">Ver</a> <a class="table-action" href="<?= App::url('/informes/print/'.($i['id']??0)) ?>">Imprimir</a></td></tr><?php endforeach; ?><?php if(empty($ultimosInformes)): ?><tr><td colspan="8" class="empty">No hay informes recientes.</td></tr><?php endif; ?></tbody></table></div></article>
+    </div>
 
-        <article class="report-card">
-            <div class="report-card__head"><div><h3>Distribución por sexo</h3><p>Dato general para control de completitud, sin duplicar tarjetas.</p></div></div>
-            <div class="gender-summary">
-                <div class="gender-summary__bar" aria-label="Niñas <?= h((string) $girlsPercent) ?>%, niños <?= h((string) $boysPercent) ?>%, sin dato <?= h((string) $withoutGenderPercent) ?>%">
-                    <i class="girls" style="width: <?= h((string) $girlsPercent) ?>%"></i><i class="boys" style="width: <?= h((string) $boysPercent) ?>%"></i><i class="unknown" style="width: <?= h((string) $withoutGenderPercent) ?>%"></i>
-                </div>
-                <div class="dashboard-legend dashboard-legend--compact">
-                    <div><span class="girls"></span><b>Niñas</b><em><?= h($metrics['girls'] ?? 0) ?> · <?= h((string) $girlsPercent) ?>%</em></div>
-                    <div><span class="boys"></span><b>Niños</b><em><?= h($metrics['boys'] ?? 0) ?> · <?= h((string) $boysPercent) ?>%</em></div>
-                    <div><span class="unknown"></span><b>Sin dato</b><em><?= h($metrics['without_gender'] ?? 0) ?> · <?= h((string) $withoutGenderPercent) ?>%</em></div>
-                </div>
-            </div>
-        </article>
+    <div class="ops-grid">
+        <article class="ops-card"><h3>Alertas importantes</h3><?php foreach(['red'=>'Rojas','yellow'=>'Amarillas','green'=>'Verdes'] as $tone=>$name): ?><h4><?= $name ?></h4><div class="alert-list"><?php foreach(($alertasOperativas[$tone]??[]) as $a): ?><div class="op-alert <?= h($tone) ?>"><strong><?= h($a['title']) ?></strong><span><?= h($a['detail']) ?></span></div><?php endforeach; ?><?php if(empty($alertasOperativas[$tone])): ?><p class="empty">Sin alertas <?= h(strtolower($name)) ?>.</p><?php endif; ?></div><?php endforeach; ?></article>
+        <article class="ops-card"><h3>Materiales más usados</h3><canvas id="chartMateriales"></canvas></article>
+        <article class="ops-card ops-card--wide"><h3>Stock bajo</h3><div class="dashboard-table-wrap"><table class="dashboard-table compact"><thead><tr><th>Foto</th><th>Código</th><th>Material</th><th>Stock</th><th>Mínimo</th><th>Unidad</th><th>Estado</th><th></th></tr></thead><tbody><?php foreach(($materialesStockBajo??[]) as $m): ?><tr><td><span class="thumb"></span></td><td><?= h($m['codigo']??'') ?></td><td><?= h($m['nombre']??'') ?></td><td><?= h($m['stock_actual']??0) ?></td><td><?= h($m['stock_minimo']??0) ?></td><td><?= h($m['unidad']??'') ?></td><td><span class="badge stock-<?= strtolower(dashEstadoStock($m)) ?>"><?= h(dashEstadoStock($m)) ?></span></td><td><a class="table-action" href="<?= App::url('/materiales/edit/'.($m['id']??0)) ?>">Editar</a></td></tr><?php endforeach; ?><?php if(empty($materialesStockBajo)): ?><tr><td colspan="8" class="empty">No existen materiales con stock bajo.</td></tr><?php endif; ?></tbody></table></div></article>
+    </div>
 
-        <article class="report-card">
-            <div class="report-card__head"><div><h3>Seguimiento por estado</h3><p>Estado actual de las postulaciones.</p></div></div>
-            <div class="status-funnel status-funnel--executive">
-                <?php foreach (($applicationsByStatus ?? []) as $row): ?>
-                    <?php $percent = ((int) $row['total'] / $statusTotal) * 100; ?>
-                    <div class="status-funnel__row" style="--status-color: <?= h($row['color'] ?? '#071D7A') ?>">
-                        <div><strong><?= h($row['label']) ?></strong><small><?= h($row['total']) ?> · <?= h((string) round($percent)) ?>%</small></div>
-                        <span><i style="width: <?= h((string) $percent) ?>%"></i></span>
-                    </div>
-                <?php endforeach; ?>
-                <?php if (empty($applicationsByStatus)): ?><p class="muted-text">Sin estados registrados.</p><?php endif; ?>
-            </div>
-        </article>
-
-        <article class="report-card report-card--large">
-            <div class="report-card__head"><div><h3>Últimos postulantes</h3><p>Listado breve para gestión diaria.</p></div></div>
-            <div class="dashboard-table-wrap">
-                <table class="dashboard-table dashboard-table--recent">
-                    <thead><tr><th>Postulante</th><th>Curso</th><th>Estado</th><th>Ingreso</th></tr></thead>
-                    <tbody>
-                        <?php foreach (($latestApplications ?? []) as $item): ?>
-                            <tr>
-                                <td><span class="student-avatar"><?= h(substr((string) ($item['student_name'] ?? 'P'), 0, 1)) ?></span><strong><?= h($item['student_name']) ?></strong></td>
-                                <td><?= h($item['course']) ?></td>
-                                <td><span class="dashboard-status" style="--status-color: <?= h($item['status_color'] ?? '#071D7A') ?>"><?= h($item['status_name'] ?? 'Sin estado') ?></span></td>
-                                <td><?= h($item['created_at']) ?></td>
-                            </tr>
-                        <?php endforeach; ?>
-                        <?php if (empty($latestApplications)): ?><tr><td colspan="4" class="empty">Aún no hay postulantes recientes.</td></tr><?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </article>
+    <div class="ops-grid">
+        <article class="ops-card ops-card--wide"><h3>Entregas de materiales pendientes</h3><div class="dashboard-table-wrap"><table class="dashboard-table compact"><thead><tr><th>Fecha</th><th>Usuario receptor</th><th>Materiales</th><th>Entregado</th><th>Usado</th><th>Pendiente</th><th>Estado</th><th></th></tr></thead><tbody><?php foreach(($entregasPendientes??[]) as $e): ?><tr><td><?= h($e['fecha_entrega']??'') ?></td><td><?= h($e['usuario_receptor']??'') ?></td><td><?= h($e['materiales_entregados']??'') ?></td><td><?= h($e['cantidad_total']??0) ?></td><td><?= h($e['cantidad_usada']??0) ?></td><td><?= h($e['cantidad_pendiente']??0) ?></td><td><span class="badge"><?= h($e['estado']??'') ?></span></td><td><a class="table-action" href="<?= App::url('/entregas-materiales/show/'.($e['id']??0)) ?>">Ver entrega</a></td></tr><?php endforeach; ?><?php if(empty($entregasPendientes)): ?><tr><td colspan="8" class="empty">Sin entregas pendientes.</td></tr><?php endif; ?></tbody></table></div></article>
+        <article class="ops-card"><h3>Rendimiento por supervisor</h3><div class="dashboard-table-wrap"><table class="dashboard-table compact"><thead><tr><th>Supervisor</th><th>Creados</th><th>Finalizados</th><th>Entregados</th><th>Reparaciones</th><th>Materiales</th></tr></thead><tbody><?php foreach(($rendimientoSupervisores??[]) as $s): ?><tr><td><?= h($s['supervisor']??'') ?></td><td><?= h($s['informes_creados']??0) ?></td><td><?= h($s['informes_finalizados']??0) ?></td><td><?= h($s['cables_entregados']??0) ?></td><td><?= h($s['reparaciones_registradas']??0) ?></td><td><?= h($s['materiales_usados']??0) ?></td></tr><?php endforeach; ?><?php if(empty($rendimientoSupervisores)): ?><tr><td colspan="6" class="empty">Sin actividad por supervisor.</td></tr><?php endif; ?></tbody></table></div></article>
+        <?php if(in_array($role, ['super-administrador','administrador'], true)): ?><article class="ops-card"><h3>Actividad reciente</h3><div class="activity-list"><?php foreach(($actividadReciente??[]) as $a): ?><div><strong><?= h($a['usuario']??'Sistema') ?></strong><span><?= h(($a['accion']??'').' · '.($a['modulo']??'')) ?></span><small><?= h($a['descripcion']??'') ?> — <?= h($a['fecha']??'') ?></small></div><?php endforeach; ?><?php if(empty($actividadReciente)): ?><p class="empty">Sin movimientos de auditoría.</p><?php endif; ?></div></article><?php endif; ?>
     </div>
 </section>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const dashboardCharts = <?= json_encode($chartPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+const palette = ['#f59e0b','#22c55e','#38bdf8','#ef4444','#a78bfa','#f97316','#14b8a6','#eab308'];
+function emptyDataset(data){ return Object.values(data || {}).every(v => Number(v.total ?? v) === 0); }
+function makeChart(id, type, labels, values, indexAxis){ const el=document.getElementById(id); if(!el) return; new Chart(el,{type,data:{labels,datasets:[{data:values,backgroundColor:palette,borderColor:'#0f172a',borderWidth:1,borderRadius: type==='bar'?8:0}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:indexAxis||'x',plugins:{legend:{display:type!=='bar',labels:{color:'#cbd5e1'}},tooltip:{enabled:true}},scales:type==='bar'?{x:{ticks:{color:'#94a3b8'},grid:{color:'rgba(148,163,184,.12)'}},y:{ticks:{color:'#94a3b8'},grid:{color:'rgba(148,163,184,.12)'}}}:{}}}); }
+makeChart('chartCables','doughnut',Object.keys(dashboardCharts.cables),Object.values(dashboardCharts.cables));
+makeChart('chartInformes','doughnut',Object.keys(dashboardCharts.informes),Object.values(dashboardCharts.informes));
+makeChart('chartFallas','bar',dashboardCharts.fallas.map(i=>i.label),dashboardCharts.fallas.map(i=>i.total));
+makeChart('chartCausas','bar',dashboardCharts.causas.map(i=>i.label),dashboardCharts.causas.map(i=>i.total),'y');
+makeChart('chartMateriales','bar',dashboardCharts.materiales.map(i=>i.label),dashboardCharts.materiales.map(i=>i.total),'y');
+</script>
