@@ -328,6 +328,38 @@ final class AdmissionApplication extends Model
         )->fetchAll();
     }
 
+    public function acceptedApplicationTimelines(int $limit = 12): array
+    {
+        $this->ensureStatusHistoryTable();
+        $limit = max(1, min($limit, 50));
+        $stmt = $this->db->prepare(
+            "SELECT a.id, a.student_name, a.course, a.created_at AS received_at,
+                    accepted.accepted_at,
+                    CASE
+                        WHEN accepted.accepted_at IS NULL THEN NULL
+                        ELSE TIMESTAMPDIFF(SECOND, a.created_at, accepted.accepted_at)
+                    END AS elapsed_seconds
+             FROM admission_applications a
+             INNER JOIN admission_statuses current_status
+                     ON current_status.id = a.status_id
+                    AND current_status.slug = 'aceptada'
+             LEFT JOIN (
+                 SELECT h.application_id, MIN(h.changed_at) AS accepted_at
+                 FROM admission_status_history h
+                 INNER JOIN admission_statuses accepted_status
+                         ON accepted_status.id = h.to_status_id
+                        AND accepted_status.slug = 'aceptada'
+                 WHERE h.from_status_id IS NOT NULL
+                 GROUP BY h.application_id
+             ) accepted ON accepted.application_id = a.id
+             ORDER BY COALESCE(accepted.accepted_at, a.created_at) DESC, a.id DESC
+             LIMIT ?"
+        );
+        $stmt->bindValue(1, $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
 
 
     public function trendLastDays(int $days = 14): array

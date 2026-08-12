@@ -175,4 +175,50 @@ foreach (($averageTimesByStatus ?? []) as $averageTime) {
             </div>
         </article>
     </div>
+
+    <article class="report-card accepted-timeline-card">
+        <div class="report-card__head">
+            <div>
+                <h3>Línea de tiempo de postulaciones aceptadas</h3>
+                <p>Tiempo transcurrido entre la recepción de la postulación y el cambio de estado a Aceptada.</p>
+            </div>
+            <span class="accepted-timeline-card__count"><?= h((string) count($acceptedApplicationTimelines ?? [])) ?> registros</span>
+        </div>
+        <div class="accepted-timeline-list">
+            <?php foreach (($acceptedApplicationTimelines ?? []) as $timeline): ?>
+                <?php
+                    $receivedAt = !empty($timeline['received_at']) ? strtotime((string) $timeline['received_at']) : false;
+                    $acceptedAt = !empty($timeline['accepted_at']) ? strtotime((string) $timeline['accepted_at']) : false;
+                    $hasAcceptedDate = $acceptedAt !== false;
+                ?>
+                <div class="accepted-timeline-item">
+                    <div class="accepted-timeline-person">
+                        <span class="student-avatar"><?= h(substr((string) ($timeline['student_name'] ?? 'P'), 0, 1)) ?></span>
+                        <div>
+                            <strong><?= h($timeline['student_name'] ?? 'Postulante') ?></strong>
+                            <small><?= h($timeline['course'] ?? 'Sin curso') ?> · #<?= h($timeline['id'] ?? '') ?></small>
+                        </div>
+                    </div>
+                    <div class="accepted-timeline-track <?= $hasAcceptedDate ? '' : 'is-pending-history' ?>">
+                        <div class="accepted-timeline-point">
+                            <i></i>
+                            <span>Recepción</span>
+                            <strong><?= h($receivedAt !== false ? date('d/m/Y H:i', $receivedAt) : 'Sin fecha') ?></strong>
+                        </div>
+                        <div class="accepted-timeline-elapsed">
+                            <span><?= $hasAcceptedDate ? h(dashboardDuration((int) $timeline['elapsed_seconds'])) : 'Historial no disponible' ?></span>
+                        </div>
+                        <div class="accepted-timeline-point accepted">
+                            <i></i>
+                            <span>Aceptada</span>
+                            <strong><?= h($hasAcceptedDate ? date('d/m/Y H:i', $acceptedAt) : 'Fecha no registrada') ?></strong>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+            <?php if (empty($acceptedApplicationTimelines)): ?>
+                <p class="muted-text accepted-timeline-empty">Todavía no existen postulaciones aceptadas para mostrar.</p>
+            <?php endif; ?>
+        </div>
+    </article>
 </section>
