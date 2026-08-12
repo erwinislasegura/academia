@@ -12,6 +12,21 @@ if (!function_exists('dashboardTotal')) {
         return array_sum(array_map(static fn ($row) => (int) ($row['total'] ?? 0), $rows));
     }
 }
+if (!function_exists('dashboardDuration')) {
+    function dashboardDuration(?int $seconds): string
+    {
+        if ($seconds === null) {
+            return 'Sin datos aún';
+        }
+        $seconds = max(0, $seconds);
+        $days = intdiv($seconds, 86400);
+        $hours = intdiv($seconds % 86400, 3600);
+        if ($days > 0) {
+            return $days . ' ' . ($days === 1 ? 'día' : 'días') . ($hours > 0 ? ' ' . $hours . ' h' : '');
+        }
+        return $hours > 0 ? $hours . ' ' . ($hours === 1 ? 'hora' : 'horas') : 'Menos de 1 hora';
+    }
+}
 $metrics = $admissionMetrics ?? ['total' => 0, 'new_this_week' => 0, 'contact_rate' => 0, 'acceptance_rate' => 0, 'girls' => 0, 'boys' => 0, 'without_gender' => 0, 'with_gender' => 0];
 $totalApplicants = max(1, (int) ($metrics['total'] ?? 0));
 $courseMax = dashboardMax($applicationsByCourse ?? []);
@@ -22,6 +37,10 @@ $acceptanceRate = min(100, (float) ($metrics['acceptance_rate'] ?? 0));
 $girlsPercent = round(((int) ($metrics['girls'] ?? 0) / $totalApplicants) * 100);
 $boysPercent = round(((int) ($metrics['boys'] ?? 0) / $totalApplicants) * 100);
 $withoutGenderPercent = round(((int) ($metrics['without_gender'] ?? 0) / $totalApplicants) * 100);
+$averageTimesMap = [];
+foreach (($averageTimesByStatus ?? []) as $averageTime) {
+    $averageTimesMap[(string) ($averageTime['label'] ?? '')] = $averageTime;
+}
 ?>
 <section class="admission-dashboard admission-dashboard--executive">
     <div class="admission-dashboard__hero">
@@ -111,12 +130,24 @@ $withoutGenderPercent = round(((int) ($metrics['without_gender'] ?? 0) / $totalA
         </article>
 
         <article class="report-card">
-            <div class="report-card__head"><div><h3>Seguimiento por estado</h3><p>Estado actual de las postulaciones.</p></div></div>
+            <div class="report-card__head"><div><h3>Seguimiento por estado</h3><p>Estado actual y promedio de tiempo para avanzar.</p></div></div>
             <div class="status-funnel status-funnel--executive">
                 <?php foreach (($applicationsByStatus ?? []) as $row): ?>
-                    <?php $percent = ((int) $row['total'] / $statusTotal) * 100; ?>
+                    <?php
+                        $percent = ((int) $row['total'] / $statusTotal) * 100;
+                        $average = $averageTimesMap[(string) ($row['label'] ?? '')] ?? null;
+                        $hasAverage = $average !== null && (int) ($average['transitions'] ?? 0) > 0;
+                    ?>
                     <div class="status-funnel__row" style="--status-color: <?= h($row['color'] ?? '#071D7A') ?>">
-                        <div><strong><?= h($row['label']) ?></strong><small><?= h($row['total']) ?> · <?= h((string) round($percent)) ?>%</small></div>
+                        <div>
+                            <strong><?= h($row['label']) ?></strong>
+                            <small><?= h($row['total']) ?> · <?= h((string) round($percent)) ?>%</small>
+                            <?php if ($hasAverage): ?>
+                                <small class="status-average">Promedio etapa: <?= h(dashboardDuration((int) $average['average_stage_seconds'])) ?> · Acumulado: <?= h(dashboardDuration((int) $average['average_total_seconds'])) ?></small>
+                            <?php else: ?>
+                                <small class="status-average muted">Sin cambios suficientes para calcular el promedio</small>
+                            <?php endif; ?>
+                        </div>
                         <span><i style="width: <?= h((string) $percent) ?>%"></i></span>
                     </div>
                 <?php endforeach; ?>
