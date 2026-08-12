@@ -200,11 +200,21 @@ foreach (($averageTimesByStatus ?? []) as $averageTime) {
                                 <div class="process-timeline__connector"><span><?= h(dashboardDuration((int) $event['duration_seconds'])) ?></span></div>
                             <?php endif; ?>
                             <?php $eventAt = !empty($event['changed_at']) ? strtotime((string) $event['changed_at']) : false; ?>
-                            <div class="process-timeline__event" style="--event-color: <?= h($event['status_color'] ?? '#94a3b8') ?>">
+                            <div class="process-timeline__event <?= !empty($event['is_migrated']) ? 'is-migrated' : '' ?>" style="--event-color: <?= h($event['status_color'] ?? '#94a3b8') ?>">
                                 <i></i>
                                 <strong><?= h($event['status_name'] ?? 'Sin estado') ?></strong>
                                 <time><?= h($eventAt !== false ? date('d/m/Y H:i', $eventAt) : 'Sin fecha') ?></time>
                                 <?php if (!empty($event['changed_by_name'])): ?><small>Por <?= h($event['changed_by_name']) ?></small><?php endif; ?>
+                                <?php if (!empty($event['is_migrated'])): ?>
+                                    <small class="process-timeline__source"><?php
+                                        $sourceLabels = [
+                                            'activity_log' => 'Estado actual reconstruido desde actividad',
+                                            'activity_unknown' => 'Fecha real; estado antiguo no registrado',
+                                            'migration_snapshot' => 'Estado al iniciar seguimiento',
+                                        ];
+                                        echo h($sourceLabels[$event['source_type'] ?? ''] ?? 'Dato histórico reconstruido');
+                                    ?></small>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
                     </div>

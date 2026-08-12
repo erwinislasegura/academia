@@ -322,6 +322,7 @@ final class AdmissionApplication extends Model
              LEFT JOIN admission_status_history h
                     ON h.to_status_id = s.id
                    AND h.from_status_id IS NOT NULL
+                   AND h.is_migrated = 0
              WHERE s.is_active = 1
              GROUP BY s.id, s.name, s.color, s.sort_order
              ORDER BY s.sort_order ASC, s.id ASC"
@@ -331,6 +332,7 @@ final class AdmissionApplication extends Model
     public function applicationStatusTimelines(int $limit = 12): array
     {
         $this->ensureStatusHistoryTable();
+        $this->migrateExistingStatusHistory();
         $limit = max(1, min($limit, 50));
         $stmt = $this->db->prepare(
             "SELECT a.id, a.student_name, a.course, a.created_at AS received_at,
@@ -346,7 +348,7 @@ final class AdmissionApplication extends Model
         $applications = $stmt->fetchAll();
 
         $historyStmt = $this->db->prepare(
-            "SELECT h.id, h.changed_at, h.duration_seconds,
+            "SELECT h.id, h.changed_at, h.duration_seconds, h.is_migrated, h.source_type,
                     from_status.name AS from_status_name,
                     to_status.name AS status_name,
                     to_status.color AS status_color,
@@ -373,12 +375,14 @@ final class AdmissionApplication extends Model
             ]];
             foreach ($history as $change) {
                 $events[] = [
-                    'status_name' => $change['status_name'] ?? 'Sin estado',
+                    'status_name' => $change['status_name'] ?? (($change['source_type'] ?? '') === 'activity_unknown' ? 'Cambio histórico sin detalle' : 'Sin estado'),
                     'status_color' => $change['status_color'] ?? '#94A3B8',
                     'changed_at' => $change['changed_at'],
                     'duration_seconds' => (int) $change['duration_seconds'],
                     'changed_by_name' => $change['changed_by_name'] ?? null,
                     'is_reception' => false,
+                    'is_migrated' => (int) ($change['is_migrated'] ?? 0) === 1,
+                    'source_type' => $change['source_type'] ?? 'exact',
                 ];
             }
             $application['events'] = $events;
@@ -444,6 +448,8 @@ final class AdmissionApplication extends Model
                 changed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 duration_seconds INT UNSIGNED NOT NULL DEFAULT 0,
                 total_elapsed_seconds INT UNSIGNED NOT NULL DEFAULT 0,
+                is_migrated TINYINT(1) NOT NULL DEFAULT 0,
+                source_type VARCHAR(40) NOT NULL DEFAULT \'exact\',
                 INDEX idx_admission_history_application (application_id, changed_at),
                 INDEX idx_admission_history_transition (from_status_id, to_status_id),
                 CONSTRAINT fk_admission_history_application FOREIGN KEY (application_id) REFERENCES admission_applications(id) ON DELETE CASCADE,
@@ -452,7 +458,88 @@ final class AdmissionApplication extends Model
                 CONSTRAINT fk_admission_history_user FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE SET NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
         );
+        $this->ensureHistoryColumn('is_migrated', "TINYINT(1) NOT NULL DEFAULT 0 AFTER total_elapsed_seconds");
+        $this->ensureHistoryColumn('source_type', "VARCHAR(40) NOT NULL DEFAULT 'exact' AFTER is_migrated");
         $this->historyTableReady = true;
+    }
+
+    private function ensureHistoryColumn(string $column, string $definition): void
+    {
+        $stmt = $this->db->prepare(
+            "SELECT COUNT(*) FROM information_schema.columns
+             WHERE table_schema = DATABASE() AND table_name = 'admission_status_history' AND column_name = ?"
+        );
+        $stmt->execute([$column]);
+        if ((int) $stmt->fetchColumn() === 0) {
+            $this->db->exec("ALTER TABLE admission_status_history ADD COLUMN {$column} {$definition}");
+        }
+    }
+
+    private function migrateExistingStatusHistory(): void
+    {
+        $defaultStatusId = $this->defaultStatusId();
+        if ($defaultStatusId === null) {
+            return;
+        }
+
+        $applications = $this->db->query(
+            "SELECT a.id, a.status_id, a.created_at
+             FROM admission_applications a
+             WHERE a.status_id IS NOT NULL
+               AND a.status_id <> " . (int) $defaultStatusId . "
+               AND NOT EXISTS (
+                   SELECT 1 FROM admission_status_history h
+                   WHERE h.application_id = a.id AND h.from_status_id IS NOT NULL
+               )"
+        )->fetchAll();
+
+        $activityStmt = $this->db->prepare(
+            "SELECT user_id, created_at
+             FROM activity_logs
+             WHERE action = 'admission_status_changed'
+               AND description LIKE ?
+             ORDER BY created_at ASC, id ASC"
+        );
+
+        $insert = $this->db->prepare(
+            "INSERT INTO admission_status_history
+             (application_id, from_status_id, to_status_id, changed_by, changed_at,
+              duration_seconds, total_elapsed_seconds, is_migrated, source_type)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?)"
+        );
+
+        foreach ($applications as $application) {
+            $createdAt = (string) $application['created_at'];
+            $activityStmt->execute(['%#' . (int) $application['id'] . '.%']);
+            $activities = $activityStmt->fetchAll();
+            $previousAt = $createdAt;
+
+            if ($activities) {
+                $lastIndex = count($activities) - 1;
+                foreach ($activities as $index => $activity) {
+                    $evidenceAt = (string) $activity['created_at'];
+                    $stageElapsed = max(0, (strtotime($evidenceAt) ?: time()) - (strtotime($previousAt) ?: time()));
+                    $totalElapsed = max(0, (strtotime($evidenceAt) ?: time()) - (strtotime($createdAt) ?: time()));
+                    $isLast = $index === $lastIndex;
+                    $insert->execute([
+                        (int) $application['id'],
+                        $defaultStatusId,
+                        $isLast ? (int) $application['status_id'] : null,
+                        !empty($activity['user_id']) ? (int) $activity['user_id'] : null,
+                        $evidenceAt,
+                        $stageElapsed,
+                        $totalElapsed,
+                        $isLast ? 'activity_log' : 'activity_unknown',
+                    ]);
+                    $previousAt = $evidenceAt;
+                }
+                continue;
+            }
+
+            $snapshotAt = date('Y-m-d H:i:s');
+            $elapsed = max(0, (strtotime($snapshotAt) ?: time()) - (strtotime($createdAt) ?: time()));
+            $insert->execute([(int) $application['id'], $defaultStatusId, (int) $application['status_id'], null, $snapshotAt, $elapsed, $elapsed, 'migration_snapshot']);
+        }
     }
 
     private function insertInitialStatusHistory(int $applicationId, int $statusId, ?string $createdAt = null): void
@@ -496,6 +583,7 @@ final class AdmissionApplication extends Model
              FROM admission_status_history h
              LEFT JOIN admission_statuses previous_status ON previous_status.id = h.from_status_id
              WHERE h.application_id = ?
+               AND h.is_migrated = 0
              ORDER BY h.changed_at DESC, h.id DESC
              LIMIT 1'
         );

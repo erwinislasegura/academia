@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS admission_status_history (
   changed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   duration_seconds INT UNSIGNED NOT NULL DEFAULT 0,
   total_elapsed_seconds INT UNSIGNED NOT NULL DEFAULT 0,
+  is_migrated TINYINT(1) NOT NULL DEFAULT 0,
+  source_type VARCHAR(40) NOT NULL DEFAULT 'exact',
   INDEX idx_admission_history_application (application_id, changed_at),
   INDEX idx_admission_history_transition (from_status_id, to_status_id),
   CONSTRAINT fk_admission_history_application FOREIGN KEY (application_id) REFERENCES admission_applications(id) ON DELETE CASCADE,

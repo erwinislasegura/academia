@@ -1103,6 +1103,8 @@
 .process-timeline__event strong { color: #0f172a; font-size: 10px; }
 .process-timeline__event time { color: #475569; font-size: 9px; white-space: nowrap; }
 .process-timeline__event small { color: #64748b; font-size: 8px; }
+.process-timeline__event.is-migrated i { border-style: dashed; background: #f59e0b; box-shadow: 0 0 0 2px #fde68a; }
+.process-timeline__event .process-timeline__source { color: #b45309; font-weight: 800; }
 .process-timeline__connector { position: relative; flex: 1 0 74px; min-width: 74px; height: 2px; background: #93c5fd; }
 .process-timeline__connector span { position: absolute; left: 50%; bottom: 7px; padding: 2px 6px; border: 1px solid #dbeafe; border-radius: 999px; background: #fff; color: #1e40af; font-size: 8px; font-weight: 800; white-space: nowrap; transform: translateX(-50%); }
 .process-timeline__notice { grid-column: 2; margin: -7px 0 0; color: #b45309; font-size: 9px; }
