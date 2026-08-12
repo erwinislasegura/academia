@@ -2,8 +2,12 @@
 
 final class AdmissionApplication extends Model
 {
+    private bool $historyTableReady = false;
+
     public function create(array $data): int
     {
+        $this->ensureStatusHistoryTable();
+        $statusId = $this->defaultStatusId();
         $stmt = $this->db->prepare(
             'INSERT INTO admission_applications
             (guardian_first_names, guardian_last_names, guardian_email, guardian_phone, student_name, student_gender, student_birthdate, course, message, status_id, ip_address, user_agent)
@@ -19,12 +23,17 @@ final class AdmissionApplication extends Model
             'student_birthdate' => $data['fecha_nacimiento'],
             'course' => $data['curso'],
             'message' => $data['mensaje'] ?: null,
-            'status_id' => $this->defaultStatusId(),
+            'status_id' => $statusId,
             'ip_address' => $_SERVER['REMOTE_ADDR'] ?? null,
             'user_agent' => substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 255) ?: null,
         ]);
 
-        return (int) $this->db->lastInsertId();
+        $applicationId = (int) $this->db->lastInsertId();
+        if ($statusId !== null) {
+            $this->insertInitialStatusHistory($applicationId, $statusId);
+        }
+
+        return $applicationId;
     }
 
 
@@ -45,7 +54,8 @@ final class AdmissionApplication extends Model
 
     public function all(): array
     {
-        return $this->db->query(
+        $this->ensureStatusHistoryTable();
+        $applications = $this->db->query(
             'SELECT a.id, a.guardian_first_names, a.guardian_last_names, a.guardian_email, a.guardian_phone,
                     a.student_name, a.student_gender, a.student_birthdate,
                     TIMESTAMPDIFF(YEAR, a.student_birthdate, CURDATE()) AS student_age,
@@ -55,6 +65,13 @@ final class AdmissionApplication extends Model
              LEFT JOIN admission_statuses s ON s.id = a.status_id
              ORDER BY a.created_at DESC, a.id DESC'
         )->fetchAll();
+
+        foreach ($applications as &$application) {
+            $application = array_merge($application, $this->statusTiming((int) $application['id'], (string) $application['created_at']));
+        }
+        unset($application);
+
+        return $applications;
     }
 
 
@@ -103,19 +120,49 @@ final class AdmissionApplication extends Model
         return $stmt->rowCount() > 0;
     }
 
-    public function updateStatus(int $id, ?int $statusId): bool
+    public function updateStatus(int $id, ?int $statusId, ?int $changedBy = null): bool
     {
         if ($statusId !== null && !$this->statusExists($statusId)) {
             return false;
         }
 
-        if (!$this->exists($id)) {
+        $application = $this->find($id);
+        if (!$application) {
             return false;
         }
 
-        $stmt = $this->db->prepare('UPDATE admission_applications SET status_id = ? WHERE id = ?');
-        $stmt->execute([$statusId, $id]);
-        return true;
+        $currentStatusId = $application['status_id'] !== null ? (int) $application['status_id'] : null;
+        if ($currentStatusId === $statusId) {
+            return true;
+        }
+
+        $this->ensureStatusHistoryTable();
+        $this->db->beginTransaction();
+        try {
+            $this->backfillInitialStatusHistory($application);
+            $lastChangedAt = $this->lastStatusChangeAt($id) ?? (string) $application['created_at'];
+            $changedAt = date('Y-m-d H:i:s');
+            $stageSeconds = max(0, strtotime($changedAt) - strtotime($lastChangedAt));
+            $totalSeconds = max(0, strtotime($changedAt) - strtotime((string) $application['created_at']));
+
+            $stmt = $this->db->prepare('UPDATE admission_applications SET status_id = ? WHERE id = ?');
+            $stmt->execute([$statusId, $id]);
+
+            $history = $this->db->prepare(
+                'INSERT INTO admission_status_history
+                 (application_id, from_status_id, to_status_id, changed_by, changed_at, duration_seconds, total_elapsed_seconds)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)'
+            );
+            $history->execute([$id, $currentStatusId, $statusId, $changedBy, $changedAt, $stageSeconds, $totalSeconds]);
+            $this->db->commit();
+            return true;
+        } catch (Throwable $exception) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            error_log('[AdmissionApplication] No fue posible registrar el cambio de estado: ' . $exception->getMessage());
+            return false;
+        }
     }
 
     public function exists(int $id): bool
@@ -263,6 +310,24 @@ final class AdmissionApplication extends Model
         )->fetchAll();
     }
 
+    public function averageTimeByStatus(): array
+    {
+        $this->ensureStatusHistoryTable();
+        return $this->db->query(
+            "SELECT s.id, s.name AS label, s.color,
+                    COUNT(h.id) AS transitions,
+                    ROUND(AVG(h.duration_seconds)) AS average_stage_seconds,
+                    ROUND(AVG(h.total_elapsed_seconds)) AS average_total_seconds
+             FROM admission_statuses s
+             LEFT JOIN admission_status_history h
+                    ON h.to_status_id = s.id
+                   AND h.from_status_id IS NOT NULL
+             WHERE s.is_active = 1
+             GROUP BY s.id, s.name, s.color, s.sort_order
+             ORDER BY s.sort_order ASC, s.id ASC"
+        )->fetchAll();
+    }
+
 
 
     public function trendLastDays(int $days = 14): array
@@ -300,5 +365,92 @@ final class AdmissionApplication extends Model
         )->fetchColumn();
 
         return $statusId ? (int) $statusId : null;
+    }
+
+    private function ensureStatusHistoryTable(): void
+    {
+        if ($this->historyTableReady) {
+            return;
+        }
+
+        $this->db->exec(
+            'CREATE TABLE IF NOT EXISTS admission_status_history (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                application_id BIGINT UNSIGNED NOT NULL,
+                from_status_id BIGINT UNSIGNED NULL,
+                to_status_id BIGINT UNSIGNED NULL,
+                changed_by BIGINT UNSIGNED NULL,
+                changed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                duration_seconds INT UNSIGNED NOT NULL DEFAULT 0,
+                total_elapsed_seconds INT UNSIGNED NOT NULL DEFAULT 0,
+                INDEX idx_admission_history_application (application_id, changed_at),
+                INDEX idx_admission_history_transition (from_status_id, to_status_id),
+                CONSTRAINT fk_admission_history_application FOREIGN KEY (application_id) REFERENCES admission_applications(id) ON DELETE CASCADE,
+                CONSTRAINT fk_admission_history_from_status FOREIGN KEY (from_status_id) REFERENCES admission_statuses(id) ON DELETE SET NULL,
+                CONSTRAINT fk_admission_history_to_status FOREIGN KEY (to_status_id) REFERENCES admission_statuses(id) ON DELETE SET NULL,
+                CONSTRAINT fk_admission_history_user FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE SET NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+        );
+        $this->historyTableReady = true;
+    }
+
+    private function insertInitialStatusHistory(int $applicationId, int $statusId, ?string $createdAt = null): void
+    {
+        $stmt = $this->db->prepare(
+            'INSERT INTO admission_status_history
+             (application_id, from_status_id, to_status_id, changed_at, duration_seconds, total_elapsed_seconds)
+             VALUES (?, NULL, ?, ?, 0, 0)'
+        );
+        $stmt->execute([$applicationId, $statusId, $createdAt ?? date('Y-m-d H:i:s')]);
+    }
+
+    private function backfillInitialStatusHistory(array $application): void
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM admission_status_history WHERE application_id = ?');
+        $stmt->execute([(int) $application['id']]);
+        if ((int) $stmt->fetchColumn() === 0 && $application['status_id'] !== null) {
+            $this->insertInitialStatusHistory(
+                (int) $application['id'],
+                (int) $application['status_id'],
+                (string) $application['created_at']
+            );
+        }
+    }
+
+    private function lastStatusChangeAt(int $applicationId): ?string
+    {
+        $stmt = $this->db->prepare(
+            'SELECT changed_at FROM admission_status_history WHERE application_id = ? ORDER BY changed_at DESC, id DESC LIMIT 1'
+        );
+        $stmt->execute([$applicationId]);
+        $value = $stmt->fetchColumn();
+        return $value === false ? null : (string) $value;
+    }
+
+    private function statusTiming(int $applicationId, string $createdAt): array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT h.changed_at, h.duration_seconds, h.total_elapsed_seconds,
+                    previous_status.name AS previous_status_name
+             FROM admission_status_history h
+             LEFT JOIN admission_statuses previous_status ON previous_status.id = h.from_status_id
+             WHERE h.application_id = ?
+             ORDER BY h.changed_at DESC, h.id DESC
+             LIMIT 1'
+        );
+        $stmt->execute([$applicationId]);
+        $history = $stmt->fetch();
+
+        $now = time();
+        $createdTimestamp = strtotime($createdAt) ?: $now;
+        $lastChangedTimestamp = $history && !empty($history['changed_at']) ? (strtotime((string) $history['changed_at']) ?: $createdTimestamp) : $createdTimestamp;
+
+        return [
+            'previous_status_name' => $history['previous_status_name'] ?? null,
+            'last_transition_seconds' => $history && $history['previous_status_name'] !== null ? (int) $history['duration_seconds'] : null,
+            'total_to_current_seconds' => $history && $history['previous_status_name'] !== null ? (int) $history['total_elapsed_seconds'] : null,
+            'current_status_seconds' => max(0, $now - $lastChangedTimestamp),
+            'total_elapsed_seconds' => max(0, $now - $createdTimestamp),
+        ];
     }
 }

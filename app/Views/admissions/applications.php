@@ -11,6 +11,50 @@
     </div>
 </section>
 
+<?php
+    $formatProcessDuration = static function (?int $seconds): string {
+        if ($seconds === null) {
+            return 'Sin datos aún';
+        }
+        $seconds = max(0, $seconds);
+        $days = intdiv($seconds, 86400);
+        $hours = intdiv($seconds % 86400, 3600);
+        if ($days > 0) {
+            return $days . ' ' . ($days === 1 ? 'día' : 'días') . ($hours > 0 ? ' ' . $hours . ' h' : '');
+        }
+        if ($hours > 0) {
+            return $hours . ' ' . ($hours === 1 ? 'hora' : 'horas');
+        }
+        return 'Menos de 1 hora';
+    };
+?>
+
+<section class="panel-card compact-panel admission-averages">
+    <div class="section-head compact-head">
+        <div>
+            <h3>Promedio de avance por estado</h3>
+            <p>Tiempo promedio de cada transición y total acumulado desde que se recibió la postulación.</p>
+        </div>
+    </div>
+    <div class="admission-averages__grid">
+        <?php foreach (($averageTimesByStatus ?? []) as $average): ?>
+            <?php $hasAverage = (int) ($average['transitions'] ?? 0) > 0; ?>
+            <article class="admission-average" style="--status-color: <?= h($average['color'] ?? '#94a3b8') ?>">
+                <span class="status-dot"></span>
+                <div>
+                    <strong><?= h($average['label'] ?? 'Sin estado') ?></strong>
+                    <?php if ($hasAverage): ?>
+                        <small>Etapa: <?= h($formatProcessDuration((int) $average['average_stage_seconds'])) ?></small>
+                        <small>Total acumulado: <?= h($formatProcessDuration((int) $average['average_total_seconds'])) ?></small>
+                    <?php else: ?>
+                        <small>Sin transiciones registradas</small>
+                    <?php endif; ?>
+                </div>
+            </article>
+        <?php endforeach; ?>
+    </div>
+</section>
+
 <section class="panel-card compact-panel">
     <div class="section-head compact-head">
         <div>
@@ -33,6 +77,7 @@
                     <th>Edad</th>
                     <th>Curso</th>
                     <th>Estado</th>
+                    <th>Tiempo del proceso</th>
                     <th class="table-action-head">Acciones</th>
                 </tr>
             </thead>
@@ -79,6 +124,20 @@
                                 <noscript><button class="btn secondary">Guardar</button></noscript>
                             </form>
                         </td>
+                        <td>
+                            <?php
+                                $hasTransition = ($application['last_transition_seconds'] ?? null) !== null;
+                            ?>
+                            <div class="admission-time">
+                                <?php if ($hasTransition): ?>
+                                    <strong><?= h($formatProcessDuration((int) $application['total_to_current_seconds'])) ?> acumulados</strong>
+                                    <small>Etapa anterior: <?= h($formatProcessDuration((int) $application['last_transition_seconds'])) ?></small>
+                                <?php else: ?>
+                                    <strong><?= h($formatProcessDuration((int) $application['total_elapsed_seconds'])) ?> acumulados</strong>
+                                    <small>Desde la postulación</small>
+                                <?php endif; ?>
+                            </div>
+                        </td>
                         <td class="table-action-cell">
                             <details class="action-dropdown">
                                 <summary>Acciones</summary>
@@ -100,7 +159,7 @@
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$applications): ?>
-                    <tr><td colspan="10" class="empty">Aún no hay postulaciones registradas.</td></tr>
+                    <tr><td colspan="11" class="empty">Aún no hay postulaciones registradas.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>

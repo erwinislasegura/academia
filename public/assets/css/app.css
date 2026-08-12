@@ -2548,3 +2548,46 @@ button, input, select, textarea { font: inherit; }
 .action-dropdown__item.danger { color: #b4232f; }
 .action-dropdown__item.danger:hover { background: #fff1f2; color: #9f1239; }
 .action-dropdown__menu form { margin: 0; }
+/* Tiempo acumulado y duración por estado en postulaciones */
+.admission-time {
+    display: grid;
+    gap: 3px;
+    min-width: 132px;
+    line-height: 1.25;
+}
+
+.admission-time strong {
+    color: #0f172a;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.admission-time small {
+    color: #64748b;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.admission-averages { margin-bottom: 16px; }
+.admission-averages__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+}
+.admission-average {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    padding: 11px 12px;
+    border: 1px solid #e2e8f0;
+    border-left: 3px solid var(--status-color);
+    background: #f8fafc;
+}
+.admission-average .status-dot {
+    flex: 0 0 auto;
+    margin-top: 4px;
+    background: var(--status-color);
+}
+.admission-average div { display: grid; gap: 2px; }
+.admission-average strong { color: #0f172a; font-size: 12px; }
+.admission-average small { color: #64748b; font-size: 11px; }

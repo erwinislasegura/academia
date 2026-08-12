@@ -82,6 +82,7 @@ final class AdmissionController extends Controller
             'applications' => $model->all(),
             'statuses' => (new AdmissionStatus())->all(true),
             'totalApplications' => $model->count(),
+            'averageTimesByStatus' => $model->averageTimeByStatus(),
         ]);
     }
 
@@ -91,7 +92,7 @@ final class AdmissionController extends Controller
         $input = $this->input();
         $statusId = trim((string) ($input['status_id'] ?? '')) === '' ? null : (int) $input['status_id'];
 
-        $ok = (new AdmissionApplication())->updateStatus($id, $statusId);
+        $ok = (new AdmissionApplication())->updateStatus($id, $statusId, (int) Session::get('user_id'));
         (new User())->log((int) Session::get('user_id'), 'admission_status_changed', 'Actualizó el estado de la postulación #' . $id . '.');
         Session::flash($ok ? 'success' : 'error', $ok ? 'Estado de postulación actualizado.' : 'No fue posible actualizar el estado seleccionado.');
         $this->redirect('/admissions');
