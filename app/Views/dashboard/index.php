@@ -179,45 +179,42 @@ foreach (($averageTimesByStatus ?? []) as $averageTime) {
     <article class="report-card accepted-timeline-card">
         <div class="report-card__head">
             <div>
-                <h3>Línea de tiempo de postulaciones aceptadas</h3>
-                <p>Tiempo transcurrido entre la recepción de la postulación y el cambio de estado a Aceptada.</p>
+                <h3>Línea de tiempo del proceso de admisión</h3>
+                <p>Cada cambio de estado registrado, con su fecha real y el tiempo transcurrido desde el estado anterior.</p>
             </div>
-            <span class="accepted-timeline-card__count"><?= h((string) count($acceptedApplicationTimelines ?? [])) ?> registros</span>
+            <span class="accepted-timeline-card__count"><?= h((string) count($applicationStatusTimelines ?? [])) ?> postulaciones</span>
         </div>
         <div class="accepted-timeline-list">
-            <?php foreach (($acceptedApplicationTimelines ?? []) as $timeline): ?>
-                <?php
-                    $receivedAt = !empty($timeline['received_at']) ? strtotime((string) $timeline['received_at']) : false;
-                    $acceptedAt = !empty($timeline['accepted_at']) ? strtotime((string) $timeline['accepted_at']) : false;
-                    $hasAcceptedDate = $acceptedAt !== false;
-                ?>
+            <?php foreach (($applicationStatusTimelines ?? []) as $timeline): ?>
                 <div class="accepted-timeline-item">
                     <div class="accepted-timeline-person">
                         <span class="student-avatar"><?= h(substr((string) ($timeline['student_name'] ?? 'P'), 0, 1)) ?></span>
                         <div>
                             <strong><?= h($timeline['student_name'] ?? 'Postulante') ?></strong>
-                            <small><?= h($timeline['course'] ?? 'Sin curso') ?> · #<?= h($timeline['id'] ?? '') ?></small>
+                            <small><?= h($timeline['course'] ?? 'Sin curso') ?> · #<?= h($timeline['id'] ?? '') ?> · Estado actual: <?= h($timeline['current_status_name'] ?? 'Sin estado') ?></small>
                         </div>
                     </div>
-                    <div class="accepted-timeline-track <?= $hasAcceptedDate ? '' : 'is-pending-history' ?>">
-                        <div class="accepted-timeline-point">
-                            <i></i>
-                            <span>Recepción</span>
-                            <strong><?= h($receivedAt !== false ? date('d/m/Y H:i', $receivedAt) : 'Sin fecha') ?></strong>
-                        </div>
-                        <div class="accepted-timeline-elapsed">
-                            <span><?= $hasAcceptedDate ? h(dashboardDuration((int) $timeline['elapsed_seconds'])) : 'Historial no disponible' ?></span>
-                        </div>
-                        <div class="accepted-timeline-point accepted">
-                            <i></i>
-                            <span>Aceptada</span>
-                            <strong><?= h($hasAcceptedDate ? date('d/m/Y H:i', $acceptedAt) : 'Fecha no registrada') ?></strong>
-                        </div>
+                    <div class="process-timeline">
+                        <?php foreach (($timeline['events'] ?? []) as $eventIndex => $event): ?>
+                            <?php if ($eventIndex > 0): ?>
+                                <div class="process-timeline__connector"><span><?= h(dashboardDuration((int) $event['duration_seconds'])) ?></span></div>
+                            <?php endif; ?>
+                            <?php $eventAt = !empty($event['changed_at']) ? strtotime((string) $event['changed_at']) : false; ?>
+                            <div class="process-timeline__event" style="--event-color: <?= h($event['status_color'] ?? '#94a3b8') ?>">
+                                <i></i>
+                                <strong><?= h($event['status_name'] ?? 'Sin estado') ?></strong>
+                                <time><?= h($eventAt !== false ? date('d/m/Y H:i', $eventAt) : 'Sin fecha') ?></time>
+                                <?php if (!empty($event['changed_by_name'])): ?><small>Por <?= h($event['changed_by_name']) ?></small><?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
+                    <?php if (empty($timeline['has_real_history'])): ?>
+                        <p class="process-timeline__notice">No existen cambios históricos registrados para esta postulación. Solo se muestra su fecha real de recepción; no se asignan fechas estimadas.</p>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
-            <?php if (empty($acceptedApplicationTimelines)): ?>
-                <p class="muted-text accepted-timeline-empty">Todavía no existen postulaciones aceptadas para mostrar.</p>
+            <?php if (empty($applicationStatusTimelines)): ?>
+                <p class="muted-text accepted-timeline-empty">Todavía no existen postulaciones para mostrar.</p>
             <?php endif; ?>
         </div>
     </article>
