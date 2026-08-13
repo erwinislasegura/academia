@@ -77,7 +77,7 @@
                     <th>Edad</th>
                     <th>Curso</th>
                     <th>Estado</th>
-                    <th>Tiempo del proceso</th>
+                    <th>Línea de tiempo</th>
                     <th class="table-action-head">Acciones</th>
                 </tr>
             </thead>
@@ -125,17 +125,27 @@
                             </form>
                         </td>
                         <td>
-                            <?php
-                                $hasTransition = ($application['last_transition_seconds'] ?? null) !== null;
-                            ?>
-                            <div class="admission-time">
-                                <?php if ($hasTransition): ?>
-                                    <strong><?= h($formatProcessDuration((int) $application['total_to_current_seconds'])) ?> acumulados</strong>
-                                    <small>Etapa anterior: <?= h($formatProcessDuration((int) $application['last_transition_seconds'])) ?></small>
-                                <?php else: ?>
-                                    <strong><?= h($formatProcessDuration((int) $application['total_elapsed_seconds'])) ?> acumulados</strong>
-                                    <small>Desde la postulación</small>
-                                <?php endif; ?>
+                            <div class="admission-stage-timeline" aria-label="Etapas de la postulación #<?= h($application['id'] ?? '') ?>">
+                                <div class="admission-stage-timeline__track">
+                                    <?php foreach (($application['status_timeline'] ?? []) as $index => $event): ?>
+                                        <?php
+                                            $eventTimestamp = !empty($event['changed_at']) ? strtotime((string) $event['changed_at']) : false;
+                                            $eventDate = $eventTimestamp !== false ? date('d/m/Y H:i', $eventTimestamp) : 'Fecha no disponible';
+                                            $isHistorical = !empty($event['is_migrated']);
+                                        ?>
+                                        <?php if ($index > 0): ?>
+                                            <span class="admission-stage-timeline__duration">
+                                                <?= ($event['duration_seconds'] ?? null) !== null ? h($formatProcessDuration((int) $event['duration_seconds'])) : '—' ?>
+                                            </span>
+                                        <?php endif; ?>
+                                        <span class="admission-stage-timeline__step<?= $isHistorical ? ' is-historical' : '' ?>" title="<?= h(($event['status_name'] ?? 'Sin estado') . ' · ' . $eventDate) ?>">
+                                            <i style="--stage-color: <?= h($event['status_color'] ?? '#94a3b8') ?>"></i>
+                                            <b><?= h($event['status_name'] ?? 'Sin estado') ?></b>
+                                            <small><?= h($eventDate) ?></small>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
+                                <span class="admission-stage-timeline__total"><?= h($formatProcessDuration((int) $application['total_elapsed_seconds'])) ?> totales<?= !empty(array_filter($application['status_timeline'] ?? [], static fn(array $event): bool => !empty($event['is_migrated']))) ? ' · incluye historial reconstruido' : '' ?></span>
                             </div>
                         </td>
                         <td class="table-action-cell">

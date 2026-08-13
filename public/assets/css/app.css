@@ -2591,3 +2591,76 @@ button, input, select, textarea { font: inherit; }
 .admission-average div { display: grid; gap: 2px; }
 .admission-average strong { color: #0f172a; font-size: 12px; }
 .admission-average small { color: #64748b; font-size: 11px; }
+
+/* Línea de tiempo compacta por postulación */
+.admission-stage-timeline {
+    display: grid;
+    gap: 5px;
+    min-width: 330px;
+    max-width: 520px;
+}
+.admission-stage-timeline__track {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    overflow-x: auto;
+    padding: 2px 2px 5px;
+    scrollbar-width: thin;
+}
+.admission-stage-timeline__step {
+    position: relative;
+    display: grid;
+    flex: 0 0 auto;
+    grid-template-columns: 8px auto;
+    column-gap: 5px;
+    align-items: center;
+    max-width: 118px;
+}
+.admission-stage-timeline__step i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--stage-color);
+    box-shadow: 0 0 0 3px #e2e8f0;
+}
+.admission-stage-timeline__step b {
+    overflow: hidden;
+    color: #0f172a;
+    font-size: 10px;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.admission-stage-timeline__step small {
+    grid-column: 2;
+    color: #64748b;
+    font-size: 9px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+.admission-stage-timeline__step.is-historical i {
+    background: #f59e0b;
+    box-shadow: 0 0 0 3px #fef3c7;
+}
+.admission-stage-timeline__duration {
+    flex: 0 0 auto;
+    margin-top: 1px;
+    color: #64748b;
+    font-size: 8px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.admission-stage-timeline__duration::after {
+    content: '→';
+    margin-left: 4px;
+    color: #94a3b8;
+}
+.admission-stage-timeline__total {
+    color: #475569;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+@media (max-width: 760px) {
+    .admission-stage-timeline { min-width: 285px; max-width: 360px; }
+}

@@ -55,6 +55,7 @@ final class AdmissionApplication extends Model
     public function all(): array
     {
         $this->ensureStatusHistoryTable();
+        $this->migrateExistingStatusHistory();
         $applications = $this->db->query(
             'SELECT a.id, a.guardian_first_names, a.guardian_last_names, a.guardian_email, a.guardian_phone,
                     a.student_name, a.student_gender, a.student_birthdate,
@@ -68,6 +69,12 @@ final class AdmissionApplication extends Model
 
         foreach ($applications as &$application) {
             $application = array_merge($application, $this->statusTiming((int) $application['id'], (string) $application['created_at']));
+        }
+        unset($application);
+
+        $timelines = $this->statusTimelinesForApplications($applications);
+        foreach ($applications as &$application) {
+            $application['status_timeline'] = $timelines[(int) $application['id']] ?? [];
         }
         unset($application);
 
@@ -601,5 +608,69 @@ final class AdmissionApplication extends Model
             'current_status_seconds' => max(0, $now - $lastChangedTimestamp),
             'total_elapsed_seconds' => max(0, $now - $createdTimestamp),
         ];
+    }
+
+    private function statusTimelinesForApplications(array $applications): array
+    {
+        if (!$applications) {
+            return [];
+        }
+
+        $applicationIds = array_map(static fn(array $application): int => (int) $application['id'], $applications);
+        $placeholders = implode(',', array_fill(0, count($applicationIds), '?'));
+        $stmt = $this->db->prepare(
+            "SELECT h.application_id, h.changed_at, h.duration_seconds, h.is_migrated, h.source_type,
+                    target.name AS status_name, target.color AS status_color
+             FROM admission_status_history h
+             LEFT JOIN admission_statuses target ON target.id = h.to_status_id
+             WHERE h.application_id IN ({$placeholders})
+               AND h.from_status_id IS NOT NULL
+             ORDER BY h.application_id ASC, h.changed_at ASC, h.id ASC"
+        );
+        $stmt->execute($applicationIds);
+
+        $timelines = [];
+        foreach ($applications as $application) {
+            $id = (int) $application['id'];
+            $timelines[$id] = [[
+                'status_name' => 'Recibida',
+                'status_color' => '#2563eb',
+                'changed_at' => (string) $application['created_at'],
+                'duration_seconds' => null,
+                'is_migrated' => false,
+                'source_type' => 'reception',
+            ]];
+        }
+
+        foreach ($stmt->fetchAll() as $event) {
+            $id = (int) $event['application_id'];
+            $sourceType = (string) ($event['source_type'] ?? 'exact');
+            $timelines[$id][] = [
+                'status_name' => $event['status_name'] ?? ($sourceType === 'activity_unknown' ? 'Cambio histórico' : 'Sin estado'),
+                'status_color' => $event['status_color'] ?? '#94a3b8',
+                'changed_at' => $event['changed_at'] ?? null,
+                'duration_seconds' => isset($event['duration_seconds']) ? (int) $event['duration_seconds'] : null,
+                'is_migrated' => (int) ($event['is_migrated'] ?? 0) === 1,
+                'source_type' => $sourceType,
+            ];
+        }
+
+        foreach ($applications as $application) {
+            $id = (int) $application['id'];
+            $currentName = (string) ($application['status_name'] ?? 'Sin estado');
+            $lastEvent = end($timelines[$id]);
+            if (($lastEvent['status_name'] ?? '') !== $currentName) {
+                $timelines[$id][] = [
+                    'status_name' => $currentName,
+                    'status_color' => $application['status_color'] ?? '#94a3b8',
+                    'changed_at' => null,
+                    'duration_seconds' => null,
+                    'is_migrated' => true,
+                    'source_type' => 'current_snapshot',
+                ];
+            }
+        }
+
+        return $timelines;
     }
 }
