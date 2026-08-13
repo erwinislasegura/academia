@@ -2596,11 +2596,9 @@ button, input, select, textarea { font: inherit; }
 .admissions-table .followup-column { min-width: 230px; width: 230px; }
 .admission-progress { width: 210px; }
 .admission-progress summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    padding: 8px 9px;
+    display: grid;
+    gap: 7px;
+    padding: 9px 10px 7px;
     border: 1px solid #e2e8f0;
     border-radius: 9px;
     background: #fff;
@@ -2628,7 +2626,15 @@ button, input, select, textarea { font: inherit; }
 .admission-progress__event > span { display: grid; gap: 2px; min-width: 0; }
 .admission-progress__current b { color: #0f172a; font-size: 10px; white-space: nowrap; }
 .admission-progress__current small { color: #64748b; font-size: 9px; white-space: nowrap; }
-.admission-progress__action { display: grid; flex: 0 0 auto; gap: 2px; text-align: right; }
+.admission-progress__action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 6px;
+    border-top: 1px solid #eef2f7;
+    text-align: left;
+}
 .admission-progress__action small { color: #64748b; font-size: 8px; }
 .admission-progress__action b { color: #2563eb; font-size: 9px; white-space: nowrap; }
 .admission-progress__action b::after { content: ' ▾'; }
@@ -2673,7 +2679,104 @@ button, input, select, textarea { font: inherit; }
 }
 .admission-progress__event.is-historical > i { background: #f59e0b; box-shadow: 0 0 0 3px #fef3c7; }
 
+/* Tabla de postulaciones: información agrupada y legible */
+.admissions-table--redesigned {
+    min-width: 1040px;
+    table-layout: fixed;
+}
+.admissions-table--redesigned th,
+.admissions-table--redesigned td {
+    padding: 11px 12px;
+    vertical-align: middle;
+}
+.admissions-table--redesigned th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 10px;
+    letter-spacing: .07em;
+}
+.admissions-table--redesigned tbody tr { transition: background-color .18s ease; }
+.admissions-table--redesigned tbody tr:hover { background: #f8fbff; }
+.admissions-table--redesigned .followup-column { width: 230px; }
+.admissions-table--redesigned .application-column { width: 105px; }
+.admissions-table--redesigned .student-column { width: 225px; }
+.admissions-table--redesigned .guardian-column { width: 185px; }
+.admissions-table--redesigned .contact-column { width: 205px; }
+.admissions-table--redesigned .status-column { width: 165px; }
+.admissions-table--redesigned .table-action-cell,
+.admissions-table--redesigned .table-action-head { width: 95px; }
+.application-id {
+    display: block;
+    width: max-content;
+    margin-top: 5px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: #eef2ff;
+    color: #3730a3;
+    font-size: 9px;
+    font-weight: 800;
+}
+.student-column > strong { display: block; color: #0f172a; font-size: 12px; line-height: 1.3; white-space: normal; }
+.student-column .student-meta { display: block; margin-top: 4px; color: #64748b; font-size: 9px; }
+.student-column .badge { display: block; width: max-content; margin-top: 5px; font-size: 9px; }
+.guardian-column,
+.contact-column { line-height: 1.35; }
+.guardian-column .table-primary-data,
+.contact-column .table-primary-data {
+    display: block;
+    overflow-wrap: anywhere;
+    color: #334155;
+    font-size: 10px;
+    white-space: normal;
+}
+.guardian-column small,
+.contact-column > span:not(.table-primary-data) { color: #64748b; font-size: 9px; }
+.status-column .status-form { min-width: 145px; }
+.status-column select { max-width: 125px; }
+
 @media (max-width: 760px) {
-    .admissions-table .followup-column { min-width: 220px; width: 220px; }
-    .admission-progress { width: 202px; }
+    .table-responsive:has(.admissions-table--redesigned) { overflow: visible; }
+    .admissions-table--redesigned,
+    .admissions-table--redesigned tbody { display: block; min-width: 0; width: 100%; }
+    .admissions-table--redesigned thead { display: none; }
+    .admissions-table--redesigned tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        margin-bottom: 12px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 5px 18px rgba(15, 23, 42, .06);
+    }
+    .admissions-table--redesigned td,
+    .admissions-table--redesigned .followup-column,
+    .admissions-table--redesigned .application-column,
+    .admissions-table--redesigned .student-column,
+    .admissions-table--redesigned .guardian-column,
+    .admissions-table--redesigned .contact-column,
+    .admissions-table--redesigned .status-column,
+    .admissions-table--redesigned .table-action-cell {
+        display: grid;
+        width: auto;
+        min-width: 0;
+        padding: 12px;
+        border: 0;
+        border-bottom: 1px solid #eef2f7;
+    }
+    .admissions-table--redesigned td::before {
+        content: attr(data-label);
+        margin-bottom: 6px;
+        color: #94a3b8;
+        font-size: 8px;
+        font-weight: 800;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+    }
+    .admissions-table--redesigned .followup-column,
+    .admissions-table--redesigned .student-column,
+    .admissions-table--redesigned .contact-column { grid-column: 1 / -1; }
+    .admission-progress { width: 100%; }
+    .admissions-table--redesigned .table-action-cell { align-content: start; }
 }

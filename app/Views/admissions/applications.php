@@ -80,18 +80,14 @@
     </div>
 
     <div class="table-responsive">
-        <table class="modern-table compact-table admissions-table">
+        <table class="modern-table compact-table admissions-table admissions-table--redesigned">
             <thead>
                 <tr>
                     <th class="followup-column">Seguimiento</th>
-                    <th>Fecha</th>
+                    <th>Postulación</th>
+                    <th>Estudiante</th>
                     <th>Apoderado</th>
                     <th>Contacto</th>
-                    <th>Estudiante</th>
-                    <th>Postulante</th>
-                    <th>Nacimiento</th>
-                    <th>Edad</th>
-                    <th>Curso</th>
                     <th>Estado</th>
                     <th class="table-action-head">Acciones</th>
                 </tr>
@@ -108,7 +104,7 @@
                         $createdTime = $createdTimestamp !== false ? date('H:i', $createdTimestamp) : '';
                     ?>
                     <tr>
-                        <td class="followup-column">
+                        <td class="followup-column" data-label="Seguimiento">
                             <?php
                                 $timelineEvents = $application['status_timeline'] ?? [];
                                 $stageCount = count($timelineEvents);
@@ -148,26 +144,30 @@
                                 </div>
                             </details>
                         </td>
-                        <td>
+                        <td class="application-column" data-label="Postulación">
                             <time class="date-stack" datetime="<?= h($createdAt) ?>">
                                 <span><?= h($createdDate) ?></span>
                                 <?php if ($createdTime !== ''): ?><small><?= h($createdTime) ?> hrs</small><?php endif; ?>
                             </time>
+                            <span class="application-id">#<?= h($application['id'] ?? '') ?></span>
                         </td>
-                        <td>
+                        <td class="student-column" data-label="Estudiante">
+                            <strong><?= h($application['student_name'] ?? '') ?></strong>
+                            <span class="student-meta">
+                                <?= h(($application['student_gender'] ?? '') === 'nina' ? 'Niña' : (($application['student_gender'] ?? '') === 'nino' ? 'Niño' : 'Sin dato')) ?>
+                                · <?= h(($application['student_age'] ?? null) !== null ? $application['student_age'] . ' años' : 'Edad no registrada') ?>
+                            </span>
+                            <span class="badge ok"><?= h($application['course'] ?? '') ?></span>
+                        </td>
+                        <td class="guardian-column" data-label="Apoderado">
                             <span class="table-primary-data"><?= h($guardian) ?></span>
-                            <span>#<?= h($application['id'] ?? '') ?></span>
+                            <small>Responsable de la postulación</small>
                         </td>
-                        <td>
+                        <td class="contact-column" data-label="Contacto">
                             <span class="table-primary-data"><?= h($application['guardian_email'] ?? '') ?></span>
                             <span><?= h($application['guardian_phone'] ?? '') ?></span>
                         </td>
-                        <td><strong><?= h($application['student_name'] ?? '') ?></strong></td>
-                        <td><span class="gender-pill"><?= h(($application['student_gender'] ?? '') === 'nina' ? 'Niña' : (($application['student_gender'] ?? '') === 'nino' ? 'Niño' : 'Sin dato')) ?></span></td>
-                        <td><?= h(!empty($application['student_birthdate']) ? date('d/m/Y', strtotime((string) $application['student_birthdate'])) : 'Sin dato') ?></td>
-                        <td><strong><?= h(($application['student_age'] ?? null) !== null ? $application['student_age'] . ' años' : 'Sin edad') ?></strong></td>
-                        <td><span class="badge ok"><?= h($application['course'] ?? '') ?></span></td>
-                        <td>
+                        <td class="status-column" data-label="Estado">
                             <form class="status-form" method="post" action="<?= App::url('/admissions/status/' . h($application['id'])) ?>">
                                 <span class="status-dot" style="--status-color: <?= h($application['status_color'] ?? '#94a3b8') ?>"></span>
                                 <select name="status_id" aria-label="Estado de la postulación #<?= h($application['id'] ?? '') ?>" onchange="this.form.submit()">
@@ -179,7 +179,7 @@
                                 <noscript><button class="btn secondary">Guardar</button></noscript>
                             </form>
                         </td>
-                        <td class="table-action-cell">
+                        <td class="table-action-cell" data-label="Acciones">
                             <details class="action-dropdown">
                                 <summary>Acciones</summary>
                                 <div class="action-dropdown__menu">
@@ -200,7 +200,7 @@
                     </tr>
                 <?php endforeach; ?>
                 <?php if (!$applications): ?>
-                    <tr><td colspan="11" class="empty">Aún no hay postulaciones registradas.</td></tr>
+                    <tr><td colspan="7" class="empty">Aún no hay postulaciones registradas.</td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
