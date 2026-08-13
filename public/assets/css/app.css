@@ -2592,35 +2592,31 @@ button, input, select, textarea { font: inherit; }
 .admission-average strong { color: #0f172a; font-size: 12px; }
 .admission-average small { color: #64748b; font-size: 11px; }
 
-/* Línea de tiempo compacta por postulación */
-.admission-stage-timeline {
-    display: grid;
-    gap: 7px;
-    min-width: 520px;
-    width: max-content;
-}
-.admissions-table .timeline-column { min-width: 540px; width: 540px; }
-.admission-stage-timeline__track {
+/* Seguimiento compacto y desplegable por postulación */
+.admissions-table .followup-column { min-width: 230px; width: 230px; }
+.admission-progress { width: 210px; }
+.admission-progress summary {
     display: flex;
     align-items: center;
-    gap: 0;
-    overflow: visible;
-    padding: 3px 3px 7px;
-    scrollbar-width: thin;
-}
-.admission-stage-timeline__step {
-    display: flex;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: 7px;
-    min-width: max-content;
-    padding: 7px 9px;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 9px;
     border: 1px solid #e2e8f0;
     border-radius: 9px;
     background: #fff;
     box-shadow: 0 2px 7px rgba(15, 23, 42, .05);
+    cursor: pointer;
+    list-style: none;
 }
-.admission-stage-timeline__dot {
+.admission-progress summary::-webkit-details-marker { display: none; }
+.admission-progress[open] summary {
+    border-color: #bfdbfe;
+    border-radius: 9px 9px 0 0;
+    background: #f8fbff;
+}
+.admission-progress__current { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.admission-progress__current > i,
+.admission-progress__event > i {
     flex: 0 0 auto;
     width: 9px;
     height: 9px;
@@ -2628,44 +2624,46 @@ button, input, select, textarea { font: inherit; }
     background: var(--stage-color);
     box-shadow: 0 0 0 3px #e2e8f0;
 }
-.admission-stage-timeline__content {
+.admission-progress__current > span,
+.admission-progress__event > span { display: grid; gap: 2px; min-width: 0; }
+.admission-progress__current b { color: #0f172a; font-size: 10px; white-space: nowrap; }
+.admission-progress__current small { color: #64748b; font-size: 9px; white-space: nowrap; }
+.admission-progress__action { display: grid; flex: 0 0 auto; gap: 2px; text-align: right; }
+.admission-progress__action small { color: #64748b; font-size: 8px; }
+.admission-progress__action b { color: #2563eb; font-size: 9px; white-space: nowrap; }
+.admission-progress__action b::after { content: ' ▾'; }
+.admission-progress[open] .admission-progress__action b::after { content: ' ▴'; }
+.admission-progress__history {
     display: grid;
-    gap: 2px;
-    min-width: max-content;
+    gap: 0;
+    padding: 8px 10px;
+    border: 1px solid #bfdbfe;
+    border-top: 0;
+    border-radius: 0 0 9px 9px;
+    background: #fff;
 }
-.admission-stage-timeline__step b {
-    color: #0f172a;
-    font-size: 10px;
-    line-height: 1.2;
-    white-space: nowrap;
-}
-.admission-stage-timeline__step small {
-    color: #64748b;
-    font-size: 9px;
-    line-height: 1.2;
-    white-space: nowrap;
-}
-.admission-stage-timeline__step.is-historical .admission-stage-timeline__dot {
-    background: #f59e0b;
-    box-shadow: 0 0 0 3px #fef3c7;
-}
-.admission-stage-timeline__step.is-historical {
-    border-color: #fde68a;
-    background: #fffbeb;
-}
-.admission-stage-timeline__duration {
+.admission-progress__event {
     position: relative;
     display: grid;
-    flex: 0 0 54px;
-    place-items: center;
-    align-self: stretch;
+    grid-template-columns: 9px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    min-height: 34px;
 }
-.admission-stage-timeline__duration em {
-    position: relative;
-    z-index: 2;
-    align-self: start;
-    padding: 1px 5px;
-    border-radius: 10px;
+.admission-progress__event:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 22px;
+    bottom: -6px;
+    left: 4px;
+    width: 1px;
+    background: #cbd5e1;
+}
+.admission-progress__event b { color: #0f172a; font-size: 9px; white-space: normal; }
+.admission-progress__event small { color: #64748b; font-size: 8px; white-space: nowrap; }
+.admission-progress__event em {
+    padding: 2px 5px;
+    border-radius: 8px;
     background: #eef2ff;
     color: #475569;
     font-size: 8px;
@@ -2673,37 +2671,9 @@ button, input, select, textarea { font: inherit; }
     font-weight: 800;
     white-space: nowrap;
 }
-.admission-stage-timeline__duration i {
-    position: absolute;
-    top: 50%;
-    right: 5px;
-    left: 5px;
-    height: 1px;
-    background: #cbd5e1;
-}
-.admission-stage-timeline__duration i::after {
-    content: '';
-    position: absolute;
-    top: -3px;
-    right: -1px;
-    border-width: 3px 0 3px 5px;
-    border-style: solid;
-    border-color: transparent transparent transparent #94a3b8;
-}
-.admission-stage-timeline__total {
-    width: max-content;
-    padding: 3px 8px;
-    border-radius: 6px;
-    background: #f1f5f9;
-    color: #475569;
-    font-size: 9px;
-}
-.admission-stage-timeline__total b {
-    color: #0f172a;
-    font-size: 10px;
-}
+.admission-progress__event.is-historical > i { background: #f59e0b; box-shadow: 0 0 0 3px #fef3c7; }
 
 @media (max-width: 760px) {
-    .admission-stage-timeline { min-width: 460px; }
-    .admissions-table .timeline-column { min-width: 480px; width: 480px; }
+    .admissions-table .followup-column { min-width: 220px; width: 220px; }
+    .admission-progress { width: 202px; }
 }
