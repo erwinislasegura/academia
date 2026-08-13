@@ -2595,72 +2595,115 @@ button, input, select, textarea { font: inherit; }
 /* Línea de tiempo compacta por postulación */
 .admission-stage-timeline {
     display: grid;
-    gap: 5px;
-    min-width: 330px;
-    max-width: 520px;
+    gap: 7px;
+    min-width: 345px;
+    max-width: 560px;
 }
 .admission-stage-timeline__track {
     display: flex;
-    align-items: flex-start;
-    gap: 5px;
+    align-items: center;
+    gap: 0;
     overflow-x: auto;
-    padding: 2px 2px 5px;
+    padding: 3px 3px 7px;
     scrollbar-width: thin;
 }
 .admission-stage-timeline__step {
-    position: relative;
-    display: grid;
+    display: flex;
     flex: 0 0 auto;
-    grid-template-columns: 8px auto;
-    column-gap: 5px;
     align-items: center;
-    max-width: 118px;
+    gap: 7px;
+    min-width: 100px;
+    padding: 7px 9px;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    background: #fff;
+    box-shadow: 0 2px 7px rgba(15, 23, 42, .05);
 }
-.admission-stage-timeline__step i {
-    width: 8px;
-    height: 8px;
+.admission-stage-timeline__dot {
+    flex: 0 0 auto;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
     background: var(--stage-color);
     box-shadow: 0 0 0 3px #e2e8f0;
+}
+.admission-stage-timeline__content {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
 }
 .admission-stage-timeline__step b {
     overflow: hidden;
     color: #0f172a;
     font-size: 10px;
-    line-height: 1.15;
+    line-height: 1.2;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 .admission-stage-timeline__step small {
-    grid-column: 2;
     color: #64748b;
     font-size: 9px;
     line-height: 1.2;
     white-space: nowrap;
 }
-.admission-stage-timeline__step.is-historical i {
+.admission-stage-timeline__step.is-historical .admission-stage-timeline__dot {
     background: #f59e0b;
     box-shadow: 0 0 0 3px #fef3c7;
 }
+.admission-stage-timeline__step.is-historical {
+    border-color: #fde68a;
+    background: #fffbeb;
+}
 .admission-stage-timeline__duration {
-    flex: 0 0 auto;
-    margin-top: 1px;
-    color: #64748b;
+    position: relative;
+    display: grid;
+    flex: 0 0 54px;
+    place-items: center;
+    align-self: stretch;
+}
+.admission-stage-timeline__duration em {
+    position: relative;
+    z-index: 2;
+    align-self: start;
+    padding: 1px 5px;
+    border-radius: 10px;
+    background: #eef2ff;
+    color: #475569;
     font-size: 8px;
-    font-weight: 700;
+    font-style: normal;
+    font-weight: 800;
     white-space: nowrap;
 }
-.admission-stage-timeline__duration::after {
-    content: '→';
-    margin-left: 4px;
-    color: #94a3b8;
+.admission-stage-timeline__duration i {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    left: 5px;
+    height: 1px;
+    background: #cbd5e1;
+}
+.admission-stage-timeline__duration i::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -1px;
+    border-width: 3px 0 3px 5px;
+    border-style: solid;
+    border-color: transparent transparent transparent #94a3b8;
 }
 .admission-stage-timeline__total {
+    width: max-content;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: #f1f5f9;
     color: #475569;
     font-size: 9px;
-    font-weight: 700;
+}
+.admission-stage-timeline__total b {
+    color: #0f172a;
+    font-size: 10px;
 }
 
 @media (max-width: 760px) {
-    .admission-stage-timeline { min-width: 285px; max-width: 360px; }
+    .admission-stage-timeline { min-width: 310px; max-width: 380px; }
 }

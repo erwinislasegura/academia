@@ -27,6 +27,21 @@
         }
         return 'Menos de 1 hora';
     };
+    $formatCompactDuration = static function (?int $seconds): string {
+        if ($seconds === null) {
+            return 'Sin dato';
+        }
+        $seconds = max(0, $seconds);
+        $days = intdiv($seconds, 86400);
+        $hours = intdiv($seconds % 86400, 3600);
+        if ($days > 0) {
+            return $days . ' d' . ($hours > 0 ? ' ' . $hours . ' h' : '');
+        }
+        if ($hours > 0) {
+            return $hours . ' h';
+        }
+        return '< 1 h';
+    };
 ?>
 
 <section class="panel-card compact-panel admission-averages">
@@ -130,22 +145,26 @@
                                     <?php foreach (($application['status_timeline'] ?? []) as $index => $event): ?>
                                         <?php
                                             $eventTimestamp = !empty($event['changed_at']) ? strtotime((string) $event['changed_at']) : false;
-                                            $eventDate = $eventTimestamp !== false ? date('d/m/Y H:i', $eventTimestamp) : 'Fecha no disponible';
+                                            $eventDate = $eventTimestamp !== false ? date('d/m/y', $eventTimestamp) : 'Sin fecha';
+                                            $eventTime = $eventTimestamp !== false ? date('H:i', $eventTimestamp) : '';
                                             $isHistorical = !empty($event['is_migrated']);
                                         ?>
                                         <?php if ($index > 0): ?>
                                             <span class="admission-stage-timeline__duration">
-                                                <?= ($event['duration_seconds'] ?? null) !== null ? h($formatProcessDuration((int) $event['duration_seconds'])) : '—' ?>
+                                                <em><?= h($formatCompactDuration(($event['duration_seconds'] ?? null) !== null ? (int) $event['duration_seconds'] : null)) ?></em>
+                                                <i></i>
                                             </span>
                                         <?php endif; ?>
-                                        <span class="admission-stage-timeline__step<?= $isHistorical ? ' is-historical' : '' ?>" title="<?= h(($event['status_name'] ?? 'Sin estado') . ' · ' . $eventDate) ?>">
-                                            <i style="--stage-color: <?= h($event['status_color'] ?? '#94a3b8') ?>"></i>
-                                            <b><?= h($event['status_name'] ?? 'Sin estado') ?></b>
-                                            <small><?= h($eventDate) ?></small>
+                                        <span class="admission-stage-timeline__step<?= $isHistorical ? ' is-historical' : '' ?>" title="<?= h(($event['status_name'] ?? 'Sin estado') . ' · ' . $eventDate . ($eventTime !== '' ? ' ' . $eventTime : '')) ?>">
+                                            <i class="admission-stage-timeline__dot" style="--stage-color: <?= h($event['status_color'] ?? '#94a3b8') ?>"></i>
+                                            <span class="admission-stage-timeline__content">
+                                                <b><?= h($event['status_name'] ?? 'Sin estado') ?></b>
+                                                <small><?= h($eventDate) ?><?= $eventTime !== '' ? ' · ' . h($eventTime) : '' ?></small>
+                                            </span>
                                         </span>
                                     <?php endforeach; ?>
                                 </div>
-                                <span class="admission-stage-timeline__total"><?= h($formatProcessDuration((int) $application['total_elapsed_seconds'])) ?> totales<?= !empty(array_filter($application['status_timeline'] ?? [], static fn(array $event): bool => !empty($event['is_migrated']))) ? ' · incluye historial reconstruido' : '' ?></span>
+                                <span class="admission-stage-timeline__total"><b><?= h($formatProcessDuration((int) $application['total_elapsed_seconds'])) ?></b> en proceso<?= !empty(array_filter($application['status_timeline'] ?? [], static fn(array $event): bool => !empty($event['is_migrated']))) ? ' · historial reconstruido' : '' ?></span>
                             </div>
                         </td>
                         <td class="table-action-cell">
