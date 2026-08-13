@@ -2681,8 +2681,10 @@ button, input, select, textarea { font: inherit; }
 
 /* Tabla de postulaciones: información agrupada y legible */
 .admissions-table--redesigned {
-    min-width: 1040px;
+    min-width: 980px;
     table-layout: fixed;
+    text-rendering: geometricPrecision;
+    -webkit-font-smoothing: auto;
 }
 .admissions-table--redesigned th,
 .admissions-table--redesigned td {
@@ -2697,14 +2699,20 @@ button, input, select, textarea { font: inherit; }
 }
 .admissions-table--redesigned tbody tr { transition: background-color .18s ease; }
 .admissions-table--redesigned tbody tr:hover { background: #f8fbff; }
-.admissions-table--redesigned .followup-column { width: 230px; }
-.admissions-table--redesigned .application-column { width: 105px; }
-.admissions-table--redesigned .student-column { width: 225px; }
-.admissions-table--redesigned .guardian-column { width: 185px; }
-.admissions-table--redesigned .contact-column { width: 205px; }
-.admissions-table--redesigned .status-column { width: 165px; }
+.admissions-table--redesigned .followup-column { width: 205px; min-width: 205px; }
+.admissions-table--redesigned .application-column { width: 90px; }
+.admissions-table--redesigned .student-column { width: 190px; }
+.admissions-table--redesigned .guardian-column { width: 150px; }
+.admissions-table--redesigned .contact-column { width: 175px; }
+.admissions-table--redesigned .status-column { width: 125px; }
 .admissions-table--redesigned .table-action-cell,
-.admissions-table--redesigned .table-action-head { width: 95px; }
+.admissions-table--redesigned .table-action-head { width: 72px; }
+.admissions-table--redesigned .admission-progress { width: 185px; }
+.admissions-table--redesigned .admission-progress span { margin-top: 0; }
+.admissions-table--redesigned .admission-progress__current { display: flex; }
+.admissions-table--redesigned .admission-progress__current > span,
+.admissions-table--redesigned .admission-progress__event > span { display: grid; }
+.admissions-table--redesigned .admission-progress__action { display: flex; }
 .application-id {
     display: block;
     width: max-content;
@@ -2717,8 +2725,8 @@ button, input, select, textarea { font: inherit; }
     font-weight: 800;
 }
 .student-column > strong { display: block; color: #0f172a; font-size: 12px; line-height: 1.3; white-space: normal; }
-.student-column .student-meta { display: block; margin-top: 4px; color: #64748b; font-size: 9px; }
-.student-column .badge { display: block; width: max-content; margin-top: 5px; font-size: 9px; }
+.student-column .student-meta { display: block; margin-top: 4px; color: #475569; font-size: 10px; font-weight: 500; }
+.student-column .badge { display: block; width: max-content; margin-top: 5px; font-size: 10px; }
 .guardian-column,
 .contact-column { line-height: 1.35; }
 .guardian-column .table-primary-data,
@@ -2726,13 +2734,50 @@ button, input, select, textarea { font: inherit; }
     display: block;
     overflow-wrap: anywhere;
     color: #334155;
-    font-size: 10px;
+    font-size: 11px;
+    font-weight: 500;
     white-space: normal;
 }
 .guardian-column small,
-.contact-column > span:not(.table-primary-data) { color: #64748b; font-size: 9px; }
-.status-column .status-form { min-width: 145px; }
-.status-column select { max-width: 125px; }
+.contact-column > span:not(.table-primary-data) { color: #475569; font-size: 10px; font-weight: 500; }
+.admissions-table--redesigned .status-column .status-form {
+    gap: 5px;
+    min-width: 0;
+    width: 110px;
+}
+.admissions-table--redesigned .status-column .status-dot {
+    width: 8px;
+    height: 8px;
+    margin-right: 2px;
+    box-shadow: 0 0 0 3px rgba(148, 163, 184, .14);
+}
+.admissions-table--redesigned .status-column select {
+    width: 96px;
+    min-width: 96px;
+    max-width: 96px;
+    padding: 6px 7px;
+    border-radius: 8px;
+    font-size: 10px;
+    line-height: 1.2;
+}
+.admissions-table--redesigned .action-dropdown summary {
+    min-width: 55px;
+    padding: 7px 22px 7px 9px;
+    border-radius: 8px;
+    font-size: 10px;
+    box-shadow: none;
+}
+.admissions-table--redesigned .action-dropdown summary::after {
+    right: 8px;
+    font-size: 13px;
+}
+.admissions-table--redesigned .action-dropdown__menu {
+    right: 0;
+    left: auto;
+    min-width: 170px;
+    border-radius: 10px;
+}
+.admissions-table--redesigned .table-action-cell { overflow: visible; text-align: right; }
 
 @media (max-width: 760px) {
     .table-responsive:has(.admissions-table--redesigned) { overflow: visible; }

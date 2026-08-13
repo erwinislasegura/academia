@@ -181,7 +181,7 @@
                         </td>
                         <td class="table-action-cell" data-label="Acciones">
                             <details class="action-dropdown">
-                                <summary>Acciones</summary>
+                                <summary>Más</summary>
                                 <div class="action-dropdown__menu">
                                     <button
                                         class="action-dropdown__item message-modal-trigger"
